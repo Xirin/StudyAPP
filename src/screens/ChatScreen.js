@@ -1,7 +1,7 @@
 import React, { Component, useState, useEffect } from 'react';
 
 import {
-    LogBox
+    LogBox,
 } from 'react-native';
 
 import { GiftedChat } from 'react-native-gifted-chat';
@@ -16,61 +16,54 @@ export default class ChatScreen extends Component {
         this.state = {
             currentUserName: this.props.route.params.currentUserName,
             studyGroupName: this.props.route.params.studyGroupName,
-            messages: [''],
-            setMessages: ['']
+            currentUserID: this.props.route.params.currentUserID,
+            messages: [{
+                _id: '',
+                text: '',
+                createdAt: '',
+                user: {
+                    _id: '',
+                    name: '',
+                }
+            },],
         }
     }
 
-    componentDidMount = () => { 
-        
-        var messages = [];
-        var firebaseData = [];
-        var messageData = [];
+    componentDidMount = () => {
+        this.getMessage();
+    }
+
+    getMessage = () => {
+        const listnerA = 
         firestore()
             .collection('Groups')
             .doc(this.state.studyGroupName)
             .collection('Messages')
             .orderBy('createdAt', 'desc')
             .onSnapshot((querySnapShot) => {
-                messages = querySnapShot.docs.map((doc) => {
-                    firebaseData = doc.data();
-                    messageData = {
+                const mData = querySnapShot.docs.map((doc) => {
+                    const firebaseData = doc.data();
+                    const data = {
                         _id: doc.id,
                         text: '',
                         createdAt: new Date().getTime(),
                         ...firebaseData
                     }
-                    // if (!firebaseData.system) {
-                    //     messageData.user = {
-                    //         ...firebaseData.user,
-                    //         _id: firebaseData.user._id,
-                    //         name: firebaseData.user.displayName
-                    //     }
-                    // }
+                    if (!firebaseData.system) {
+                        data.user = {
+                            ...firebaseData.user,
+                            _id: firebaseData.user._id,
+                            name: firebaseData.user.displayName
+                        }
+                    }
+                    
+                    return data;
                 })
-                this.setState({ messages: [
-                    {
-                        _id: messageData._id,
-                        text: messageData.text,
-                        createdAt: messageData.createdAt,
-                        system: messageData.system,
-                        // user: {
-                        //     _id: messageData.user._id,
-                        //     displayName: messageData.user.displayName
-                        // }
-                    },],
-                })
-                // console.log(this.state.messages)
+
+                this.setState({ messages: mData });
+
             })
-        
-        // this.setState({ messages:  [
-        //     {
-        //         _id: 1,
-        //         text: 'Nice',
-        //         createdAt: new Date().getTime(),
-        //         system: true
-        //     },],
-        // })
+            return () => listnerA();
     }
 
     _handleSendMessage = (messages) => {
@@ -88,21 +81,10 @@ export default class ChatScreen extends Component {
                 createdAt: new Date().getTime(),
                 system: false,
                 user: {
-                    _id: auth().currentUser.uid,
+                    _id: this.state.currentUserID,
                     displayName: this.state.currentUserName
                 }
-            })
-            // .then(() => {
-            //     firestore()
-            //         .collection('Groups')
-            //         .doc(this.state.studyGroupName)
-            //         .set({
-            //             latestMeassage: {
-            //                 text,
-            //                 createdAt: new Date().getTime()
-            //             }
-            //         }, { merge: true })
-            // })
+            });
     }
 
     render() {
@@ -112,9 +94,9 @@ export default class ChatScreen extends Component {
                 messages={this.state.messages}
                 onSend={(messages) => this._handleSendMessage(messages)}
                 user={{
-                    _id: auth().currentUser.uid
+                    _id: this.state.currentUserID
                 }}
-            />
+            />            
         );
     }
 

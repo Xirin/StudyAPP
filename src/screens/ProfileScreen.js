@@ -45,7 +45,9 @@ export default class ProfileScreen extends Component {
             studyGroupListJoining: [''],
             createGroupModalVisibility: false,
             joinGroupModalVisibility: false,
+            chatAndVideoCallModalVisibilty: false,
             arrayInitializer: [''],
+            studyGroupChatSelected: '',
         }
     }
 
@@ -89,7 +91,7 @@ export default class ProfileScreen extends Component {
                 }
             });
 
-        this.setState({ studyGroupListJoining: this.state.arrayInitializer })
+        this.setState({ studyGroupListJoining: this.state.arrayInitializer });
     }
 
     //Handles the Signing Out of User
@@ -136,10 +138,6 @@ export default class ProfileScreen extends Component {
                         text: this.state.studyGroupName + ' created. Welcome!',
                         createdAt: new Date().getTime(),
                         system: true,
-                    })
-                    this.props.navigation.navigate('Chat', {
-                        studyGroupName: this.state.studyGroupName,
-                        currentUserName: this.state.lastName
                     })
             });
         
@@ -195,11 +193,23 @@ export default class ProfileScreen extends Component {
         this.componentDidMount();
     }
 
-    _handleGroupNavigation = (studyGroupName) => {
-            this.props.navigation.navigate('Chat', {
-                studyGroupName: studyGroupName,
-                currentUserName: this.state.lastName
-            })
+    _handleChatAndVideoCallModalvisivility = (visible, studyGroupName) => {
+        this.setState({ chatAndVideoCallModalVisibilty: visible });
+        this.setState({ studyGroupChatSelected: studyGroupName });
+    }
+    
+    _handleGroupChatNavigation = () => {
+        this.setState({ chatAndVideoCallModalVisibilty: false });
+        this.props.navigation.navigate('Chat', {
+            studyGroupName: this.state.studyGroupChatSelected,
+            currentUserName: this.state.lastName,
+            currentUserID: auth().currentUser.uid,
+        })
+    }
+
+    _handleGroupVideoCallNavigation = () => {
+        this.setState({ chatAndVideoCallModalVisibilty: false });
+        this.props.navigation.navigate('Video Call');
     }
     
     render() {
@@ -262,7 +272,7 @@ export default class ProfileScreen extends Component {
                                 return (
                                     <CardItem key = {index} style = { profilePageStyle.profileCardItem }>
                                         <Icon type = "MaterialIcons" name = "people" />
-                                        <TouchableOpacity onPress = {() => this._handleGroupNavigation(item.groupName)}>
+                                        <TouchableOpacity onPress = {() => this._handleChatAndVideoCallModalvisivility(true, item.groupName)}>
                                             <Text>{item.groupName}</Text>
                                         </TouchableOpacity>
                                     </CardItem>
@@ -277,6 +287,37 @@ export default class ProfileScreen extends Component {
                             <Text>Sign Out</Text>
                         </TouchableOpacity>
                     </Button>
+
+                    {/* Chat and Video Call Modal */}
+                    <Modal
+                        animationType = "slide"
+                        transparent = { true }
+                        visible = { this.state.chatAndVideoCallModalVisibilty }
+                    >
+                        <Container style = {{ backgroundColor: "rgba(0,0,0,0.9)" }}>
+                            <Content>
+                                <Card style = { profilePageStyle.profileCardModal }>
+                                    <CardItem style = { profilePageStyle.profileCardHeader } > 
+                                        <TouchableOpacity onPress = {() => this._handleGroupChatNavigation()}>
+                                            <Text style = { profilePageStyle.profileTextHeader }>Chat</Text>
+                                        </TouchableOpacity>
+                                    </CardItem>
+                                </Card>
+                                <Card style = { profilePageStyle.profileCard }>
+                                <CardItem style = { profilePageStyle.profileCardHeader } > 
+                                        <TouchableOpacity onPress = {() => this._handleGroupVideoCallNavigation()}>
+                                            <Text style = { profilePageStyle.profileTextHeader }>Video Call</Text>
+                                        </TouchableOpacity>
+                                    </CardItem>
+                                </Card>
+                                <View style = { profilePageStyle.profileButtonGroup }>
+                                    <Button light style = { profilePageStyle.profileButton } onPress = {() => this._handleChatAndVideoCallModalvisivility(!this.state.chatAndVideoCallModalVisibilty) } > 
+                                        <Text>Close</Text>
+                                    </Button>
+                                </View>
+                            </Content>
+                        </Container>
+                    </Modal>
 
                     {/* Create Group Modal */}
                     <Modal 
