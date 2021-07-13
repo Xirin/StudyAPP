@@ -10,6 +10,7 @@ export default class VideoCallScreen extends Component {
         super(props);
         this.state = {
             videoCall: true,
+            studyGroupName: this.props.route.params.studyGroupName,
         }
     }    
 
@@ -18,7 +19,7 @@ export default class VideoCallScreen extends Component {
 
         const rtcProps = {
             appId: '573557ec13bc4538bdf45c56fe439e73',
-            channel: 'test',
+            channel: this.state.studyGroupName,
         };
 
         const callbacks = {

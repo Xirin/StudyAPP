@@ -209,7 +209,9 @@ export default class ProfileScreen extends Component {
 
     _handleGroupVideoCallNavigation = () => {
         this.setState({ chatAndVideoCallModalVisibilty: false });
-        this.props.navigation.navigate('Video Call');
+        this.props.navigation.navigate('Video Call', {
+            studyGroupName: this.state.studyGroupChatSelected,
+        });
     }
     
     render() {
