@@ -42,7 +42,7 @@ export default class UserGroupScreen extends Component {
             checkedM: false,
             checkedS: false,
             checkedL: false,
-            activeIndex: '',
+            activeIndex: "",
         }
     }
 

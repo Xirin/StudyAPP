@@ -10,6 +10,7 @@ import VideoCallScreen from './src/screens/VideoCallScreen';
 import PScreen from './src/screens/PScreen';
 import UserGroupScreen from './src/screens/UserGroupScreen';
 import DrawerComponent from './src/screens/DrawerComponent';
+import ForumScreen from './src/screens/ForumScreen';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -34,7 +35,7 @@ export default function AppRouter() {
                 <Drawer.Screen name = "Profile" component = { App } />
                 <Drawer.Screen name = "User Group" component = { UserGroupScreen } options = {{ unmountOnBlur:true }} />
                 <Drawer.Screen name = "Sign in" component = { SignInScreen } options = {{ unmountOnBlur:true }} />
-                <Drawer.Screen name = "Forums" component = { ProfileScreen } options = {{ unmountOnBlur:true }} />
+                <Drawer.Screen name = "Forums" component = { ForumScreen } options = {{ unmountOnBlur:true }} />
             </Drawer.Navigator>
         </NavigationContainer>
     );
