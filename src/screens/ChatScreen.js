@@ -14,7 +14,7 @@ export default class ChatScreen extends Component {
     constructor (props) {
         super (props);
         this.state = {
-            currentUserName: this.props.route.params.currentUserName,
+            currentUserName: this.props.route.params.userLastName,
             studyGroupName: this.props.route.params.studyGroupName,
             currentUserID: this.props.route.params.currentUserID,
             messages: [{

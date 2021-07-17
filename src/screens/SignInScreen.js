@@ -58,7 +58,7 @@ export default class SignInScreen extends Component {
 
                     else {
                         this._handleCloseSignInOvelay();
-                        this.props.navigation.navigate('Profile');
+                        this.props.navigation.navigate('PScreen');
                     }
                 });
     }
@@ -83,7 +83,7 @@ export default class SignInScreen extends Component {
                     this.setState({ password: "" });
                 }
                 else {
-                    this.props.navigation.navigate('Profile');
+                    this._handleCloseSignUpOverlay();
                 }
             })
             .then(() => {
@@ -117,8 +117,8 @@ export default class SignInScreen extends Component {
         return (
             <Container>
                 <Content>
-
                     <Avatar
+                        rounded
                         size = "xlarge"
                         title = "SM"
                         activeOpacity = { 0.5 }
@@ -238,7 +238,6 @@ export default class SignInScreen extends Component {
                             />
                         </Card>
                     </Overlay>
-
                 </Content>
             </Container>
         );

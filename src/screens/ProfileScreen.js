@@ -87,6 +87,7 @@ export default class ProfileScreen extends Component {
                                 })
                             })
                             this.setState({ studyGroupListCreating: studyGroupArrayCreating });
+                            console.log(this.state.studyGroupListCreating)
                         })
                 }
             });

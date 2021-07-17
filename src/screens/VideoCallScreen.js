@@ -33,7 +33,7 @@ export default class VideoCallScreen extends Component {
         } else {
             return (
                 <View>
-                    {this.props.navigation.navigate('Profile')}
+                    {this.props.navigation.navigate('PScreen')}
                 </View>
             );
         }
