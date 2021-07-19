@@ -19,6 +19,7 @@ import {
     Input,
     Button,
     Text,
+    SearchBar,
 } from 'react-native-elements';
 
 import auth, { firebase } from '@react-native-firebase/auth';
@@ -33,29 +34,32 @@ export default class ForumScreen extends Component {
             forumTitle: "",
             forumContent: "",
             forumCard: [''],
+            searchForumText: "",
+            searcForumCollection: [''],
+            arrayIntitalizer: [''],
         }
     }
 
     componentDidMount = () => {
-        var docIDArray = [];
+        var forumIDArray = [];
         var forumCollection = [];
         firestore()
             .collection("Forum")
             .get()
             .then((snapShot) => {
                 snapShot.forEach((doc) => {
-                    docIDArray.push(doc.id)
+                    forumIDArray.push(doc.id)
                 })
             })
             .then(() => {
-                for (let index = 0; index < docIDArray.length; index++) {
+                for (let index = 0; index < forumIDArray.length; index++) {
                     firestore()
                         .collection("Forum")
-                        .doc(docIDArray[index])
+                        .doc(forumIDArray[index])
                         .get()
                         .then((snapShot) => {
                             forumCollection.push({
-                                docID: docIDArray[index],
+                                docID: forumIDArray[index],
                                 forumTitle: snapShot.data().forumTitle,
                                 forumContent: snapShot.data().forumContent
                             })
@@ -63,7 +67,6 @@ export default class ForumScreen extends Component {
                         })
                 }
             })
-            
     }
 
     _handleOpenDrawer = () => {
@@ -90,6 +93,44 @@ export default class ForumScreen extends Component {
         this._handleCloseForumCreateOverlayVisibility();
     }
 
+    _handleSearchForum = (searchText) => {
+        this.setState({ searchForumText: searchText })
+        var searchForumIDArray = [];
+        var searchForumCollection = [];
+        firestore()
+            .collection("Forum")
+            .get()
+            .then((snapShot) => {
+                snapShot.forEach((doc) => {
+                    searchForumIDArray.push(doc.id)
+                })
+                
+            })
+            .then(() => {
+                for (let index = 0; index < searchForumIDArray.length; index++) {
+                    firestore()
+                        .collection("Forum")
+                        .doc(searchForumIDArray[index])
+                        .get()
+                        .then((snapShot) => {
+                            if(this.state.searchForumText === snapShot.data().forumTitle) {
+                                searchForumCollection.push({
+                                    forumID: searchForumIDArray[index],
+                                    forumTitle: snapShot.data().forumTitle,
+                                    forumContent: snapShot.data().forumContent
+                                })
+                                this.setState({ searcForumCollection: searchForumCollection })
+                                console.log(this.state.searcForumCollection)
+                            }
+                        })
+                }
+            })
+    }
+
+    _handleSearchForumCancel = () => {
+        this.setState({ searcForumCollection: this.state.arrayIntitalizer })
+    }
+
     render() {
         return (
             
@@ -101,7 +142,7 @@ export default class ForumScreen extends Component {
                             onPress: () => this._handleOpenDrawer(),
                         }}
                         centerComponent = {{
-                            text: "Search Forum",
+                            text: "Forum",
                             style: {color: "#fff"}
                         }}
                         rightComponent = {{
@@ -111,8 +152,55 @@ export default class ForumScreen extends Component {
                         }}
                 />
                 <Content>
-                    
+                    <SearchBar
+                        placeholder = "Search Forum"
+                        onChangeText = {this._handleSearchForum}
+                        // onSubmitEditing = {() => this._handleSearchForum()}
+                        value = { this.state.searchForumText }
+                        onClear = { this._handleSearchForumCancel }
+                        containerStyle = {{
+                            backgroundColor: "#2288DC"
+                        }}
+                    />
+
                     {
+                        this.state.searcForumCollection == "" ?
+                        this.state.forumCard.map((item, index) => {
+                            return(
+                                <Card
+                                    key = { index }
+                                >
+                                    <Card.Title>
+                                        { item.forumTitle }
+                                    </Card.Title>
+                                    <Card.Divider/>
+                                <Text>
+                                    { item.forumContent }
+                                </Text>
+                                </Card>
+                            )
+                        }) 
+                        :
+                        this.state.searcForumCollection.map((item, index) => {
+                            return(
+                                <Card
+                                    key = { index }
+                                >
+                                    <Card.Title>
+                                        { item.forumTitle }
+                                    </Card.Title>
+                                    <Card.Divider/>
+                                    <Text>
+                                        { item.forumContent }
+                                    </Text>
+                                </Card>
+                            )
+                        }) 
+                        
+                        
+                    }
+
+                    {/* {
                         this.state.forumCard.map((item, index) => {
                             return(
                                 <Card
@@ -126,7 +214,7 @@ export default class ForumScreen extends Component {
                                 </Card>
                             )
                         })
-                    }
+                    } */}
 
                     <Overlay
                         isVisible = { this.state.forumCreateVisbility }
