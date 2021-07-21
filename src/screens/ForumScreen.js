@@ -13,7 +13,7 @@ import {
 
 import {
     Header,
-    FAB,
+    Icon,
     Overlay,
     Card,
     Input,
@@ -59,7 +59,7 @@ export default class ForumScreen extends Component {
                         .get()
                         .then((snapShot) => {
                             forumCollection.push({
-                                docID: forumIDArray[index],
+                                forumID: forumIDArray[index],
                                 forumTitle: snapShot.data().forumTitle,
                                 forumContent: snapShot.data().forumContent
                             })
@@ -91,6 +91,7 @@ export default class ForumScreen extends Component {
             })
         
         this._handleCloseForumCreateOverlayVisibility();
+        this.componentDidMount();
     }
 
     _handleSearchForum = (searchText) => {
@@ -120,7 +121,6 @@ export default class ForumScreen extends Component {
                                     forumContent: snapShot.data().forumContent
                                 })
                                 this.setState({ searcForumCollection: searchForumCollection })
-                                console.log(this.state.searcForumCollection)
                             }
                         })
                 }
@@ -129,6 +129,13 @@ export default class ForumScreen extends Component {
 
     _handleSearchForumCancel = () => {
         this.setState({ searcForumCollection: this.state.arrayIntitalizer })
+    }
+
+    _handleForumComment = (forumTitle, forumID) => {
+        this.props.navigation.navigate("Forum Topic", {
+            forumTopic: forumTitle,
+            forumID: forumID
+        })
     }
 
     render() {
@@ -152,10 +159,10 @@ export default class ForumScreen extends Component {
                         }}
                 />
                 <Content>
+
                     <SearchBar
                         placeholder = "Search Forum"
                         onChangeText = {this._handleSearchForum}
-                        // onSubmitEditing = {() => this._handleSearchForum()}
                         value = { this.state.searchForumText }
                         onClear = { this._handleSearchForumCancel }
                         containerStyle = {{
@@ -174,9 +181,16 @@ export default class ForumScreen extends Component {
                                         { item.forumTitle }
                                     </Card.Title>
                                     <Card.Divider/>
-                                <Text>
-                                    { item.forumContent }
-                                </Text>
+                                    <Text>
+                                        { item.forumContent }
+                                    </Text>
+                                    <Card.Divider/>
+                                    <Icon 
+                                        type = "fontisto" 
+                                        name = "commenting" 
+                                        onPress = {() => this._handleForumComment(item.forumTitle, item.forumID)}
+                                        iconStyle = {{ alignSelf: "flex-start" }} 
+                                    />
                                 </Card>
                             )
                         }) 
@@ -193,28 +207,19 @@ export default class ForumScreen extends Component {
                                     <Text>
                                         { item.forumContent }
                                     </Text>
+                                    <Card.Divider/>
+                                    <Icon 
+                                        type = "fontisto" 
+                                        name = "commenting" 
+                                        onPress = {() => this._handleForumComment(item.forumTitle, item.forumID)}
+                                        iconStyle = {{ alignSelf: "flex-start" }} 
+                                    />
                                 </Card>
                             )
                         }) 
                         
                         
                     }
-
-                    {/* {
-                        this.state.forumCard.map((item, index) => {
-                            return(
-                                <Card
-                                    key = { index }
-                                >
-                                    <Card.Title>
-                                        { item.forumTitle }
-                                    </Card.Title>
-                                    <Card.Divider/>
-                                <Text>{ item.forumContent }</Text>
-                                </Card>
-                            )
-                        })
-                    } */}
 
                     <Overlay
                         isVisible = { this.state.forumCreateVisbility }

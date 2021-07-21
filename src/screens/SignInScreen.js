@@ -58,7 +58,7 @@ export default class SignInScreen extends Component {
 
                     else {
                         this._handleCloseSignInOvelay();
-                        this.props.navigation.navigate('PScreen');
+                        this.props.navigation.navigate('Profile');
                     }
                 });
     }
