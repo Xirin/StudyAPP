@@ -208,6 +208,70 @@ export default class SignInScreen extends Component {
                 { title: "(a) think of the steps in the solution process." },
                 { title: "(b) think of possible consequences or applications of the solution in a wide range of areas. " }
             ],
+
+            //Willingness to Communicate Variables
+            signUpOverlayWTCVisibility: false,
+            wtcQ1ActiveIndex: "",
+            wtcQ2ActiveIndex: "",
+            wtcQ3ActiveIndex: "",
+            wtcQ4ActiveIndex: "",
+            wtcQ5ActiveIndex: "",
+            wtcQ6ActiveIndex: "",
+            wtcQ7ActiveIndex: "",
+            wtcQ8ActiveIndex: "",
+            wtcQ9ActiveIndex: "",
+            wtcQ10ActiveIndex: "",
+            wtcQ11ActiveIndex: "",
+            wtcQ12ActiveIndex: "",
+            wtcQuestions: [
+                "1.) Presenta talk to a group of strangers.",
+                "2.) Talk with an acquaintance while standing in line.",
+                "3.) Talk in a large meeting of freinds.",
+                "4.) Talk in a small group of strangers.",
+                "5.) Talk with a friend while standing In line.",
+                "6.) Talk in a large meeting of acquaintances.",
+                "7.) Talk with a stranger while standing in line.",
+                "8.)  Present a talk to a group of friends",
+                "9.) Talk in a small group of acquaintances.",
+                "10.) Talk in a large meeting of strangers.",
+                "11.) Talk in a small group of friends.",
+                "12.) Presenta talk to a group of acquaintances."
+            ],
+            wtcAnswers: [
+                { title: "0" },
+                { title: "100" }
+            ],
+
+            //Self Efficacy Variables
+            signUpOverlaySelfEfficacyVisibility: false,
+            selfEfficacyQ1ActiveIndex: "",
+            selfEfficacyQ2ActiveIndex: "",
+            selfEfficacyQ3ActiveIndex: "",
+            selfEfficacyQ4ActiveIndex: "",
+            selfEfficacyQ5ActiveIndex: "",
+            selfEfficacyQ6ActiveIndex: "",
+            selfEfficacyQ7ActiveIndex: "",
+            selfEfficacyQ8ActiveIndex: "",
+            selfEfficacyQuestions: [
+                "1. I believe I will receive an excellent grade in this class.",
+                "2. I'm certain I can understand the most difficult material presented in the readings for this course.",
+                "3. I'm confident I can understand the basic concepts taught in this course.",
+                "4. I'm confident I can understand the most complex material presented by the instructor in this course.",
+                "5. I'm confident I can do an excellent job on the assignments and tests in this course.",
+                "6. I expect to do well in this class.",
+                "7. I'm certain I can master the skills being taught in this class.",
+                "8.  Considering the difficulty of this course, the teacher, and my skills, I think I will do well in this class."
+            ],
+            selfEfficacyAnswers: [
+                { title: "Very True of Me" },
+                { title: "True of Me" },
+                { title: "Somewhat True of Me" },
+                { title: "Neutral" },
+                { title: "Somewhat Not True of Me" },
+                { title: "Not True of Me" },
+                { title: "Not Very True of Me" },
+            ],
+
         }
     }
 
@@ -259,7 +323,7 @@ export default class SignInScreen extends Component {
                     this.setState({ password: "" });
                 }
                 else {
-                    this._handleCloseSignUpOverlay();
+                    this.setState ({ signUpOverlayVisiblility: false });
                 }
             })
             .then(() => {
@@ -332,13 +396,70 @@ export default class SignInScreen extends Component {
                             answer: learningStylesAnswers[index],
                         })
                 }
+            })
+            //Willingness to Communicate Database Storing
+            .then(() => {
+                var wtcAnswers = [
+                    this.state.wtcQ1ActiveIndex,
+                    this.state.wtcQ2ActiveIndex,
+                    this.state.wtcQ3ActiveIndex,
+                    this.state.wtcQ4ActiveIndex,
+                    this.state.wtcQ5ActiveIndex,
+                    this.state.wtcQ6ActiveIndex,
+                    this.state.wtcQ7ActiveIndex,
+                    this.state.wtcQ8ActiveIndex,
+                    this.state.wtcQ9ActiveIndex,
+                    this.state.wtcQ10ActiveIndex,
+                    this.state.wtcQ11ActiveIndex,
+                    this.state.wtcQ12ActiveIndex,
+                ];
+                for (let index = 0; index < this.state.wtcQuestions.length; index++) {
+                    firestore()
+                        .collection("Users")
+                        .doc(auth().currentUser.uid)
+                        .collection("Willingness to Communicate Test")
+                        .doc(this.state.wtcQuestions[index])
+                        .set({
+                            answer: wtcAnswers[index],
+                        })
+                }
+            })
+            //Self Efficacy Database Storing
+            .then(() => {
+                var selfEfficacyAnswers = [
+                    this.state.selfEfficacyQ1ActiveIndex,
+                    this.state.selfEfficacyQ2ActiveIndex,
+                    this.state.selfEfficacyQ3ActiveIndex,
+                    this.state.selfEfficacyQ4ActiveIndex,
+                    this.state.selfEfficacyQ5ActiveIndex,
+                    this.state.selfEfficacyQ6ActiveIndex,
+                    this.state.selfEfficacyQ7ActiveIndex,
+                    this.state.selfEfficacyQ8ActiveIndex,
+                ];
+                for (let index = 0; index < this.state.selfEfficacyQuestions.length; index++) {
+                    firestore()
+                        .collection("Users")
+                        .doc(auth().currentUser.uid)
+                        .collection("Self Efficacy Test")
+                        .doc(this.state.selfEfficacyQuestions[index])
+                        .set({
+                            answer: selfEfficacyAnswers[index],
+                        })
+                }
             });
+        this.setState ({ signUpOverlayVisiblility: false });
+        this.setState ({ signUpOverlayPersonalityTestVisibility: false })
+        this.setState ({ signUpOverlayLearningStylesVisibility: false })
+        this.setState ({ signUpOverlayWTCVisibility: false })
+        this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
     }
     //Personal Information Overlay Triggers
     _handleOpenSignUpOverlay = (visible) => {
         this.setState ({ signUpOverlayVisiblility: visible });
         this.setState ({ signUpOverlayPersonalityTestVisibility: false })
         this.setState ({ signUpOverlayLearningStylesVisibility: false })
+        this.setState ({ signUpOverlayWTCVisibility: false })
+        this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
     }
 
     _handleCloseSignUpOverlay = () => {
@@ -348,13 +469,15 @@ export default class SignInScreen extends Component {
     //Personality Test Overlay Triggers
     _handleOpenPersonalityTestOverlay = (visible) => {
         this.setState ({ signUpOverlayPersonalityTestVisibility: visible })
-        this._handleCloseSignUpOverlay();
+        this.setState ({ signUpOverlayVisiblility: false });
+        this.setState ({ signUpOverlayLearningStylesVisibility: false })
+        this.setState ({ signUpOverlayWTCVisibility: false })
+        this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
     }
 
     _handleClosePersonalityTestOverlay = () => {
         this.setState ({ signUpOverlayPersonalityTestVisibility: !this.state.signUpOverlayPersonalityTestVisibility })
-        this.setState ({ signUpOverlayVisiblility: false });
-        this.setState ({ signUpOverlayLearningStylesVisibility: false })
+        
     }
 
     //Learning Styles Overlay Triggers
@@ -362,10 +485,39 @@ export default class SignInScreen extends Component {
         this.setState ({ signUpOverlayLearningStylesVisibility: visible })
         this.setState ({ signUpOverlayVisiblility: false });
         this.setState ({ signUpOverlayPersonalityTestVisibility: false })
+        this.setState ({ signUpOverlayWTCVisibility: false })
+        this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
     }
 
     _handleCloseLearningStylesOverlay = () => {
         this.setState ({ signUpOverlayLearningStylesVisibility: !this.state.signUpOverlayLearningStylesVisibility })
+    }
+
+    //Willingness to Communicate Overlay Triggers
+    _handleOpenWTCOverlay = (visible) => {
+        this.setState ({ signUpOverlayWTCVisibility: visible })
+        this.setState ({ signUpOverlayVisiblility: false });
+        this.setState ({ signUpOverlayPersonalityTestVisibility: false })
+        this.setState ({ signUpOverlayLearningStylesVisibility: false })
+        this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
+        
+    }
+
+    _handleCloseWTCOverlay = () => {
+        this.setState ({ signUpOverlayWTCVisibility: !this.state.signUpOverlayWTCVisibility })
+    }
+
+    //Self Efficacy Overlay Triggers
+    _handleOpenSelfEfficacyOverlay = (visible) => {
+        this.setState ({ signUpOverlaySelfEfficacyVisibility: visible })
+        this.setState ({ signUpOverlayVisiblility: false });
+        this.setState ({ signUpOverlayPersonalityTestVisibility: false })
+        this.setState ({ signUpOverlayLearningStylesVisibility: false })
+        this.setState ({ signUpOverlayWTCVisibility: false })
+    }
+
+    _handleCloseSelfEfficacyOverlay = () => {
+        this.setState ({ signUpOverlaySelfEfficacyVisibility: !this.state.signUpOverlaySelfEfficacyVisibility })
     }
 
     //User Signin Overlay Triggers
@@ -966,10 +1118,350 @@ export default class SignInScreen extends Component {
                                     onPress = {() => this._handleOpenPersonalityTestOverlay(true)}
                                 />
                                 <Button 
+                                    title = "Next"
+                                    type = "outline"
+                                    buttonStyle = { signInPageStyle.signInButton }
+                                    onPress = {() => this._handleOpenWTCOverlay(true)}
+                                />
+                                <Button 
                                     title = "Close"
                                     type = "outline"
                                     buttonStyle = { signInPageStyle.signInButton }
                                     onPress = {() => this._handleCloseLearningStylesOverlay()}
+                                />
+                            </Card>
+                        </ScrollView>
+                    </Overlay>
+
+                    {/* Willingness to Communicate Overlay */}
+                    <Overlay
+                        isVisible = { this.state.signUpOverlayWTCVisibility }
+                        onBackdropPress = {() => this._handleCloseWTCOverlay()}
+                        overlayStyle = {{ backgroundColor: "#2288DC", padding: 0, paddingBottom: 15 }}
+                    >
+                        <ScrollView>
+                            <Card>
+                                <Card.Title style = { signInPageStyle.signInOverlayCard } >Willingness to Communicate</Card.Title>
+                                <Card.Divider/>
+                                <Text>1. Present a talk to a group of strangers.</Text>
+                                {
+                                    this.state.wtcAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }>
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.wtcQ1ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ wtcQ1ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>2. Talk with an acquaintance while standing in line.</Text>
+                                {
+                                    this.state.wtcAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }>
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.wtcQ2ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ wtcQ2ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>3. Talk in a large meeting of friends.</Text>
+                                {
+                                    this.state.wtcAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }>
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.wtcQ3ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ wtcQ3ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>4. Talk in a small group of strangers.</Text>
+                                {
+                                    this.state.wtcAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }>
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.wtcQ4ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ wtcQ4ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>5. Talk with a friend while standing In line.</Text>
+                                {
+                                    this.state.wtcAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }>
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.wtcQ5ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ wtcQ5ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>6. Talk in a large meeting of acquaintances.</Text>
+                                {
+                                    this.state.wtcAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }>
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.wtcQ6ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ wtcQ6ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>7. Talk with a stranger while standing in line.</Text>
+                                {
+                                    this.state.wtcAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }>
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.wtcQ7ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ wtcQ7ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>8. Present a talk to a group of friends</Text>
+                                {
+                                    this.state.wtcAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }>
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.wtcQ8ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ wtcQ8ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>9. Talk in a small group of acquaintances.</Text>
+                                {
+                                    this.state.wtcAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }>
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.wtcQ9ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ wtcQ9ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>10. Talk in a large meeting of strangers.</Text>
+                                {
+                                    this.state.wtcAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }>
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.wtcQ10ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ wtcQ10ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>11. Talk in a small group of friends.</Text>
+                                {
+                                    this.state.wtcAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }>
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.wtcQ11ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ wtcQ11ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>12. Present a talk to a group of acquaintances.</Text>
+                                {
+                                    this.state.wtcAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }>
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.wtcQ12ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ wtcQ12ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+
+                                <Button 
+                                    title = "Previous"
+                                    type = "outline"
+                                    buttonStyle = { signInPageStyle.signInButton }
+                                    onPress = {() => this._handleOpenLearningStylesOverlay(true)}
+                                />
+                                <Button 
+                                    title = "Next"
+                                    type = "outline"
+                                    buttonStyle = { signInPageStyle.signInButton }
+                                    onPress = {() => this._handleOpenSelfEfficacyOverlay(true)}
+                                />
+                                <Button 
+                                    title = "Close"
+                                    type = "outline"
+                                    buttonStyle = { signInPageStyle.signInButton }
+                                    onPress = {() => this._handleCloseWTCOverlay()}
+                                />
+                            </Card>
+                        </ScrollView>
+                    </Overlay>
+
+                    {/* Self Efficacy Overlay */}
+                    <Overlay
+                        isVisible = { this.state.signUpOverlaySelfEfficacyVisibility }
+                        onBackdropPress = {() => this._handleCloseSelfEfficacyOverlay()}
+                        overlayStyle = {{ backgroundColor: "#2288DC", padding: 0, paddingBottom: 15 }}
+                    >
+                        <ScrollView>
+                            <Card>
+                                <Card.Title style = { signInPageStyle.signInOverlayCard } >Self Efficacy</Card.Title>
+                                <Card.Divider/>
+                                <Text>1. I believe I will receive an excellent grade in this class.</Text>
+                                {
+                                    this.state.selfEfficacyAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }> 
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.selfEfficacyQ1ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ selfEfficacyQ1ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>2. I'm certain I can understand the most difficult material presented in the readings for this course.</Text>
+                                {
+                                    this.state.selfEfficacyAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }> 
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.selfEfficacyQ2ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ selfEfficacyQ2ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>3. I'm confident I can understand the basic concepts taught in this course.</Text>
+                                {
+                                    this.state.selfEfficacyAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }> 
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.selfEfficacyQ3ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ selfEfficacyQ3ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>4. I'm confident I can understand the most complex material presented by the instructor in this course.</Text>
+                                {
+                                    this.state.selfEfficacyAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }> 
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.selfEfficacyQ4ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ selfEfficacyQ4ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>5. I'm confident I can do an excellent job on the assignments and tests in this course.</Text>
+                                {
+                                    this.state.selfEfficacyAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }> 
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.selfEfficacyQ5ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ selfEfficacyQ5ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>6. I expect to do well in this class.</Text>
+                                {
+                                    this.state.selfEfficacyAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }> 
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.selfEfficacyQ6ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ selfEfficacyQ6ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>7. I'm certain I can master the skills being taught in this class.</Text>
+                                {
+                                    this.state.selfEfficacyAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }> 
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.selfEfficacyQ7ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ selfEfficacyQ7ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+                                <Text>8.  Considering the difficulty of this course, the teacher, and my skills, I think I will do well in this class.</Text>
+                                {
+                                    this.state.selfEfficacyAnswers.map((item, index) => {
+                                        return (
+                                            <View key = { index }> 
+                                                <CheckBox
+                                                    title = { item.title }
+                                                    checked = { this.state.selfEfficacyQ8ActiveIndex === item.title }
+                                                    onPress = {() => this.setState({ selfEfficacyQ8ActiveIndex: item.title })}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
+
+                                <Button 
+                                    title = "Previous"
+                                    type = "outline"
+                                    buttonStyle = { signInPageStyle.signInButton }
+                                    onPress = {() => this._handleOpenWTCOverlay(true)}
                                 />
                                 <Button 
                                     title = "Save"
@@ -977,10 +1469,16 @@ export default class SignInScreen extends Component {
                                     buttonStyle = { signInPageStyle.signInButton }
                                     onPress = {() => this._handleSignUp()}
                                 />
+                                <Button 
+                                    title = "Close"
+                                    type = "outline"
+                                    buttonStyle = { signInPageStyle.signInButton }
+                                    onPress = {() => this._handleCloseSelfEfficacyOverlay()}
+                                />
                             </Card>
                         </ScrollView>
                     </Overlay>
-
+                        
                     <Overlay
                         isVisible = { this.state.signInOverlayVisibility }
                         onBackdropPress = {() => this._handleCloseSignInOvelay()}
