@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 
 import { 
   Container, 
-  Content, 
+  Content,
+  List, 
 } from 'native-base';
 
 import {
@@ -20,6 +21,7 @@ import {
     Button,
     Text,
     CheckBox,
+    Slider,
 } from 'react-native-elements';
 
 import Swiper from 'react-native-swiper';
@@ -37,6 +39,7 @@ export default class SignInScreen extends Component {
             password: '',
             firstName: '',
             lastName: '',
+            sex: "",
             signUpOverlayVisiblility: false,
             signInOverlayVisibility: false,
 
@@ -211,18 +214,18 @@ export default class SignInScreen extends Component {
 
             //Willingness to Communicate Variables
             signUpOverlayWTCVisibility: false,
-            wtcQ1ActiveIndex: "",
-            wtcQ2ActiveIndex: "",
-            wtcQ3ActiveIndex: "",
-            wtcQ4ActiveIndex: "",
-            wtcQ5ActiveIndex: "",
-            wtcQ6ActiveIndex: "",
-            wtcQ7ActiveIndex: "",
-            wtcQ8ActiveIndex: "",
-            wtcQ9ActiveIndex: "",
-            wtcQ10ActiveIndex: "",
-            wtcQ11ActiveIndex: "",
-            wtcQ12ActiveIndex: "",
+            wtcQ1ActiveIndex: 0,
+            wtcQ2ActiveIndex: 0,
+            wtcQ3ActiveIndex: 0,
+            wtcQ4ActiveIndex: 0,
+            wtcQ5ActiveIndex: 0,
+            wtcQ6ActiveIndex: 0,
+            wtcQ7ActiveIndex: 0,
+            wtcQ8ActiveIndex: 0,
+            wtcQ9ActiveIndex: 0,
+            wtcQ10ActiveIndex: 0,
+            wtcQ11ActiveIndex: 0,
+            wtcQ12ActiveIndex: 0,
             wtcQuestions: [
                 "1.) Presenta talk to a group of strangers.",
                 "2.) Talk with an acquaintance while standing in line.",
@@ -236,10 +239,6 @@ export default class SignInScreen extends Component {
                 "10.) Talk in a large meeting of strangers.",
                 "11.) Talk in a small group of friends.",
                 "12.) Presenta talk to a group of acquaintances."
-            ],
-            wtcAnswers: [
-                { title: "0" },
-                { title: "100" }
             ],
 
             //Self Efficacy Variables
@@ -327,12 +326,136 @@ export default class SignInScreen extends Component {
                 }
             })
             .then(() => {
+                //WTC Score Computation
+                var wtcStrangerScore = (this.state.wtcQ1ActiveIndex +
+                                       this.state.wtcQ4ActiveIndex +
+                                       this.state.wtcQ7ActiveIndex +
+                                       this.state.wtcQ10ActiveIndex) / 4;
+
+                var wtcAcquaintanceScore = (this.state.wtcQ2ActiveIndex +
+                                       this.state.wtcQ6ActiveIndex +
+                                       this.state.wtcQ9ActiveIndex +
+                                       this.state.wtcQ12ActiveIndex) / 4;
+
+                var wtcFriendScore = (this.state.wtcQ3ActiveIndex +
+                                     this.state.wtcQ5ActiveIndex +
+                                     this.state.wtcQ8ActiveIndex +
+                                     this.state.wtcQ11ActiveIndex) / 4;
+
+                var wtcTotalScore = (wtcStrangerScore + wtcAcquaintanceScore + wtcFriendScore) / 3;
+
+                //Peronality Score Computation
+                var personalityAnswerReversedScored = [
+                    this.state.personalityTestQ1ActiveIndex,
+                    this.state.personalityTestQ3ActiveIndex,
+                    this.state.personalityTestQ4ActiveIndex,
+                    this.state.personalityTestQ5ActiveIndex,
+                    this.state.personalityTestQ7ActiveIndex
+                ];
+
+                var personalityAnswerNormalScored = [
+                    this.state.personalityTestQ2ActiveIndex,
+                    this.state.personalityTestQ6ActiveIndex,
+                    this.state.personalityTestQ8ActiveIndex,
+                    this.state.personalityTestQ9ActiveIndex,
+                    this.state.personalityTestQ10ActiveIndex
+                ];
+
+                var personalityQ1Score = 0;
+                var personalityQ2Score = 0;
+                var personalityQ3Score = 0;
+                var personalityQ4Score = 0;
+                var personalityQ5Score = 0;
+                var personalityQ6Score = 0;
+                var personalityQ7Score = 0;
+                var personalityQ8Score = 0;
+                var personalityQ9Score = 0;
+                var personalityQ10Score = 0;
+
+                for (var index = 0; index < personalityAnswerReversedScored.length; index++) {
+                    if (personalityAnswerReversedScored[index] == "Disagree Strongly" || personalityAnswerNormalScored[index] == "Disagree Strongly") {
+                        personalityQ1Score = 5;
+                        personalityQ2Score = 1;
+                        personalityQ3Score = 5;
+                        personalityQ4Score = 5;
+                        personalityQ5Score = 5;
+                        personalityQ6Score = 1;
+                        personalityQ7Score = 5;
+                        personalityQ8Score = 1;
+                        personalityQ9Score = 1;
+                        personalityQ10Score = 1;
+                    }
+                    else if (personalityAnswerReversedScored[index] == "Disagree a Little" || personalityAnswerNormalScored[index] == "Disagree a Little") {
+                        personalityQ1Score = 4;
+                        personalityQ2Score = 2;
+                        personalityQ3Score = 4;
+                        personalityQ4Score = 4;
+                        personalityQ5Score = 4;
+                        personalityQ6Score = 2;
+                        personalityQ7Score = 4;
+                        personalityQ8Score = 2;
+                        personalityQ9Score = 2;
+                        personalityQ10Score = 2;
+                    }
+                    else if (personalityAnswerReversedScored[index] == "Neither Agree or Disagree" || personalityAnswerNormalScored[index] == "Neither Agree or Disagree") {
+                        personalityQ1Score = 3;
+                        personalityQ2Score = 3;
+                        personalityQ3Score = 3;
+                        personalityQ4Score = 3;
+                        personalityQ5Score = 3;
+                        personalityQ6Score = 3;
+                        personalityQ7Score = 3;
+                        personalityQ8Score = 3;
+                        personalityQ9Score = 3;
+                        personalityQ10Score = 3;
+                    }
+                    else if (personalityAnswerReversedScored[index] == "Agree a Little" || personalityAnswerNormalScored[index] == "Agree a Little") {
+                        personalityQ1Score = 2;
+                        personalityQ2Score = 4;
+                        personalityQ3Score = 2;
+                        personalityQ4Score = 2;
+                        personalityQ5Score = 2;
+                        personalityQ6Score = 4;
+                        personalityQ7Score = 2;
+                        personalityQ8Score = 4;
+                        personalityQ9Score = 4;
+                        personalityQ10Score = 4;
+                    }
+                    else if (personalityAnswerReversedScored[index] == "Agree Strongly" || personalityAnswerNormalScored[index] == "Agree Strongly") {
+                        personalityQ1Score = 1;
+                        personalityQ2Score = 5;
+                        personalityQ3Score = 1;
+                        personalityQ4Score = 1;
+                        personalityQ5Score = 1;
+                        personalityQ6Score = 5;
+                        personalityQ7Score = 1;
+                        personalityQ8Score = 5;
+                        personalityQ9Score = 5;
+                        personalityQ10Score = 5;
+                    }
+                }
+
+                var personalityExtraversionScore = (personalityQ1Score + personalityQ6Score) / 2;
+                var personalityAgreeablenessScore = (personalityQ2Score + personalityQ7Score) / 2;
+                var personalityConscientiousnessScore = (personalityQ3Score + personalityQ8Score) / 2;
+                var personalityNeuroticismScore = (personalityQ4Score + personalityQ9Score) / 2;
+                var personalityOpennessScore = (personalityQ5Score + personalityQ10Score) / 2;
+
+                var personalityTotalScore = (personalityExtraversionScore +
+                                             personalityAgreeablenessScore +
+                                             personalityConscientiousnessScore +
+                                             personalityNeuroticismScore +
+                                             personalityOpennessScore) / 5;
+
                 firestore()
                     .collection('Users')
                     .doc(auth().currentUser.uid)
                     .set({
-                      firstName: this.state.firstName,
-                      lastName: this.state.lastName  
+                        firstName: this.state.firstName,
+                        lastName: this.state.lastName, 
+                        sex: this.state.sex,
+                        PersonalityScore: personalityTotalScore,
+                        WTCScore: wtcTotalScore
                     })
             })
             //Personality Test Database Storing
@@ -529,14 +652,29 @@ export default class SignInScreen extends Component {
         this.setState ({ signInOverlayVisibility: !this.state.signInOverlayVisibility });
     }
 
+    _handleLimitMaxValue = (wtcActiveIndex) => {
+        if (wtcActiveIndex > 100) {
+            return 100;
+        } 
+        else {
+            return wtcActiveIndex;
+        }
+    }
+
+
     render() {
+        var logo = require("./assets/StudymateLogo.png");
+        const sexList = [
+            { sex: "Male" },
+            { sex: "Female" }
+        ]
         return (
             <Container>
                 <Content>
                     <Avatar
+                        source = { logo }
                         rounded
                         size = "xlarge"
-                        title = "SM"
                         activeOpacity = { 0.5 }
                         containerStyle = {{ backgroundColor: "#2288DC" ,alignSelf: "center", marginTop: 120 }}
                     >
@@ -563,7 +701,7 @@ export default class SignInScreen extends Component {
                         onBackdropPress = {() => this._handleCloseSignUpOverlay()}
                         overlayStyle = {{ backgroundColor: "#2288DC", padding: 0, paddingBottom: 15 }}
                     >
-                        <View>
+                        <ScrollView>
                             <Card>
                                 <Card.Title style = { signInPageStyle.signInOverlayCard }>Sign Up</Card.Title>
                                 <Card.Divider/>
@@ -583,6 +721,25 @@ export default class SignInScreen extends Component {
                                     onChangeText = {(lastName) => this.setState ({ lastName })}
                                     value = { this.state.lastName }
                                 />
+                                <Text style = {signInPageStyle.signUpText}>
+                                    Sex
+                                </Text>
+                                <View style = { signInPageStyle.signUpCheckBox } >
+                                    {
+                                        sexList.map((item, index) => {
+                                            return(
+                                                <View key = { index }>
+                                                    <CheckBox 
+                                                        textStyle = {{ color: "#2288DC" }}
+                                                        title = { item.sex }
+                                                        checked = { this.state.sex === item.sex }
+                                                        onPress = {() => this.setState({ sex: item.sex })}
+                                                    />
+                                                </View>
+                                            )
+                                        })
+                                    }
+                                </View>
                                 <Input 
                                     placeholder = "email@address.com"
                                     leftIcon = {{ type: "ion-icon", name: "mail", color: "#2288DC" }}
@@ -614,7 +771,7 @@ export default class SignInScreen extends Component {
                                     onPress = {() => this._handleCloseSignUpOverlay()}
                                 />
                             </Card>
-                        </View>
+                        </ScrollView>
                     </Overlay>
 
                     {/*Personality Test Oerlay*/}
@@ -1143,174 +1300,151 @@ export default class SignInScreen extends Component {
                             <Card>
                                 <Card.Title style = { signInPageStyle.signInOverlayCard } >Willingness to Communicate</Card.Title>
                                 <Card.Divider/>
+                                
                                 <Text>1. Present a talk to a group of strangers.</Text>
-                                {
-                                    this.state.wtcAnswers.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <CheckBox
-                                                    title = { item.title }
-                                                    checked = { this.state.wtcQ1ActiveIndex === item.title }
-                                                    onPress = {() => this.setState({ wtcQ1ActiveIndex: item.title })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
+                                    <Slider
+                                        trackStyle={{ height: 20, backgroundColor: 'transparent' }}
+                                        thumbStyle={{ height: 20, width: 20, backgroundColor: '#2288DC' }}
+                                        minimumValue = {0}
+                                        maximumValue = {100}
+                                        step = {1}
+                                        onValueChange = {(wtcQ1ActiveIndex) => this.setState({ wtcQ1ActiveIndex })}
+                                        value = { this.state.wtcQ1ActiveIndex }
+                                    />
+                                    <Text style = {{ alignSelf: "center", marginBottom: 10 }} >Rating: { this.state.wtcQ1ActiveIndex } </Text>
+
                                 <Text>2. Talk with an acquaintance while standing in line.</Text>
-                                {
-                                    this.state.wtcAnswers.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <CheckBox
-                                                    title = { item.title }
-                                                    checked = { this.state.wtcQ2ActiveIndex === item.title }
-                                                    onPress = {() => this.setState({ wtcQ2ActiveIndex: item.title })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
+                                <Slider
+                                        trackStyle={{ height: 20, backgroundColor: 'transparent' }}
+                                        thumbStyle={{ height: 20, width: 20, backgroundColor: '#2288DC' }}
+                                        minimumValue = {0}
+                                        maximumValue = {100}
+                                        step = {1}
+                                        onValueChange = {(wtcQ2ActiveIndex) => this.setState({ wtcQ2ActiveIndex })}
+                                        value = { this.state.wtcQ2ActiveIndex }
+                                    />
+                                    <Text style = {{ alignSelf: "center", marginBottom: 10 }} >Rating: { this.state.wtcQ2ActiveIndex } </Text>
+                               
                                 <Text>3. Talk in a large meeting of friends.</Text>
-                                {
-                                    this.state.wtcAnswers.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <CheckBox
-                                                    title = { item.title }
-                                                    checked = { this.state.wtcQ3ActiveIndex === item.title }
-                                                    onPress = {() => this.setState({ wtcQ3ActiveIndex: item.title })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
+                                <Slider
+                                        trackStyle={{ height: 20, backgroundColor: 'transparent' }}
+                                        thumbStyle={{ height: 20, width: 20, backgroundColor: '#2288DC' }}
+                                        minimumValue = {0}
+                                        maximumValue = {100}
+                                        step = {1}
+                                        onValueChange = {(wtcQ3ActiveIndex) => this.setState({ wtcQ3ActiveIndex })}
+                                        value = { this.state.wtcQ3ActiveIndex }
+                                    />
+                                    <Text style = {{ alignSelf: "center", marginBottom: 10 }} >Rating: { this.state.wtcQ3ActiveIndex } </Text>
+                               
                                 <Text>4. Talk in a small group of strangers.</Text>
-                                {
-                                    this.state.wtcAnswers.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <CheckBox
-                                                    title = { item.title }
-                                                    checked = { this.state.wtcQ4ActiveIndex === item.title }
-                                                    onPress = {() => this.setState({ wtcQ4ActiveIndex: item.title })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
+                                <Slider
+                                        trackStyle={{ height: 20, backgroundColor: 'transparent' }}
+                                        thumbStyle={{ height: 20, width: 20, backgroundColor: '#2288DC' }}
+                                        minimumValue = {0}
+                                        maximumValue = {100}
+                                        step = {1}
+                                        onValueChange = {(wtcQ4ActiveIndex) => this.setState({ wtcQ4ActiveIndex })}
+                                        value = { this.state.wtcQ4ActiveIndex }
+                                    />
+                                    <Text style = {{ alignSelf: "center", marginBottom: 10 }} >Rating: { this.state.wtcQ4ActiveIndex } </Text>
+                                
                                 <Text>5. Talk with a friend while standing In line.</Text>
-                                {
-                                    this.state.wtcAnswers.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <CheckBox
-                                                    title = { item.title }
-                                                    checked = { this.state.wtcQ5ActiveIndex === item.title }
-                                                    onPress = {() => this.setState({ wtcQ5ActiveIndex: item.title })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
+                                <Slider
+                                        trackStyle={{ height: 20, backgroundColor: 'transparent' }}
+                                        thumbStyle={{ height: 20, width: 20, backgroundColor: '#2288DC' }}
+                                        minimumValue = {0}
+                                        maximumValue = {100}
+                                        step = {1}
+                                        onValueChange = {(wtcQ5ActiveIndex) => this.setState({ wtcQ5ActiveIndex })}
+                                        value = { this.state.wtcQ5ActiveIndex }
+                                    />
+                                    <Text style = {{ alignSelf: "center", marginBottom: 10 }} >Rating: { this.state.wtcQ5ActiveIndex } </Text>
+                                
                                 <Text>6. Talk in a large meeting of acquaintances.</Text>
-                                {
-                                    this.state.wtcAnswers.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <CheckBox
-                                                    title = { item.title }
-                                                    checked = { this.state.wtcQ6ActiveIndex === item.title }
-                                                    onPress = {() => this.setState({ wtcQ6ActiveIndex: item.title })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
+                                <Slider
+                                        trackStyle={{ height: 20, backgroundColor: 'transparent' }}
+                                        thumbStyle={{ height: 20, width: 20, backgroundColor: '#2288DC' }}
+                                        minimumValue = {0}
+                                        maximumValue = {100}
+                                        step = {1}
+                                        onValueChange = {(wtcQ6ActiveIndex) => this.setState({ wtcQ6ActiveIndex })}
+                                        value = { this.state.wtcQ6ActiveIndex }
+                                    />
+                                    <Text style = {{ alignSelf: "center", marginBottom: 10 }} >Rating: { this.state.wtcQ6ActiveIndex } </Text>
+                                
                                 <Text>7. Talk with a stranger while standing in line.</Text>
-                                {
-                                    this.state.wtcAnswers.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <CheckBox
-                                                    title = { item.title }
-                                                    checked = { this.state.wtcQ7ActiveIndex === item.title }
-                                                    onPress = {() => this.setState({ wtcQ7ActiveIndex: item.title })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
+                                <Slider
+                                        trackStyle={{ height: 20, backgroundColor: 'transparent' }}
+                                        thumbStyle={{ height: 20, width: 20, backgroundColor: '#2288DC' }}
+                                        minimumValue = {0}
+                                        maximumValue = {100}
+                                        step = {1}
+                                        onValueChange = {(wtcQ7ActiveIndex) => this.setState({ wtcQ7ActiveIndex })}
+                                        value = { this.state.wtcQ7ActiveIndex }
+                                    />
+                                    <Text style = {{ alignSelf: "center", marginBottom: 10 }} >Rating: { this.state.wtcQ7ActiveIndex } </Text>
+                               
                                 <Text>8. Present a talk to a group of friends</Text>
-                                {
-                                    this.state.wtcAnswers.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <CheckBox
-                                                    title = { item.title }
-                                                    checked = { this.state.wtcQ8ActiveIndex === item.title }
-                                                    onPress = {() => this.setState({ wtcQ8ActiveIndex: item.title })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
+                                <Slider
+                                        trackStyle={{ height: 20, backgroundColor: 'transparent' }}
+                                        thumbStyle={{ height: 20, width: 20, backgroundColor: '#2288DC' }}
+                                        minimumValue = {0}
+                                        maximumValue = {100}
+                                        step = {1}
+                                        onValueChange = {(wtcQ8ActiveIndex) => this.setState({ wtcQ8ActiveIndex })}
+                                        value = { this.state.wtcQ8ActiveIndex }
+                                    />
+                                    <Text style = {{ alignSelf: "center", marginBottom: 10 }} >Rating: { this.state.wtcQ8ActiveIndex } </Text>
+                                
                                 <Text>9. Talk in a small group of acquaintances.</Text>
-                                {
-                                    this.state.wtcAnswers.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <CheckBox
-                                                    title = { item.title }
-                                                    checked = { this.state.wtcQ9ActiveIndex === item.title }
-                                                    onPress = {() => this.setState({ wtcQ9ActiveIndex: item.title })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
+                                <Slider
+                                        trackStyle={{ height: 20, backgroundColor: 'transparent' }}
+                                        thumbStyle={{ height: 20, width: 20, backgroundColor: '#2288DC' }}
+                                        minimumValue = {0}
+                                        maximumValue = {100}
+                                        step = {1}
+                                        onValueChange = {(wtcQ9ActiveIndex) => this.setState({ wtcQ9ActiveIndex })}
+                                        value = { this.state.wtcQ9ActiveIndex }
+                                    />
+                                    <Text style = {{ alignSelf: "center", marginBottom: 10 }} >Rating: { this.state.wtcQ9ActiveIndex } </Text>
+                               
                                 <Text>10. Talk in a large meeting of strangers.</Text>
-                                {
-                                    this.state.wtcAnswers.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <CheckBox
-                                                    title = { item.title }
-                                                    checked = { this.state.wtcQ10ActiveIndex === item.title }
-                                                    onPress = {() => this.setState({ wtcQ10ActiveIndex: item.title })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
+                                <Slider
+                                        trackStyle={{ height: 20, backgroundColor: 'transparent' }}
+                                        thumbStyle={{ height: 20, width: 20, backgroundColor: '#2288DC' }}
+                                        minimumValue = {0}
+                                        maximumValue = {100}
+                                        step = {1}
+                                        onValueChange = {(wtcQ10ActiveIndex) => this.setState({ wtcQ10ActiveIndex })}
+                                        value = { this.state.wtcQ10ActiveIndex }
+                                    />
+                                    <Text style = {{ alignSelf: "center", marginBottom: 10 }} >Rating: { this.state.wtcQ10ActiveIndex } </Text>
+                                
                                 <Text>11. Talk in a small group of friends.</Text>
-                                {
-                                    this.state.wtcAnswers.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <CheckBox
-                                                    title = { item.title }
-                                                    checked = { this.state.wtcQ11ActiveIndex === item.title }
-                                                    onPress = {() => this.setState({ wtcQ11ActiveIndex: item.title })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
+                                <Slider
+                                        trackStyle={{ height: 20, backgroundColor: 'transparent' }}
+                                        thumbStyle={{ height: 20, width: 20, backgroundColor: '#2288DC' }}
+                                        minimumValue = {0}
+                                        maximumValue = {100}
+                                        step = {1}
+                                        onValueChange = {(wtcQ11ActiveIndex) => this.setState({ wtcQ11ActiveIndex })}
+                                        value = { this.state.wtcQ11ActiveIndex }
+                                    />
+                                    <Text style = {{ alignSelf: "center", marginBottom: 10 }} >Rating: { this.state.wtcQ11ActiveIndex } </Text>
+                                
                                 <Text>12. Present a talk to a group of acquaintances.</Text>
-                                {
-                                    this.state.wtcAnswers.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <CheckBox
-                                                    title = { item.title }
-                                                    checked = { this.state.wtcQ12ActiveIndex === item.title }
-                                                    onPress = {() => this.setState({ wtcQ12ActiveIndex: item.title })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
+                                <Slider
+                                        trackStyle={{ height: 20, backgroundColor: 'transparent' }}
+                                        thumbStyle={{ height: 20, width: 20, backgroundColor: '#2288DC' }}
+                                        minimumValue = {0}
+                                        maximumValue = {100}
+                                        step = {1}
+                                        onValueChange = {(wtcQ12ActiveIndex) => this.setState({ wtcQ12ActiveIndex })}
+                                        value = { this.state.wtcQ12ActiveIndex }
+                                    />
+                                    <Text style = {{ alignSelf: "center", marginBottom: 10 }} >Rating: { this.state.wtcQ12ActiveIndex } </Text>
+                                
 
                                 <Button 
                                     title = "Previous"
@@ -1540,6 +1674,18 @@ const signInPageStyle = StyleSheet.create({
     signInOverlayCard: {
         marginHorizontal: 100,
         color: "#2288DC"
+    },
+
+    signUpText: {
+        color: "#2288DC",
+        marginLeft: 11,
+        fontWeight: "bold",
+        fontSize: 16
+    },
+
+    signUpCheckBox: {
+        color: "#2288DC",
+        marginBottom: 20
     },
 
 });
