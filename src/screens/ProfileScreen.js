@@ -14,6 +14,7 @@ import {
 import {
     StyleSheet,
     ScrollView,
+    LogBox,
 } from 'react-native';
 
 import {
@@ -36,6 +37,7 @@ export default class ProfileScreen extends Component {
             avatarTemp: "",
             userEmail: "",
             userSex: "",
+            userAge: "",
             updateProfileOverlayVisibility: false,
         }
     }
@@ -49,9 +51,11 @@ export default class ProfileScreen extends Component {
                 this.setState({ userFirstName: snapShot.data().firstName })
                 this.setState({ userLastName: snapShot.data().lastName })
                 this.setState({ avatarTemp: this.state.userFirstName[0].concat(this.state.userLastName[0]) })
+                this.setState({ userAge: snapShot.data().age })
                 this.setState({ userSex: snapShot.data().sex })
                 this.setState({ userEmail: firebase.auth().currentUser.email })
             });
+            
     }
 
     _handleOpenDrawer = () => {
@@ -92,6 +96,7 @@ export default class ProfileScreen extends Component {
             .update({
                 firstName: this.state.userFirstName,
                 lastName: this.state.userLastName,
+                age: this.state.userAge,
                 sex: this.state.userSex
             });
 
@@ -108,6 +113,8 @@ export default class ProfileScreen extends Component {
     }
     
     render() {
+
+        LogBox.ignoreAllLogs();
 
         const sexList = [
             { sex: "Male" },
@@ -158,6 +165,14 @@ export default class ProfileScreen extends Component {
                                 defaultValue = { this.state.userLastName }
                                 disabled = { true }
                             />
+                            <Input 
+                                leftIcon = {{ type: "material-community", name: "counter", color: "#2288DC" }}
+                                label = "Age"
+                                labelStyle = {{ color: "#2288DC" }}
+                                inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#2288DC" }}
+                                defaultValue = { this.state.userAge }
+                                disabled = { true }
+                            />
                             { this._handleUserSexField() }
                             <Input 
                                 placeholder = "email@address.com"
@@ -200,6 +215,14 @@ export default class ProfileScreen extends Component {
                                     labelStyle = {{ color: "#2288DC" }}
                                     onChangeText = {(userLastName) => this.setState ({ userLastName })}
                                     value = { this.state.userLastName }
+                                />
+                                <Input 
+                                    placeholder = "Last Name"
+                                    leftIcon = {{ type: "material-community", name: "counter", color: "#2288DC" }}
+                                    label = "Last Name"
+                                    labelStyle = {{ color: "#2288DC" }}
+                                    onChangeText = {(userAge) => this.setState ({ userAge })}
+                                    value = { this.state.userAge }
                                 />
                                 <Text style = { profileScreenStyle.profileText }>
                                     Sex

@@ -3,6 +3,7 @@ import AgoraUIKit from 'agora-rn-uikit';
 import {
     View,
     LogBox,
+    Text
 } from 'react-native'
 
 export default class VideoCallScreen extends Component {
@@ -33,7 +34,7 @@ export default class VideoCallScreen extends Component {
         } else {
             return (
                 <View>
-                    {this.props.navigation.navigate('PScreen')}
+                    {this.props.navigation.navigate('User Group')}
                 </View>
             );
         }

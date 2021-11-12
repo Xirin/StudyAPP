@@ -39,6 +39,7 @@ export default class SignInScreen extends Component {
             password: '',
             firstName: '',
             lastName: '',
+            age: "",
             sex: "",
             signUpOverlayVisiblility: false,
             signInOverlayVisibility: false,
@@ -140,7 +141,7 @@ export default class SignInScreen extends Component {
                 { title: "(b) I have rarely got to know many of the students." }
             ],
             learningStyleAnswersQ5: [
-                { title: "start working on the solution immediately." },
+                { title: "(a) start working on the solution immediately." },
                 { title: "(b) try to fully understand the problem first." }
             ],
             learningStyleAnswersQ6: [
@@ -370,71 +371,85 @@ export default class SignInScreen extends Component {
                 var personalityQ7Score = 0;
                 var personalityQ8Score = 0;
                 var personalityQ9Score = 0;
-                var personalityQ10Score = 0;
+                var personalityQ10Score = 0;        
+                
+                var personalityReverseScores = [
+                    personalityQ1Score,
+                    personalityQ3Score,
+                    personalityQ4Score,
+                    personalityQ5Score,
+                    personalityQ7Score
+                ];
+
+                var personalityNormalScores = [
+                    personalityQ2Score,
+                    personalityQ6Score,
+                    personalityQ8Score,
+                    personalityQ9Score,
+                    personalityQ10Score
+                ];
 
                 for (var index = 0; index < personalityAnswerReversedScored.length; index++) {
-                    if (personalityAnswerReversedScored[index] == "Disagree Strongly" || personalityAnswerNormalScored[index] == "Disagree Strongly") {
-                        personalityQ1Score = 5;
-                        personalityQ2Score = 1;
-                        personalityQ3Score = 5;
-                        personalityQ4Score = 5;
-                        personalityQ5Score = 5;
-                        personalityQ6Score = 1;
-                        personalityQ7Score = 5;
-                        personalityQ8Score = 1;
-                        personalityQ9Score = 1;
-                        personalityQ10Score = 1;
+
+                    //Reversed Scored
+                    if (personalityAnswerReversedScored[index] === "Disagree Strongly") {
+                        personalityReverseScores[index] = 5;
                     }
-                    else if (personalityAnswerReversedScored[index] == "Disagree a Little" || personalityAnswerNormalScored[index] == "Disagree a Little") {
-                        personalityQ1Score = 4;
-                        personalityQ2Score = 2;
-                        personalityQ3Score = 4;
-                        personalityQ4Score = 4;
-                        personalityQ5Score = 4;
-                        personalityQ6Score = 2;
-                        personalityQ7Score = 4;
-                        personalityQ8Score = 2;
-                        personalityQ9Score = 2;
-                        personalityQ10Score = 2;
+                    else if (personalityAnswerReversedScored[index] === "Disagree a Little") {
+                        personalityReverseScores[index] = 4;
                     }
-                    else if (personalityAnswerReversedScored[index] == "Neither Agree or Disagree" || personalityAnswerNormalScored[index] == "Neither Agree or Disagree") {
-                        personalityQ1Score = 3;
-                        personalityQ2Score = 3;
-                        personalityQ3Score = 3;
-                        personalityQ4Score = 3;
-                        personalityQ5Score = 3;
-                        personalityQ6Score = 3;
-                        personalityQ7Score = 3;
-                        personalityQ8Score = 3;
-                        personalityQ9Score = 3;
-                        personalityQ10Score = 3;
+                    else if (personalityAnswerReversedScored[index] === "Neither Agree nor Disagree") {
+                        personalityReverseScores[index] = 3
                     }
-                    else if (personalityAnswerReversedScored[index] == "Agree a Little" || personalityAnswerNormalScored[index] == "Agree a Little") {
-                        personalityQ1Score = 2;
-                        personalityQ2Score = 4;
-                        personalityQ3Score = 2;
-                        personalityQ4Score = 2;
-                        personalityQ5Score = 2;
-                        personalityQ6Score = 4;
-                        personalityQ7Score = 2;
-                        personalityQ8Score = 4;
-                        personalityQ9Score = 4;
-                        personalityQ10Score = 4;
+                     else if (personalityAnswerReversedScored[index] === "Agree a Little") {
+                        personalityReverseScores[index] = 2;
                     }
-                    else if (personalityAnswerReversedScored[index] == "Agree Strongly" || personalityAnswerNormalScored[index] == "Agree Strongly") {
-                        personalityQ1Score = 1;
-                        personalityQ2Score = 5;
-                        personalityQ3Score = 1;
-                        personalityQ4Score = 1;
-                        personalityQ5Score = 1;
-                        personalityQ6Score = 5;
-                        personalityQ7Score = 1;
-                        personalityQ8Score = 5;
-                        personalityQ9Score = 5;
-                        personalityQ10Score = 5;
+                    else if (personalityAnswerReversedScored[index] === "Agree Strongly") {
+                        personalityReverseScores[index] = 1;
+                    }
+
+                    //Normal Scored
+                    if (personalityAnswerNormalScored[index] === "Disagree Strongly") {
+                        personalityNormalScores[index] = 1;
+                    }
+                    else if (personalityAnswerNormalScored[index] === "Disagree a Little") {
+                        personalityNormalScores[index] = 2;
+                    }
+                    else if (personalityAnswerNormalScored[index] === "Neither Agree nor Disagree") {
+                        personalityNormalScores[index] = 3;
+                    }
+                    else if (personalityAnswerNormalScored[index] === "Agree a Little") {
+                        personalityNormalScores[index] = 4;
+                    }
+                    else if (personalityAnswerNormalScored[index] === "Agree Strongly") {
+                        personalityNormalScores[index] = 5;
                     }
                 }
 
+                //Looping for Individual Scoring of the Questions
+                for (var index = 0; index < personalityReverseScores.length; index++) {
+                    if (index == 0) {
+                        personalityQ1Score = personalityReverseScores[index];
+                        personalityQ2Score = personalityNormalScores[index];
+                    } 
+                    else if (index == 1) {
+                        personalityQ3Score = personalityReverseScores[index];
+                        personalityQ6Score = personalityNormalScores[index];
+                    }
+                    else if (index == 2) {
+                        personalityQ4Score = personalityReverseScores[index];
+                        personalityQ8Score = personalityNormalScores[index];
+                    }
+                    else if (index == 3) {
+                        personalityQ5Score = personalityReverseScores[index];
+                        personalityQ9Score = personalityNormalScores[index];
+                    }
+                    else if (index == 4) {
+                        personalityQ7Score = personalityReverseScores[index];
+                        personalityQ10Score = personalityNormalScores[index];
+                    }
+                }
+        
                 var personalityExtraversionScore = (personalityQ1Score + personalityQ6Score) / 2;
                 var personalityAgreeablenessScore = (personalityQ2Score + personalityQ7Score) / 2;
                 var personalityConscientiousnessScore = (personalityQ3Score + personalityQ8Score) / 2;
@@ -447,15 +462,202 @@ export default class SignInScreen extends Component {
                                              personalityNeuroticismScore +
                                              personalityOpennessScore) / 5;
 
+                //Learning Styles Score Computation
+                var lsActiveReflectiveAnswers = [
+                    this.state.learningStylesQ1ActiveIndex,
+                    this.state.learningStylesQ2ActiveIndex,
+                    this.state.learningStylesQ3ActiveIndex,
+                    this.state.learningStylesQ4ActiveIndex,
+                    this.state.learningStylesQ5ActiveIndex,
+                    this.state.learningStylesQ6ActiveIndex,
+                    this.state.learningStylesQ7ActiveIndex,
+                    this.state.learningStylesQ8ActiveIndex,
+                    this.state.learningStylesQ9ActiveIndex,
+                    this.state.learningStylesQ10ActiveIndex,
+                    this.state.learningStylesQ11ActiveIndex,
+                ];
+
+                var lsSequentialGlobalAnswers = [
+                    this.state.learningStylesQ12ActiveIndex,
+                    this.state.learningStylesQ13ActiveIndex,
+                    this.state.learningStylesQ14ActiveIndex,
+                    this.state.learningStylesQ15ActiveIndex,
+                    this.state.learningStylesQ16ActiveIndex,
+                    this.state.learningStylesQ17ActiveIndex,
+                    this.state.learningStylesQ18ActiveIndex,
+                    this.state.learningStylesQ19ActiveIndex,
+                    this.state.learningStylesQ20ActiveIndex,
+                    this.state.learningStylesQ21ActiveIndex,
+                    this.state.learningStylesQ22ActiveIndex,
+                ];
+
+                var lsActiveScore = 0;
+                var lsReflectiveScore = 0;
+                var lsSequentialScore = 0;
+                var lsGlobalScore = 0;
+                var learningStyleScoreAR = 0;
+                var learningStylesScoreSG = 0;
+
+                for (var index = 0; index < lsActiveReflectiveAnswers.length; index++) {
+
+                    //Adding all Scores Active or Global
+                    if (lsActiveReflectiveAnswers[index].charAt(1) === "a" ) {
+                        lsActiveScore = lsActiveScore + 1;
+                    }
+                    else if (lsActiveReflectiveAnswers[index].charAt(1) === "b") {
+                        lsReflectiveScore = lsReflectiveScore + 1;
+                    }
+
+                    //Adding all Scores Sequential or Global
+                    if (lsSequentialGlobalAnswers[index].charAt(1) === "a") {
+                        lsSequentialScore = lsSequentialScore + 1;
+                    }
+                    else if (lsSequentialGlobalAnswers[index].charAt(1) === "b") {
+                        lsGlobalScore = lsGlobalScore + 1;
+                    }
+                }
+
+                //Computing if User is Reflective of Active Learner
+                if (lsActiveScore > lsReflectiveScore) {
+                    learningStyleScoreAR = lsActiveScore - lsReflectiveScore + "A";
+                }
+                else if (lsReflectiveScore > lsActiveScore) {
+                    learningStyleScoreAR = lsReflectiveScore - lsActiveScore + "B";
+                }
+
+                //Computing if User is Sequential or Global Learner
+                if (lsSequentialScore > lsGlobalScore) {
+                    learningStylesScoreSG = lsSequentialScore - lsGlobalScore + "A";
+                }
+                else if (lsGlobalScore > lsSequentialScore) {
+                    learningStylesScoreSG = lsGlobalScore - lsSequentialScore + "B";
+                }
+
+                //Self Efficacy Score Computation
+                var seQuestionsSum = 0;
+                var seQuestionsCounter = 0;
+                var seQuestionsArrayCounter = [];
+                var seQuestionsSDStep1 = [];
+                var seQuestionsSDStep2 = 0;
+                var seQuestionsCCStep1 = [];
+                var seQuestionsVariance = 0;
+                var seAnswerScores = 0;
+                var seAnswerCounter = 0;
+                var seAnswersScoresArrayCounter = [];
+                var seAnswersSDStep1 = [];
+                var seAnswersSDStep2 = 0;
+                var seAnswersCCStep1 = [];
+                var seAnswers = [
+                    this.state.selfEfficacyQ1ActiveIndex,
+                    this.state.selfEfficacyQ2ActiveIndex,
+                    this.state.selfEfficacyQ3ActiveIndex,
+                    this.state.selfEfficacyQ4ActiveIndex,
+                    this.state.selfEfficacyQ5ActiveIndex,
+                    this.state.selfEfficacyQ6ActiveIndex,
+                    this.state.selfEfficacyQ7ActiveIndex,
+                    this.state.selfEfficacyQ8ActiveIndex,
+                ];
+                var seCCStep2 = [];
+                var seCorrelationCoefficientStep1 = 0;
+                var seCorrelationCoefficientStep2 = 0;
+                
+                //Getting Mean for Quesitions in Self Efficacy
+                for (var index = 0; index < this.state.selfEfficacyQuestions.length; index++) {
+                    seQuestionsSum = seQuestionsSum + parseInt(this.state.selfEfficacyQuestions[index].charAt(0));
+                    seQuestionsCounter = seQuestionsCounter + 1;
+                    seQuestionsArrayCounter[index] = index + 1;
+                }
+
+                //Setting Score Value of Answers in Self Efficacy
+                for (var index = 0; index < seAnswers.length; index++) {
+
+                    seAnswerCounter = seAnswerCounter + 1;
+
+                    if (seAnswers[index] === "Not Very True of Me") {
+                        seAnswerScores = seAnswerScores + 1;
+                        seAnswersScoresArrayCounter[index] = 1;
+                    }
+                    else if (seAnswers[index] === "Not True of Me") {
+                        seAnswerScores = seAnswerScores + 2;
+                        seAnswersScoresArrayCounter[index] = 2;
+                    }
+                    else if (seAnswers[index] === "Somewhat Not True of Me") {
+                        seAnswerScores = seAnswerScores + 3;
+                        seAnswersScoresArrayCounter[index] = 3;
+                    }
+                    else if (seAnswers[index] === "Neutral") {
+                        seAnswerScores = seAnswerScores + 4;
+                        seAnswersScoresArrayCounter[index] = 4;
+                    }
+                    else if (seAnswers[index] === "Somewhat True of Me") {
+                        seAnswerScores = seAnswerScores + 5;
+                        seAnswersScoresArrayCounter[index] = 5;
+                    }
+                    else if (seAnswers[index] === "True of Me") {
+                        seAnswerScores = seAnswerScores + 6;
+                        seAnswersScoresArrayCounter[index] = 6;
+                    }
+                    else if (seAnswers[index] === "Very True of Me") {
+                        seAnswerScores = seAnswerScores + 7;
+                        seAnswersScoresArrayCounter[index] = 7;
+                    }
+                }
+
+                //Getting Mean for Questions And Answers
+                var seQuestionsMean = seQuestionsSum / seQuestionsCounter;
+                var seAnswersMean = seAnswerScores / seAnswerCounter;
+
+                //Getting Standard Deviation and Correlation Coefficiency for Self Efficacy Questions STEP 1
+                for (var index = 0; index < this.state.selfEfficacyQuestions.length; index++) {
+                    seQuestionsSDStep1[index] = Math.pow(seQuestionsArrayCounter[index] - seQuestionsMean, 2);
+                    seQuestionsCCStep1[index] = seQuestionsArrayCounter[index] - seQuestionsMean;
+                }
+                //Getting Standard Deviation and Correlation Coefficiency for Self Efficacy Questions STEP 2
+                for (var index = 0; index < this.state.selfEfficacyQuestions.length; index++) {
+                    seQuestionsSDStep2 = seQuestionsSDStep2 + seQuestionsSDStep1[index];
+                }
+                //Getting Variance for Self Efficacy
+                seQuestionsVariance = seQuestionsSDStep2 / (seQuestionsCounter - 1);
+
+                //Getting Standard Deviation and Correlation Coefficient for Self Efficacy Answer Scores STEP 1
+                for (var index = 0; index < seAnswers.length; index++) {
+                    seAnswersSDStep1[index] = Math.pow(seAnswersScoresArrayCounter[index] - seAnswersMean, 2);
+                    seAnswersCCStep1[index] = seAnswersScoresArrayCounter[index] - seAnswersMean;
+                }
+                
+                //Getting Standard Deviation and Correlation Coefficient for Self Efficacy Answer Scores STEP 2
+                for (var index = 0; index < seAnswers.length; index++) {
+                    seAnswersSDStep2 = seAnswersSDStep2 + seAnswersSDStep1[index];
+                }
+
+                //Getting Correlation Coefficiency for Questions and Answer Scores Self Efficacy STEP 2
+                for (var index = 0; index < this.state.selfEfficacyQuestions.length; index++) {
+                    seCCStep2[index] = seQuestionsCCStep1[index] * seAnswersCCStep1[index];
+                }
+
+                //Getting Correlation Coefficient for Self Efficacy STEP 2
+                for (var index = 0; index < seCCStep2.length; index++) {
+                    seCorrelationCoefficientStep1 = seCCStep2.reduce((a, b) => a + b, 0);
+                }
+                seCorrelationCoefficientStep2 = Math.sqrt((seQuestionsSDStep2 * seAnswersSDStep2));
+
+                //Getting Standard Deviation and Self Efficacy Score
+                var seStandardDevation = Math.sqrt(seQuestionsVariance); 
+                var selfEfficacyScore = seCorrelationCoefficientStep1 / seCorrelationCoefficientStep2;
+
                 firestore()
                     .collection('Users')
                     .doc(auth().currentUser.uid)
                     .set({
                         firstName: this.state.firstName,
                         lastName: this.state.lastName, 
+                        age: this.state.age,
                         sex: this.state.sex,
                         PersonalityScore: personalityTotalScore,
-                        WTCScore: wtcTotalScore
+                        WTCScore: wtcTotalScore,
+                        LearningStyleScore1: learningStyleScoreAR,
+                        LearningStyleScore2: learningStylesScoreSG,
+                        SelfEfficacy: selfEfficacyScore,
                     })
             })
             //Personality Test Database Storing
@@ -720,6 +922,15 @@ export default class SignInScreen extends Component {
                                     labelStyle = {{ color: "#2288DC" }}
                                     onChangeText = {(lastName) => this.setState ({ lastName })}
                                     value = { this.state.lastName }
+                                />
+                                <Input 
+                                    keyboardType = "number-pad"
+                                    placeholder = "Age"
+                                    leftIcon = {{ type: "material-community", name: "counter", color: "#2288DC" }}
+                                    label = "Age"
+                                    labelStyle = {{ color: "#2288DC" }}
+                                    onChangeText = {(age) => this.setState ({ age })}
+                                    value = { this.state.age }
                                 />
                                 <Text style = {signInPageStyle.signUpText}>
                                     Sex

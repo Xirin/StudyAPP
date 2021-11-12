@@ -22,6 +22,8 @@ import {
     Text,
 } from 'react-native-elements';
 
+import AgoraUIKit from 'agora-rn-uikit';
+
 import auth, { firebase } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
@@ -43,6 +45,7 @@ export default class UserGroupScreen extends Component {
             checkedS: false,
             checkedL: false,
             activeIndex: "",
+            videoCall: false,
         }
     }
 
@@ -102,11 +105,11 @@ export default class UserGroupScreen extends Component {
         });
     }
 
-    _handleVideoCallNavigation = (userGroupName) => {
-        this.props.navigation.navigate("Video Call", {
-            studyGroupName: userGroupName
-        });
-    }
+    // _handleVideoCallNavigation = (userGroupName) => {
+    //     this.props.navigation.navigate("Video Call", {
+    //         studyGroupName: userGroupName
+    //     });
+    // }
 
     _handleOpenCreateGroupOvelay = (visible) => {
         this.setState({ createGroupOverlayVisibility: visible })
@@ -228,157 +231,59 @@ export default class UserGroupScreen extends Component {
 
     render() {
         LogBox.ignoreAllLogs();
-        return(
-            <Container>
-                <Content>
-                    <Header 
-                        leftComponent = {{ 
-                            icon: "menu",
-                            color: "#fff",
-                            onPress: () => this._handleOpenDrawer(),
-                        }}
-                        centerComponent = {{
-                            text: "Groups",
-                            style: {color: "#fff"}
-                        }}
-                    />
-                    <Card containerStyle = { userGroupScreenStyle.ugCard } >
-                        <Card.Title style = {{ color: "#2288DC" }} >
-                            Create or Discover Groups
-                        </Card.Title>
-                        <Card.Divider style = { userGroupScreenStyle.udDivider } />
-                        <Button  
-                            title ="Create Group"
-                            type ="outline"
-                            onPress = {() => this._handleOpenCreateGroupOvelay()}
-                        />
-                        <Button
-                            title = "Join Group"
-                            type = "outline"
-                            containerStyle = {{ marginTop: 10 }}
-                            onPress = {() => this._handleJoinGroupOverlay()}
-                        />
-                    </Card>
-                    <Card containerStyle = { userGroupScreenStyle.ugCard2 } >
-                        <Card.Title style = {{ color: "#2288DC" }}>
-                            Your Groups
-                        </Card.Title>
-                        <Card.Divider/>
-                        {
-                            this.state.userGroups.map((item, index) => {
-                                return(
-                                    <ListItem.Accordion
-                                        style = { userGroupScreenStyle.ugCardTitle }
-                                        key = { index }
-                                        content = {
-                                            <>
-                                                <ListItem.Content>
-                                                    <ListItem.Title style = {{ color: "#2288DC" }}>
-                                                        { item.groupName }
-                                                    </ListItem.Title>
-                                                </ListItem.Content>
-                                            </>
-                                        }
-                                        
-                                        isExpanded = { this.state.activeIndex === item.groupName }
-                                        onPress = {() => {
-                                            this.setState({ activeIndex: item.groupName })
-                                        }}
-                                    >
-                                        <ListItem>
-                                            <ListItem.Content>
-                                                <Button
-                                                    type = "outline"
-                                                    title = "Chat"
-                                                    buttonStyle = { userGroupScreenStyle.ugButton }
-                                                    onPress = {() => this._handleChatNavigation(item.groupName)}
-                                                />
-                                                <Button
-                                                    type = "outline"
-                                                    title = "Video Call"
-                                                    buttonStyle = { userGroupScreenStyle.ugButton2 }
-                                                    onPress = {() => this._handleVideoCallNavigation(item.groupName)}
-                                                />
-                                            </ListItem.Content>
-                                        </ListItem>
-                                    </ListItem.Accordion>
-                                )
-                            })
-                        }
-                    </Card>
 
-                    <Overlay
-                        isVisible = { this.state.createGroupOverlayVisibility }
-                        onBackdropPress = {() => this._handleCloseCreateGroupOverlay()}
-                        overlayStyle = {{ backgroundColor: "#2288DC", padding: 0, paddingBottom: 15 }}
-                    >
-                        <Card>
-                            <Card.Title style = { userGroupScreenStyle.ugOverlayCard }>
-                                Create Group
+        const rtcProps = {
+            appId: '573557ec13bc4538bdf45c56fe439e73',
+            channel: this.state.activeIndex,
+        };
+        const callbacks = {
+            EndCall: () => this.setState({ videoCall: false }),
+        };
+
+        return this.state.videoCall ? (
+            <AgoraUIKit rtcProps = {rtcProps} callbacks = { callbacks }  />
+        ) : (
+                <Container>
+                    <Content>
+                        <Header 
+                            leftComponent = {{ 
+                                icon: "menu",
+                                color: "#fff",
+                                onPress: () => this._handleOpenDrawer(),
+                            }}
+                            centerComponent = {{
+                                text: "Groups",
+                                style: {color: "#fff"}
+                            }}
+                        />
+                        <Card containerStyle = { userGroupScreenStyle.ugCard } >
+                            <Card.Title style = {{ color: "#2288DC" }} >
+                                Create or Discover Groups
                             </Card.Title>
-                            <Card.Divider/>
-                            <Input
-                                placeholder = "...."
-                                label = "Group Name"
-                                labelStyle = {{ color: "#2288DC" }}
-                                onChangeText = {(userGroup) => this.setState({ userGroup })}
-                                value = { this.state.userGroup }
-                            />
-                            <CheckBox
-                                title = "Mathematics"
-                                textStyle = { userGroupScreenStyle.ugOverlayCheckbox }
-                                checkedIcon='dot-circle-o'
-                                uncheckedIcon='circle-o'
-                                checked = { this.state.checkedM }
-                                onPress = {() => this._handleCreateGroupCheckBox("Mathematics")}
-                            />
-                            <CheckBox
-                                title = "Science"
-                                textStyle = { userGroupScreenStyle.ugOverlayCheckbox }
-                                checkedIcon='dot-circle-o'
-                                uncheckedIcon='circle-o'
-                                checked = { this.state.checkedS }
-                                onPress = {() => this._handleCreateGroupCheckBox("Science")}
-                            />
-                            <CheckBox
-                                title = "Langauge"
-                                textStyle = { userGroupScreenStyle.ugOverlayCheckbox }
-                                checkedIcon='dot-circle-o'
-                                uncheckedIcon='circle-o'
-                                checked = { this.state.checkedL }
-                                onPress = {() => this._handleCreateGroupCheckBox("Language")}
+                            <Card.Divider style = { userGroupScreenStyle.udDivider } />
+                            <Button  
+                                title ="Create Group"
+                                type ="outline"
+                                onPress = {() => this._handleOpenCreateGroupOvelay()}
                             />
                             <Button
-                                title = "Save"
+                                title = "Join Group"
                                 type = "outline"
-                                containerStyle = { userGroupScreenStyle.ugOverlayButton }
-                                onPress = {() => this._handleCreateGroup()}
-                            />
-                            <Button
-                                title = "Close"
-                                type = "outline"
-                                onPress = {() => this._handleCloseCreateGroupOverlay()}
-                                containerStyle = { userGroupScreenStyle.ugOverlayButton }
+                                containerStyle = {{ marginTop: 10 }}
+                                onPress = {() => this._handleJoinGroupOverlay()}
                             />
                         </Card>
-                    </Overlay>
-
-                    <Overlay
-                        isVisible = { this.state.joinGroupOvarlayVisibility }
-                        onBackdropPress = {() => this._handleCloseJoinGroupOverlay()}
-                        overlayStyle = {{ backgroundColor: "#2288DC", padding: 0, paddingBottom: 15 }}
-                    >
-                        <Card>
-                            <Card.Title style = { userGroupScreenStyle.ugOverlayCard2 }>
-                                Discover Groups
+                        <Card containerStyle = { userGroupScreenStyle.ugCard2 } >
+                            <Card.Title style = {{ color: "#2288DC" }}>
+                                Your Groups
                             </Card.Title>
                             <Card.Divider/>
                             {
-                                this.state.userAvailableGroups.map((item, index) => {
-                                    if (this.state.userAvailableGroups == "") {
-                                        return(
+                                this.state.userGroups.map((item, index) => {
+                                    if (this.state.userGroups == "") {
+                                        return (
                                             <Text h4 style = {{  color: "#2288DC", alignSelf: "center" }}>
-                                                No Available Groups
+                                                No Groups
                                             </Text>
                                         )
                                     }
@@ -396,6 +301,7 @@ export default class UserGroupScreen extends Component {
                                                         </ListItem.Content>
                                                     </>
                                                 }
+                                                
                                                 isExpanded = { this.state.activeIndex === item.groupName }
                                                 onPress = {() => {
                                                     this.setState({ activeIndex: item.groupName })
@@ -405,15 +311,15 @@ export default class UserGroupScreen extends Component {
                                                     <ListItem.Content>
                                                         <Button
                                                             type = "outline"
-                                                            title = "Join"
-                                                            buttonStyle = { userGroupScreenStyle.ugButton4 }
-                                                            onPress = {() => this._handleJoinGroup(item.groupName)}
+                                                            title = "Chat"
+                                                            buttonStyle = { userGroupScreenStyle.ugButton }
+                                                            onPress = {() => this._handleChatNavigation(item.groupName)}
                                                         />
                                                         <Button
                                                             type = "outline"
-                                                            title = "Close"
-                                                            buttonStyle = { userGroupScreenStyle.ugButton3 }
-                                                            onPress = {() => this._handleCloseJoinGroupOverlay()}
+                                                            title = "Video Call"
+                                                            buttonStyle = { userGroupScreenStyle.ugButton2 }
+                                                            onPress = {() => this.setState({ videoCall: true })}
                                                         />
                                                     </ListItem.Content>
                                                 </ListItem>
@@ -423,10 +329,127 @@ export default class UserGroupScreen extends Component {
                                 })
                             }
                         </Card>
-                    </Overlay>
-                </Content>
-            </Container>
-        );
+
+                        <Overlay
+                            isVisible = { this.state.createGroupOverlayVisibility }
+                            onBackdropPress = {() => this._handleCloseCreateGroupOverlay()}
+                            overlayStyle = {{ backgroundColor: "#2288DC", padding: 0, paddingBottom: 15 }}
+                        >
+                            <Card>
+                                <Card.Title style = { userGroupScreenStyle.ugOverlayCard }>
+                                    Create Group
+                                </Card.Title>
+                                <Card.Divider/>
+                                <Input
+                                    placeholder = "...."
+                                    label = "Group Name"
+                                    labelStyle = {{ color: "#2288DC" }}
+                                    onChangeText = {(userGroup) => this.setState({ userGroup })}
+                                    value = { this.state.userGroup }
+                                />
+                                <CheckBox
+                                    title = "Mathematics"
+                                    textStyle = { userGroupScreenStyle.ugOverlayCheckbox }
+                                    checkedIcon='dot-circle-o'
+                                    uncheckedIcon='circle-o'
+                                    checked = { this.state.checkedM }
+                                    onPress = {() => this._handleCreateGroupCheckBox("Mathematics")}
+                                />
+                                <CheckBox
+                                    title = "Science"
+                                    textStyle = { userGroupScreenStyle.ugOverlayCheckbox }
+                                    checkedIcon='dot-circle-o'
+                                    uncheckedIcon='circle-o'
+                                    checked = { this.state.checkedS }
+                                    onPress = {() => this._handleCreateGroupCheckBox("Science")}
+                                />
+                                <CheckBox
+                                    title = "Langauge"
+                                    textStyle = { userGroupScreenStyle.ugOverlayCheckbox }
+                                    checkedIcon='dot-circle-o'
+                                    uncheckedIcon='circle-o'
+                                    checked = { this.state.checkedL }
+                                    onPress = {() => this._handleCreateGroupCheckBox("Language")}
+                                />
+                                <Button
+                                    title = "Save"
+                                    type = "outline"
+                                    containerStyle = { userGroupScreenStyle.ugOverlayButton }
+                                    onPress = {() => this._handleCreateGroup()}
+                                />
+                                <Button
+                                    title = "Close"
+                                    type = "outline"
+                                    onPress = {() => this._handleCloseCreateGroupOverlay()}
+                                    containerStyle = { userGroupScreenStyle.ugOverlayButton }
+                                />
+                            </Card>
+                        </Overlay>
+
+                        <Overlay
+                            isVisible = { this.state.joinGroupOvarlayVisibility }
+                            onBackdropPress = {() => this._handleCloseJoinGroupOverlay()}
+                            overlayStyle = {{ backgroundColor: "#2288DC", padding: 0, paddingBottom: 15 }}
+                        >
+                            <Card>
+                                <Card.Title style = { userGroupScreenStyle.ugOverlayCard2 }>
+                                    Discover Groups
+                                </Card.Title>
+                                <Card.Divider/>
+                                {
+                                    this.state.userAvailableGroups.map((item, index) => {
+                                        if (this.state.userAvailableGroups == "") {
+                                            return(
+                                                <Text h4 style = {{  color: "#2288DC", alignSelf: "center" }}>
+                                                    No Available Groups
+                                                </Text>
+                                            )
+                                        }
+                                        else {
+                                            return(
+                                                <ListItem.Accordion
+                                                    style = { userGroupScreenStyle.ugCardTitle }
+                                                    key = { index }
+                                                    content = {
+                                                        <>
+                                                            <ListItem.Content>
+                                                                <ListItem.Title style = {{ color: "#2288DC" }}>
+                                                                    { item.groupName }
+                                                                </ListItem.Title>
+                                                            </ListItem.Content>
+                                                        </>
+                                                    }
+                                                    isExpanded = { this.state.activeIndex === item.groupName }
+                                                    onPress = {() => {
+                                                        this.setState({ activeIndex: item.groupName })
+                                                    }}
+                                                >
+                                                    <ListItem>
+                                                        <ListItem.Content>
+                                                            <Button
+                                                                type = "outline"
+                                                                title = "Join"
+                                                                buttonStyle = { userGroupScreenStyle.ugButton4 }
+                                                                onPress = {() => this._handleJoinGroup(item.groupName)}
+                                                            />
+                                                            <Button
+                                                                type = "outline"
+                                                                title = "Close"
+                                                                buttonStyle = { userGroupScreenStyle.ugButton3 }
+                                                                onPress = {() => this._handleCloseJoinGroupOverlay()}
+                                                            />
+                                                        </ListItem.Content>
+                                                    </ListItem>
+                                                </ListItem.Accordion>
+                                            )
+                                        }
+                                    })
+                                }
+                            </Card>
+                        </Overlay>
+                    </Content>
+                </Container>
+            );
     }
 }
 

@@ -173,26 +173,35 @@ export default class ForumScreen extends Component {
                     {
                         this.state.searcForumCollection == "" ?
                         this.state.forumCard.map((item, index) => {
-                            return(
-                                <Card
-                                    key = { index }
-                                >
-                                    <Card.Title>
-                                        { item.forumTitle }
-                                    </Card.Title>
-                                    <Card.Divider/>
-                                    <Text>
-                                        { item.forumContent }
+                            if (this.state.forumCard == "") {
+                                return (
+                                    <Text h4 style = {{  color: "#2288DC", alignSelf: "center", marginTop: 50 }}>
+                                        No available Topics
                                     </Text>
-                                    <Card.Divider/>
-                                    <Icon 
-                                        type = "fontisto" 
-                                        name = "commenting" 
-                                        onPress = {() => this._handleForumComment(item.forumTitle, item.forumID)}
-                                        iconStyle = {{ alignSelf: "flex-start" }} 
-                                    />
-                                </Card>
-                            )
+                                )
+                            }
+                            else {
+                                return(
+                                    <Card
+                                        key = { index }
+                                    >
+                                        <Card.Title>
+                                            { item.forumTitle }
+                                        </Card.Title>
+                                        <Card.Divider/>
+                                        <Text>
+                                            { item.forumContent }
+                                        </Text>
+                                        <Card.Divider/>
+                                        <Icon 
+                                            type = "fontisto" 
+                                            name = "commenting" 
+                                            onPress = {() => this._handleForumComment(item.forumTitle, item.forumID)}
+                                            iconStyle = {{ alignSelf: "flex-start" }} 
+                                        />
+                                    </Card>
+                                )
+                            }
                         }) 
                         :
                         this.state.searcForumCollection.map((item, index) => {
