@@ -649,6 +649,7 @@ export default class SignInScreen extends Component {
                     .collection('Users')
                     .doc(auth().currentUser.uid)
                     .set({
+                        uid: auth().currentUser.uid,
                         firstName: this.state.firstName,
                         lastName: this.state.lastName, 
                         age: this.state.age,
