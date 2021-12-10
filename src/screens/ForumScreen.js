@@ -37,6 +37,8 @@ export default class ForumScreen extends Component {
             searchForumText: "",
             searcForumCollection: [''],
             arrayIntitalizer: [''],
+            forumTitleFormValidation: "",
+            forumContentFormValidation: "",
         }
     }
 
@@ -82,16 +84,35 @@ export default class ForumScreen extends Component {
     }
 
     _handleCreateForum = () => {
-        firestore()
-            .collection("Forum")
-            .doc()
-            .set({
-                forumTitle: this.state.forumTitle,
-                forumContent: this.state.forumContent
-            })
+        //Form Validation for Create Forum Fields
+        var errorCounter = 0;
+        if (this.state.forumTitle == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ forumTitleFormValidation: "Forum Title is required*" })
+        } else {
+            this.setState({ forumTitleFormValidation: "" })
+        }
+
+        if (this.state.forumContent == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ forumContentFormValidation: "Forum Content is required*" })
+        } else {
+            this.setState({ forumContentFormValidation: "" })
+        }
         
-        this._handleCloseForumCreateOverlayVisibility();
-        this.componentDidMount();
+        if (errorCounter == 0) {
+            //Store the data of the forum in database
+            firestore()
+                .collection("Forum")
+                .doc()
+                .set({
+                    forumTitle: this.state.forumTitle,
+                    forumContent: this.state.forumContent
+                })
+        
+            this._handleCloseForumCreateOverlayVisibility();
+            this.componentDidMount();
+        }
     }
 
     _handleSearchForum = (searchText) => {
@@ -246,6 +267,8 @@ export default class ForumScreen extends Component {
                                 placeholder = "Title"
                                 onChangeText = {(forumTitle) => this.setState({ forumTitle })}
                                 value = { this.state.forumTitle }
+                                errorStyle = {{ color: "red" }}
+                                errorMessage = { this.state.forumTitleFormValidation }
                             />
                             <Input
                                 placeholder = "Content"
@@ -253,6 +276,8 @@ export default class ForumScreen extends Component {
                                 rowSpan = { 5 }
                                 onChangeText = {(forumContent) => this.setState({ forumContent })}
                                 value = { this.state.forumContent }
+                                errorStyle = {{ color: "red" }}
+                                errorMessage = { this.state.forumContentFormValidation }
                             />
                             <Button
                                 title = "Save"

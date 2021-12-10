@@ -27,7 +27,6 @@ import AgoraUIKit from 'agora-rn-uikit';
 
 import auth, { firebase } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import { color } from 'react-native-reanimated';
 
 export default class UserGroupScreen extends Component {
 
@@ -48,6 +47,9 @@ export default class UserGroupScreen extends Component {
             checkedL: false,
             activeIndex: "",
             videoCall: false,
+            userStudyPeers: [""],
+            findStudyPeerFormValidation: false,
+            userGroupNameFormValidation: "",
         }
     }
 
@@ -100,20 +102,39 @@ export default class UserGroupScreen extends Component {
     }
 
     _handleChatNavigation = (userGroupName) => {
+        console.log(userGroupName)
         this.props.navigation.navigate("Chat", {
             userLastName: this.state.userLastName,
             studyGroupName: userGroupName,
-            currentUserID: auth().currentUser.uid
+            currentUserID: auth().currentUser.uid,
         });
     }
 
-    // _handleVideoCallNavigation = (userGroupName) => {
-    //     this.props.navigation.navigate("Video Call", {
-    //         studyGroupName: userGroupName
-    //     });
-    // }
+    _handleVideoCallNavigation = (userGroupName) => {
+        this.props.navigation.navigate("Video Call", {
+            studyGroupName: userGroupName
+        });
+    }
 
     _handleOpenCreateGroupOvelay = (visible) => {
+        //Get all the study peers of the current user
+        var userStudyPeersArray = [];
+        firestore()
+            .collection("Users")
+            .doc(auth().currentUser.uid)
+            .collection("Study Peers")
+            .get()
+            .then((snapShot) => {
+                snapShot.forEach((doc) => {
+                    userStudyPeersArray.push({
+                        otherUserID: doc.data().otherUserID,
+                        otherUserName: doc.data().otherUserName,
+                        checked: false,
+                    })
+                })
+                this.setState({ userStudyPeers: userStudyPeersArray })
+            })
+
         this.setState({ createGroupOverlayVisibility: visible })
     }
 
@@ -121,35 +142,10 @@ export default class UserGroupScreen extends Component {
         this.setState({ createGroupOverlayVisibility: false })
     }
 
-    _handleJoinGroupOverlay = (visible) => {
+    _handleFindMatchOverlay = (visible) => {
         this.setState({ joinGroupOvarlayVisibility: visible })
         var userGroupCollection = [];
         var userGroupArray = [];
-        // firestore()
-        //     .collection("Groups")
-        //     .get()
-        //     .then((snapShot) =>{
-        //         userGroupCollection = snapShot.docs.map(doc => doc.data());
-        //     })
-        //     .then(() => {
-        //         for (let index = 0; index < userGroupCollection.length; index++) {
-        //             firestore()
-        //                 .collection("Groups")
-        //                 .doc(userGroupCollection[index].groupName)
-        //                 .collection("Members")
-        //                 .doc(auth().currentUser.uid)
-        //                 .get()
-        //                 .then((doc) => {
-        //                     if(!doc.exists) {
-        //                         userGroupArray.push({
-        //                             groupName: userGroupCollection[index].groupName,
-        //                             topic: userGroupCollection[index].topic,
-        //                         })
-        //                         this.setState({ userAvailableGroups: userGroupArray })
-        //                     }
-        //                 })
-        //         }
-        //     });
         
         //Compbility Algorithm Calculation From Current User to Other User Vice Versa
         var personalityScore = "";
@@ -165,9 +161,6 @@ export default class UserGroupScreen extends Component {
         var userFinalLearningStyleScore = [];
         var compat1 = 1/4;
         var compat2 = [];
-        // var compabilityAlgorithmStep1 = 1 / 4;
-        // var compabilityAlgorithmStep2 = (personalityScore + wtcScore + selfEfficacyScore) / 1;
-        // userCompabilityScore = compabilityAlgorithmStep1 * compabilityAlgorithmStep2;
 
         var otherUserLSScore1 = [];
         var otherUserLSScore2 = [];
@@ -279,6 +272,8 @@ export default class UserGroupScreen extends Component {
                         
                         otherUserLSScore1.push({
                             otherUserID: doc.data().uid,
+                            otherUserCourse: doc.data().course,
+                            otherUserTopic: doc.data().topic,
                             personalityScore: doc.data().PersonalityScore,
                             wtcScore: doc.data().WTCScore,
                             selfEfficacyScore: doc.data().SelfEfficacy,
@@ -286,6 +281,8 @@ export default class UserGroupScreen extends Component {
                         });
                         otherUserLSScore2.push({
                             otherUserID: doc.data().uid,
+                            otherUserCourse: doc.data().course,
+                            otherUserTopic: doc.data().topic,
                             personalityScore: doc.data().PersonalityScore,
                             wtcScore: doc.data().WTCScore,
                             selfEfficacyScore: doc.data().SelfEfficacy,
@@ -299,6 +296,8 @@ export default class UserGroupScreen extends Component {
                                     if (otherUserLSScore1[index].learningStyleScore1.slice(1, 3) == "A") {
                                         otherUserLSARScore[index] = {
                                             otherUserID: otherUserLSScore1[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore1[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore1[index].otherUserTopic,
                                             personalityScore: otherUserLSScore1[index].personalityScore,
                                             wtcScore: otherUserLSScore1[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore1[index].selfEfficacyScore,
@@ -308,6 +307,8 @@ export default class UserGroupScreen extends Component {
                                     else if (otherUserLSScore1[index].learningStyleScore1.slice(1, 3) <= "B") {
                                         otherUserLSARScore[index] = {
                                             otherUserID: otherUserLSScore1[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore1[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore1[index].otherUserTopic,
                                             personalityScore: otherUserLSScore1[index].personalityScore,
                                             wtcScore: otherUserLSScore1[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore1[index].selfEfficacyScore,
@@ -319,6 +320,8 @@ export default class UserGroupScreen extends Component {
                                     if (otherUserLSScore1[index].learningStyleScore1.slice(1, 3) == "A") {
                                         otherUserLSARScore[index] = {
                                             otherUserID: otherUserLSScore1[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore1[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore1[index].otherUserTopic,
                                             personalityScore: otherUserLSScore1[index].personalityScore,
                                             wtcScore: otherUserLSScore1[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore1[index].selfEfficacyScore,
@@ -328,6 +331,8 @@ export default class UserGroupScreen extends Component {
                                     else if (otherUserLSScore1[index].learningStyleScore1.slice(1, 3) <= "B") {
                                         otherUserLSARScore[index] = {
                                             otherUserID: otherUserLSScore1[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore1[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore1[index].otherUserTopic,
                                             personalityScore: otherUserLSScore1[index].personalityScore,
                                             wtcScore: otherUserLSScore1[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore1[index].selfEfficacyScore,
@@ -339,6 +344,8 @@ export default class UserGroupScreen extends Component {
                                     if (otherUserLSScore1[index].learningStyleScore1.slice(1, 3) == "A") {
                                         otherUserLSARScore[index] = {
                                             otherUserID: otherUserLSScore1[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore1[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore1[index].otherUserTopic,
                                             personalityScore: otherUserLSScore1[index].personalityScore,
                                             wtcScore: otherUserLSScore1[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore1[index].selfEfficacyScore,
@@ -348,6 +355,8 @@ export default class UserGroupScreen extends Component {
                                     else if (otherUserLSScore1[index].learningStyleScore1.slice(1, 3) <= "B") {
                                         otherUserLSARScore[index] = {
                                             otherUserID: otherUserLSScore1[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore1[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore1[index].otherUserTopic,
                                             personalityScore: otherUserLSScore1[index].personalityScore,
                                             wtcScore: otherUserLSScore1[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore1[index].selfEfficacyScore,
@@ -361,6 +370,8 @@ export default class UserGroupScreen extends Component {
                                     if (otherUserLSScore1[index].learningStyleScore1.slice(2, 3) == "A") {
                                         otherUserLSARScore[index] = {
                                             otherUserID: otherUserLSScore1[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore1[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore1[index].otherUserTopic,
                                             personalityScore: otherUserLSScore1[index].personalityScore,
                                             wtcScore: otherUserLSScore1[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore1[index].selfEfficacyScore,
@@ -368,8 +379,10 @@ export default class UserGroupScreen extends Component {
                                         }
                                     }
                                     else if (otherUserLSScore1[index].learningStyleScore1.slice(2, 3) <= "B") {
-                                        ootherUserLSARScore[index] = {
+                                        otherUserLSARScore[index] = {
                                             otherUserID: otherUserLSScore1[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore1[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore1[index].otherUserTopic,
                                             personalityScore: otherUserLSScore1[index].personalityScore,
                                             wtcScore: otherUserLSScore1[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore1[index].selfEfficacyScore,
@@ -386,6 +399,8 @@ export default class UserGroupScreen extends Component {
                                     if (otherUserLSScore2[index].learningStyleScore2.slice(1, 3) == "A") {
                                         otherUserLSGSScore[index] = {
                                             otherUserID: otherUserLSScore2[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore2[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore2[index].otherUserTopic,
                                             personalityScore: otherUserLSScore2[index].personalityScore,
                                             wtcScore: otherUserLSScore2[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore2[index].selfEfficacyScore,
@@ -395,6 +410,8 @@ export default class UserGroupScreen extends Component {
                                     else if (otherUserLSScore2[index].learningStyleScore2.slice(1, 3) <= "B") {
                                         otherUserLSGSScore[index] = {
                                             otherUserID: otherUserLSScore2[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore2[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore2[index].otherUserTopic,
                                             personalityScore: otherUserLSScore2[index].personalityScore,
                                             wtcScore: otherUserLSScore2[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore2[index].selfEfficacyScore,
@@ -406,6 +423,8 @@ export default class UserGroupScreen extends Component {
                                     if (otherUserLSScore2[index].learningStyleScore2.slice(1, 3) == "A") {
                                         otherUserLSGSScore[index] = {
                                             otherUserID: otherUserLSScore2[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore2[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore2[index].otherUserTopic,
                                             personalityScore: otherUserLSScore2[index].personalityScore,
                                             wtcScore: otherUserLSScore2[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore2[index].selfEfficacyScore,
@@ -415,6 +434,8 @@ export default class UserGroupScreen extends Component {
                                     else if (otherUserLSScore2[index].learningStyleScore2.slice(1, 3) <= "B") {
                                         otherUserLSGSScore[index] = {
                                             otherUserID: otherUserLSScore2[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore2[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore2[index].otherUserTopic,
                                             personalityScore: otherUserLSScore2[index].personalityScore,
                                             wtcScore: otherUserLSScore2[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore2[index].selfEfficacyScore,
@@ -426,6 +447,8 @@ export default class UserGroupScreen extends Component {
                                     if (otherUserLSScore2[index].learningStyleScore2.slice(1, 3) == "A") {
                                         otherUserLSGSScore[index] = {
                                             otherUserID: otherUserLSScore2[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore2[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore2[index].otherUserTopic,
                                             personalityScore: otherUserLSScore2[index].personalityScore,
                                             wtcScore: otherUserLSScore2[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore2[index].selfEfficacyScore,
@@ -435,6 +458,8 @@ export default class UserGroupScreen extends Component {
                                     else if (otherUserLSScore2[index].learningStyleScore2.slice(1, 3) <= "B") {
                                         otherUserLSGSScore[index] = {
                                             otherUserID: otherUserLSScore2[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore2[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore2[index].otherUserTopic,
                                             personalityScore: otherUserLSScore2[index].personalityScore,
                                             wtcScore: otherUserLSScore2[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore2[index].selfEfficacyScore,
@@ -448,6 +473,8 @@ export default class UserGroupScreen extends Component {
                                     if (otherUserLSScore2[index].learningStyleScore2.slice(2, 3) == "A") {
                                         otherUserLSGSScore[index] = {
                                             otherUserID: otherUserLSScore2[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore2[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore2[index].otherUserTopic,
                                             personalityScore: otherUserLSScore2[index].personalityScore,
                                             wtcScore: otherUserLSScore2[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore2[index].selfEfficacyScore,
@@ -457,6 +484,8 @@ export default class UserGroupScreen extends Component {
                                     else if (otherUserLSScore2[index].learningStyleScore2.slice(2, 3) <= "B") {
                                         otherUserLSGSScore[index] = {
                                             otherUserID: otherUserLSScore2[index].otherUserID,
+                                            otherUserCourse: otherUserLSScore2[index].otherUserCourse,
+                                            otherUserTopic: otherUserLSScore2[index].otherUserTopic,
                                             personalityScore: otherUserLSScore2[index].personalityScore,
                                             wtcScore: otherUserLSScore2[index].wtcScore,
                                             selfEfficacyScore: otherUserLSScore2[index].selfEfficacyScore,
@@ -466,21 +495,7 @@ export default class UserGroupScreen extends Component {
                                 }
                             }
                         }
-                        // otherUserScoreCollection.push({
-                        //     userID: doc.data().uid,
-                        //     personalityScore: doc.data().PersonalityScore,
-                        //     wtcScore: doc.data().WTCScore,
-                        //     selfEfficacyScore: doc.data().SelfEfficacy
-                        // })
                     })
-                    // for(let index = 0; index < otherUserScoreCollection.length; index++) {
-                    //     otherUserScoreArray[index] = [
-                    //        otherUserScoreCollection[index].userID,
-                    //        (1/4) * ((otherUserScoreCollection[index].personalityScore +
-                    //             otherUserScoreCollection[index].wtcScore +
-                    //             otherUserScoreCollection[index].selfEfficacyScore) / 1 )
-                    //     ];
-                    // }
                 })
                 .then(() => {
                     //Final Scoring for Active/Reflective Learning Styles User to Other Users
@@ -543,6 +558,8 @@ export default class UserGroupScreen extends Component {
                         if (otherUserLSARScore[index].lsScore == userLSARScore) {
                             otherUserFinalARScore[index] = {
                                 otherUserID: otherUserLSARScore[index].otherUserID,
+                                otherUserCourse: otherUserLSARScore[index].otherUserCourse,
+                                otherUserTopic: otherUserLSARScore[index].otherUserTopic, 
                                 personalityScore: otherUserLSARScore[index].personalityScore,
                                 wtcScore: otherUserLSARScore[index].wtcScore,
                                 selfEfficacyScore: otherUserLSARScore[index].selfEfficacyScore,
@@ -552,6 +569,8 @@ export default class UserGroupScreen extends Component {
                         else if (otherUserLSARScore[index].lsScore != userLSARScore) {
                             otherUserFinalARScore[index] = {
                                 otherUserID: otherUserLSARScore[index].otherUserID,
+                                otherUserCourse: otherUserLSARScore[index].otherUserCourse,
+                                otherUserTopic: otherUserLSARScore[index].otherUserTopic, 
                                 personalityScore: otherUserLSARScore[index].personalityScore,
                                 wtcScore: otherUserLSARScore[index].wtcScore,
                                 selfEfficacyScore: otherUserLSARScore[index].selfEfficacyScore,
@@ -565,6 +584,8 @@ export default class UserGroupScreen extends Component {
                         if (otherUserLSGSScore[index].gsScore == userLSGSScore) {
                             otherUserFinalGSScore[index] = {
                                 otherUserID: otherUserLSGSScore[index].otherUserID,
+                                otherUserCourse: otherUserLSGSScore[index].otherUserCourse,
+                                otherUserTopic: otherUserLSGSScore[index].otherUserTopic,
                                 personalityScore: otherUserLSGSScore[index].personalityScore,
                                 wtcScore: otherUserLSGSScore[index].wtcScore,
                                 selfEfficacyScore: otherUserLSGSScore[index].selfEfficacyScore,
@@ -574,6 +595,8 @@ export default class UserGroupScreen extends Component {
                         else if (otherUserLSGSScore[index].gsScore != userLSGSScore) {
                             otherUserFinalGSScore[index] = {
                                 otherUserID: otherUserLSGSScore[index].otherUserID,
+                                otherUserCourse: otherUserLSGSScore[index].otherUserCourse,
+                                otherUserTopic: otherUserLSGSScore[index].otherUserTopic,
                                 personalityScore: otherUserLSGSScore[index].personalityScore,
                                 wtcScore: otherUserLSGSScore[index].wtcScore,
                                 selfEfficacyScore: otherUserLSGSScore[index].selfEfficacyScore,
@@ -586,6 +609,8 @@ export default class UserGroupScreen extends Component {
                     for (let index = 0; index < otherUserFinalARScore.length; index++) {
                         otherUserFinalLearningStyleScore[index] = {
                             otherUserID: otherUserFinalARScore[index].otherUserID,
+                            otherUserCourse: otherUserFinalARScore[index].otherUserCourse,
+                            otherUserTopic: otherUserFinalARScore[index].otherUserTopic,
                             personalityScore: otherUserFinalARScore[index].personalityScore,
                             wtcScore: otherUserFinalARScore[index].wtcScore,
                             selfEfficacyScore: otherUserFinalARScore[index].selfEfficacyScore,
@@ -598,6 +623,8 @@ export default class UserGroupScreen extends Component {
                     for (let index = 0; index < otherUserFinalLearningStyleScore.length; index++) {
                         otherCompat2[index] = {
                             otherUserID: otherUserFinalLearningStyleScore[index].otherUserID,
+                            otherUserCourse: otherUserFinalLearningStyleScore[index].otherUserCourse,
+                            otherUserTopic: otherUserFinalLearningStyleScore[index].otherUserTopic,
                             compatScore: (
                                 otherUserFinalLearningStyleScore[index].personalityScore +
                                 otherUserFinalLearningStyleScore[index].wtcScore + 
@@ -609,6 +636,8 @@ export default class UserGroupScreen extends Component {
                     for (let index = 0; index < otherCompat2.length; index++) {
                         otherUserCompabilityScore[index] = {
                             otherUserID: otherCompat2[index].otherUserID,
+                            otherUserCourse: otherCompat2[index].otherUserCourse,
+                            otherUserTopic: otherCompat2[index].otherUserTopic,
                             otherUserCompabilityScore: otherCompat1 * otherCompat2[index].compatScore
                         }
                     }
@@ -620,6 +649,8 @@ export default class UserGroupScreen extends Component {
                             reciprocalRecommendationScore[index] = {
                                 currentUserID: auth().currentUser.uid,
                                 otherUserID: otherUserCompabilityScore[index].otherUserID,
+                                otherUserCourse: otherUserCompabilityScore[index].otherUserCourse,
+                                otherUserTopic: otherUserCompabilityScore[index].otherUserTopic,
                                 score: 2 / ((1 / userCompabilityScore[index].userCompabilityScore) + (1 / otherUserCompabilityScore[index].otherUserCompabilityScore))
                             }
                         }
@@ -634,99 +665,77 @@ export default class UserGroupScreen extends Component {
                         }
                         return 0
                     })
-
-                    // console.log("\n\n")
-                    // console.log(userCompabilityScore)
-                    // console.log(otherUserCompabilityScore)
-                    // console.log("\n\n\n")
-                    // console.log(reciprocalRecommendationScore)
-
-                    // for (let index = 0; index < otherUserScoreCollection.length; index++) {
-                    //     reciprocalRecommendationScore[index] = [
-                    //         { currentUserID: auth().currentUser.uid, otherUser: otherUserScoreArray[index][0] },
-                    //         2 / ((1 / userCompabilityScore) + (1 / otherUserScoreArray[index][1]))
-                    //     ];
-                    // }
-                    
                 })
-                //Assinging  Values to Render Available Groups base on Reciprocal Recommender Value also if the user is insde that group or not
+                //Assinging  Values to Render Available Groups base on Reciprocal Recommender Value also if the user is inside that group or not
                 .then(() => {
-                    for (let index  = 0; index < reciprocalRecommendationScore.length; index++) {
+                    for (let index = 0; index < reciprocalRecommendationScore.length; index++) {
                         firestore()
-                            .collection("Groups")
-                            .where("creatorID", "==", reciprocalRecommendationScore[index].otherUserID)
+                            .collection("Users")
+                            .where("uid", "==", reciprocalRecommendationScore[index].otherUserID)
+                            .where("course", "==", reciprocalRecommendationScore[index].otherUserCourse)
+                            .where("topic", "==", reciprocalRecommendationScore[index].otherUserTopic)
                             .get()
                             .then((snapShot) => {
                                 snapShot.forEach((doc) => {
                                     userGroupCollection.push({
-                                        groupName: doc.data().groupName,
-                                        topic: doc.data().topic
+                                        otherUserID: doc.data().uid,
+                                        otherUserFirstName: doc.data().firstName,
+                                        otherUserLastName: doc.data().lastName,
                                     })
                                 })
-                            })
+                            }) 
                             .then(() => {
                                 firestore()
-                                    .collection("Groups")
-                                    .doc(userGroupCollection[index].groupName)
-                                    .collection("Members")
+                                    .collection("Users")
                                     .doc(auth().currentUser.uid)
+                                    .collection("Study Peers")
+                                    .doc(userGroupCollection[index].otherUserID)
                                     .get()
                                     .then((doc) => {
                                         if (!doc.exists) {
                                             userGroupArray.push({
-                                                groupName: userGroupCollection[index].groupName,
-                                                topic: userGroupCollection[index].topic
+                                                otherUserID: userGroupCollection[index].otherUserID,
+                                                otherUserFirstName: userGroupCollection[index].otherUserFirstName,
+                                                otherUserLastName: userGroupCollection[index].otherUserLastName
                                             })
                                         }
                                         this.setState({ userAvailableGroups: userGroupArray })
                                     })
                             })
                     }
-                            // .then(() => {
-                            //     for (let index = 0; index  < userGroupCollection.length; index++) {
-                            //         firestore()
-                            //             .collection("Groups")
-                            //             .doc(userGroupCollection[index].groupName)
-                            //             .collection("Members")
-                            //             .doc(auth().currentUser.uid)
-                            //             .get()
-                            //             .then((doc) => {
-                            //                 if (!doc.exists) {
-                            //                     userGroupArray.push({
-                            //                         groupName: userGroupCollection[index].groupName,
-                            //                         topic: userGroupCollection[index].topic
-                            //                     })
-                            //                 }
-                            //             })
-                            //     }  
-                            // })
-                        // firestore()
-                        //     .collection("Groups")
-                        //     .get()
-                        //     .then((snapShot) =>{
-                        //         userGroupCollection = snapShot.docs.map(doc => doc.data());
-                        //     })
-                        //     .then(() => {
-                        //         for (let index = 0; index < userGroupCollection.length; index++) {
-                        //             firestore()
-                        //                 .collection("Groups")
-                        //                 .doc(userGroupCollection[index].groupName)
-                        //                 .collection("Members")
-                        //                 .doc(auth().currentUser.uid)
-                        //                 .get()
-                        //                 .then((doc) => {
-                        //                     if(!doc.exists) {
-                        //                         userGroupArray.push({
-                        //                             groupName: userGroupCollection[index].groupName,
-                        //                             topic: userGroupCollection[index].topic,
-                        //                         })
-                        //                         this.setState({ userAvailableGroups: userGroupArray })
-                        //                     }
-                        //                 })
-                        //         }
-                        //     });
-                        // console.log(reciprocalRecommendationScore[index])
                 })
+            })
+
+        //Check if the other users already recieved an study peer invitation or not
+        var otherUserInvitationArray = [];
+        firestore()
+            .collection("Users")
+            .where("uid", "!=", auth().currentUser.uid)
+            .get()
+            .then((snapShot) => {
+                snapShot.forEach((doc) => {
+                    otherUserInvitationArray.push({
+                        otherUserID: doc.data().uid,
+                    })
+                })
+            })
+            .then(() => {
+                for (let index = 0; index < otherUserInvitationArray.length; index++) {
+                    firestore()
+                        .collection("Invitations")
+                        .doc(auth().currentUser.uid)
+                        .collection("Sent")
+                        .doc(otherUserInvitationArray[index].otherUserID)
+                        .get()
+                        .then((doc) => {
+                            if (doc.exists) {
+                                this.setState({ findStudyPeerFormValidation: true })
+                            }
+                            else { 
+                                this.setState({ findStudyPeerFormValidation: false })
+                            }
+                        })
+                }
             })
     }
 
@@ -734,80 +743,86 @@ export default class UserGroupScreen extends Component {
         this.setState({ joinGroupOvarlayVisibility: false })
     }
 
+
     _handleCreateGroupCheckBox = (checkedItem) => {
-        if(checkedItem === "Mathematics") {
-            this.setState({ checkedM: true })
-            this.setState({ checkedL: false })
-            this.setState({ checkedS: false })
-            this.setState({ checkedItem: checkedItem })
-        }
-
-        else if(checkedItem === "Language") {
-            this.setState({ checkedM: false })
-            this.setState({ checkedL: true })
-            this.setState({ checkedS: false })
-            this.setState({ checkedItem: checkedItem })
-        }
-
-        else if(checkedItem === "Science") {
-            this.setState({ checkedM: false })
-            this.setState({ checkedL: false })
-            this.setState({ checkedS: true })
-            this.setState({ checkedItem: checkedItem })
-        }
+        //Getting all checked study peers
+        var data = this.state.userStudyPeers;
+        var index = data.findIndex(x => x.otherUserName === checkedItem)
+        data[index].checked = !data[index].checked;
+        this.setState({ userStudyPeers: data })
     }
 
     _handleCreateGroup = () => {
-        firestore()
-            .collection("Groups")
-            .doc(this.state.userGroup)
-            .set({
-                creatorID: auth().currentUser.uid,
-                groupName: this.state.userGroup,
-                topic: this.state.checkedItem,
-            })
-            .then(() => {
-                firestore()
-                    .collection("Groups")
-                    .doc(this.state.userGroup)
-                    .collection("Members")
-                    .doc(auth().currentUser.uid)
-                    .set({
-                        userID: auth().currentUser.uid,
-                        firstName: this.state.userFirstName,
-                        lastName: this.state.userLastName
-                    })
-            })
-            .then(() => {
-                firestore()
-                    .collection("Groups")
-                    .doc(this.state.userGroup)
-                    .collection("Messages")
-                    .add({
-                        text: this.state.userGroup + " created. Welcome!",
-                        createdAt: new Date().getTime(),
-                        system: true,
-                    })
-            })
+        //Form Validation for Group Creation Field
+        var errorCounter = 0;
+        if (this.state.userGroup == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ userGroupNameFormValidation: "This field is required*" })
+        } else {
+            this.setState({ userGroupNameFormValidation: "" })
+        }
         
-        this._handleCloseCreateGroupOverlay();
-        this.componentDidMount();
+        if (errorCounter == 0) {
+            //Store Group Invitations to other users in database 
+            var userStudyPeersSelectedArray = this.state.userStudyPeers;
+            for (let index = 0; index < userStudyPeersSelectedArray.length; index++) {
+                if (userStudyPeersSelectedArray[index].checked == true) {
+                    firestore()
+                        .collection("Invitations")
+                        .doc(auth().currentUser.uid)
+                        .collection("Group Sent")
+                        .doc(userStudyPeersSelectedArray[index].otherUserID)
+                        .set({
+                            recipientUserID: userStudyPeersSelectedArray[index].otherUserID,
+                            recipientUserFullName: userStudyPeersSelectedArray[index].otherUserName,
+                            senderID: auth().currentUser.uid,
+                            senderName: this.state.userFirstName.concat(" ", this.state.userLastName),
+                            message: "You have been invited by ".concat(this.state.userFirstName.concat(" ", this.state.userLastName), " in the group ", this.state.userGroup),
+                            groupName: this.state.userGroup
+                        })
+                }
+            }
+
+            this._handleCloseCreateGroupOverlay();
+            this.componentDidMount();
+        }
     }
 
-    _handleJoinGroup = (groupName) => {
+    _handleAddPeer = (otherUserID, otherUserFirstName, otherUserLastName) => {
+        //Fetching Personal of the Current User for Storing
+        var currentUSerFullName = "";
         firestore()
-            .collection("Groups")
-            .doc(groupName)
-            .collection("Members")
+            .collection("Users")
             .doc(auth().currentUser.uid)
-            .set({
-                userID: auth().currentUser.uid,
-                firstName: this.state.userFirstName,
-                lastName: this.state.userLastName,
+            .get()
+            .then((snapShot) => {
+                currentUSerFullName = snapShot.data().firstName.concat(" ", snapShot.data().lastName)
+            })
+            .then(() => {
+                //List of Invitaions that the Current User has Sent to other Users
+                firestore()
+                .collection("Invitations")
+                .doc(auth().currentUser.uid)
+                .set({
+                    senderID: auth().currentUser.uid
+                })
+                .then(() => {
+                    firestore()
+                    .collection("Invitations")
+                    .doc(auth().currentUser.uid)
+                    .collection("Sent")
+                    .doc(otherUserID)
+                    .set({
+                        recipientUserID: otherUserID,
+                        recipientUserFullName: otherUserFirstName.concat(" ", otherUserLastName ),
+                        senderID: auth().currentUser.uid,
+                        senderName: this.state.userFirstName.concat(" ", this.state.userLastName),
+                        message: currentUSerFullName.concat("  has sent you a Study Peer Invitation!")
+                    })
+                })
             })
         
         this._handleCloseJoinGroupOverlay();
-        this.componentDidMount();
     }
 
     render() {
@@ -839,7 +854,7 @@ export default class UserGroupScreen extends Component {
                         />
                         <Card containerStyle = { userGroupScreenStyle.ugCard } >
                             <Card.Title style = {{ color: "#2288DC" }} >
-                                Create or Discover Groups
+                                Create Groups / Find Study Peers
                             </Card.Title>
                             <Card.Divider style = { userGroupScreenStyle.udDivider } />
                             <Button  
@@ -848,10 +863,10 @@ export default class UserGroupScreen extends Component {
                                 onPress = {() => this._handleOpenCreateGroupOvelay()}
                             />
                             <Button
-                                title = "Join Group"
+                                title = "Find Match"
                                 type = "outline"
                                 containerStyle = {{ marginTop: 10 }}
-                                onPress = {() => this._handleJoinGroupOverlay()}
+                                onPress = {() => this._handleFindMatchOverlay()}
                             />
                         </Card>
                         <Card containerStyle = { userGroupScreenStyle.ugCard2 } >
@@ -927,31 +942,25 @@ export default class UserGroupScreen extends Component {
                                     labelStyle = {{ color: "#2288DC" }}
                                     onChangeText = {(userGroup) => this.setState({ userGroup })}
                                     value = { this.state.userGroup }
+                                    errorStyle = {{ color: "red" }}
+                                    errorMessage = { this.state.userGroupNameFormValidation }
                                 />
-                                <CheckBox
-                                    title = "Mathematics"
-                                    textStyle = { userGroupScreenStyle.ugOverlayCheckbox }
-                                    checkedIcon='dot-circle-o'
-                                    uncheckedIcon='circle-o'
-                                    checked = { this.state.checkedM }
-                                    onPress = {() => this._handleCreateGroupCheckBox("Mathematics")}
-                                />
-                                <CheckBox
-                                    title = "Science"
-                                    textStyle = { userGroupScreenStyle.ugOverlayCheckbox }
-                                    checkedIcon='dot-circle-o'
-                                    uncheckedIcon='circle-o'
-                                    checked = { this.state.checkedS }
-                                    onPress = {() => this._handleCreateGroupCheckBox("Science")}
-                                />
-                                <CheckBox
-                                    title = "Langauge"
-                                    textStyle = { userGroupScreenStyle.ugOverlayCheckbox }
-                                    checkedIcon='dot-circle-o'
-                                    uncheckedIcon='circle-o'
-                                    checked = { this.state.checkedL }
-                                    onPress = {() => this._handleCreateGroupCheckBox("Language")}
-                                />
+                                {
+                                    this.state.userStudyPeers.map((item, index) => {
+                                        return (
+                                            <View key = { index } >
+                                                <CheckBox
+                                                    title = { item.otherUserName }
+                                                    textStyle = { userGroupScreenStyle.ugOverlayCheckbox }
+                                                    checkedIcon='dot-circle-o'
+                                                    uncheckedIcon='circle-o'
+                                                    checked = { item.checked }
+                                                    onPress = {() => this._handleCreateGroupCheckBox(item.otherUserName)}
+                                                />
+                                            </View>
+                                        )
+                                    })
+                                }
                                 <Button
                                     title = "Save"
                                     type = "outline"
@@ -974,7 +983,7 @@ export default class UserGroupScreen extends Component {
                         >
                             <Card>
                                 <Card.Title style = { userGroupScreenStyle.ugOverlayCard2 }>
-                                    Discover Groups
+                                    Discover Study Peers
                                 </Card.Title>
                                 <Card.Divider/>
                                 {
@@ -982,7 +991,7 @@ export default class UserGroupScreen extends Component {
                                         if (this.state.userAvailableGroups == "") {
                                             return(
                                                 <Text h4 style = {{  color: "#2288DC", alignSelf: "center" }}>
-                                                    No Available Groups
+                                                    No Available Study Peers
                                                 </Text>
                                             )
                                         }
@@ -995,24 +1004,34 @@ export default class UserGroupScreen extends Component {
                                                         <>
                                                             <ListItem.Content>
                                                                 <ListItem.Title style = {{ color: "#2288DC" }}>
-                                                                    { item.groupName }
+                                                                    { item.otherUserFirstName.concat(" ", item.otherUserLastName) }
                                                                 </ListItem.Title>
                                                             </ListItem.Content>
                                                         </>
                                                     }
-                                                    isExpanded = { this.state.activeIndex === item.groupName }
+                                                    isExpanded = { this.state.activeIndex === item.otherUserFirstName.concat(" ", item.otherUserLastName) }
                                                     onPress = {() => {
-                                                        this.setState({ activeIndex: item.groupName })
+                                                        this.setState({ activeIndex: item.otherUserFirstName.concat(" ", item.otherUserLastName) })
                                                     }}
                                                 >
                                                     <ListItem>
                                                         <ListItem.Content>
-                                                            <Button
-                                                                type = "outline"
-                                                                title = "Join"
-                                                                buttonStyle = { userGroupScreenStyle.ugButton4 }
-                                                                onPress = {() => this._handleJoinGroup(item.groupName)}
-                                                            />
+                                                            {this.state.findStudyPeerFormValidation == false ?
+                                                                <Button
+                                                                    type = "outline"
+                                                                    title = "Add Peer"
+                                                                    buttonStyle = { userGroupScreenStyle.ugButton4 }
+                                                                    onPress = {() => this._handleAddPeer(item.otherUserID, item.otherUserFirstName, item.otherUserLastName)}
+                                                                />
+                                                                :
+                                                                <Button
+                                                                    type = "outline"
+                                                                    titleStyle = {{ fontSize: 12 }}
+                                                                    title = "Request Sent"
+                                                                    buttonStyle = { userGroupScreenStyle.ugButton4 }
+                                                                    disabled = { true }
+                                                                />
+                                                            }   
                                                             <Button
                                                                 type = "outline"
                                                                 title = "Close"
@@ -1066,7 +1085,7 @@ const userGroupScreenStyle = StyleSheet.create({
     },
 
     ugButton4: {
-        paddingHorizontal: 106,
+        paddingHorizontal: 89,
         marginBottom: 10,
     },
 

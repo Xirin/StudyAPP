@@ -22,6 +22,8 @@ import {
     Text,
     CheckBox,
     Slider,
+    ListItem,
+    Icon
 } from 'react-native-elements';
 
 import Swiper from 'react-native-swiper';
@@ -41,8 +43,20 @@ export default class SignInScreen extends Component {
             lastName: '',
             age: "",
             sex: "",
+            course: "",
+            topic: "",
             signUpOverlayVisiblility: false,
             signInOverlayVisibility: false,
+            courseListAccordion: false,
+            topicListAccordion: false,
+            emailFormValidation: "",
+            passwordFormValidation: "",
+            firstNameFormValidation: "",
+            lastNameFormValidation: "",
+            ageFormValidation: "",
+            sexFormValidation: "",
+            courseFormValidation: "",
+            topicFormValidation: "",
 
             //Personality Test Variables
             signUpOverlayPersonalityTestVisibility: false,
@@ -56,6 +70,16 @@ export default class SignInScreen extends Component {
             personalityTestQ8ActiveIndex: "",
             personalityTestQ9ActiveIndex: "",
             personalityTestQ10ActiveIndex: "",
+            personalityQ1FormValidation: "",
+            personalityQ2FormValidation: "",
+            personalityQ3FormValidation: "",
+            personalityQ4FormValidation: "",
+            personalityQ5FormValidation: "",
+            personalityQ6FormValidation: "",
+            personalityQ7FormValidation: "",
+            personalityQ8FormValidation: "",
+            personalityQ9FormValidation: "",
+            personalityQ10FormValidation: "",
             personalityTestQuestions: [
                 "1.) I see myself as someone who is Reserved",
                 "2.) I see myself as someone who is generally Trusting",
@@ -100,6 +124,28 @@ export default class SignInScreen extends Component {
             learningStylesQ20ActiveIndex: "",
             learningStylesQ21ActiveIndex: "",
             learningStylesQ22ActiveIndex: "",
+            lsQ1FormValidation: "",
+            lsQ2FormValidation: "",
+            lsQ3FormValidation: "",
+            lsQ4FormValidation: "",
+            lsQ5FormValidation: "",
+            lsQ6FormValidation: "",
+            lsQ7FormValidation: "",
+            lsQ8FormValidation: "",
+            lsQ9FormValidation: "",
+            lsQ10FormValidation: "",
+            lsQ11FormValidation: "",
+            lsQ12FormValidation: "",
+            lsQ13FormValidation: "",
+            lsQ14FormValidation: "",
+            lsQ15FormValidation: "",
+            lsQ16FormValidation: "",
+            lsQ17FormValidation: "",
+            lsQ18FormValidation: "",
+            lsQ19FormValidation: "",
+            lsQ20FormValidation: "",
+            lsQ21FormValidation: "",
+            lsQ22FormValidation: "",
             learningStylesQuestions: [
                 "1.) I understand something better after I",
                 "2.) When I am learning something new, it helps me to",
@@ -252,6 +298,14 @@ export default class SignInScreen extends Component {
             selfEfficacyQ6ActiveIndex: "",
             selfEfficacyQ7ActiveIndex: "",
             selfEfficacyQ8ActiveIndex: "",
+            selfEfficacyQ1FormValidation: "",
+            selfEfficacyQ2FormValidation: "",
+            selfEfficacyQ3FormValidation: "",
+            selfEfficacyQ4FormValidation: "",
+            selfEfficacyQ5FormValidation: "",
+            selfEfficacyQ6FormValidation: "",
+            selfEfficacyQ7FormValidation: "",
+            selfEfficacyQ8FormValidation: "",
             selfEfficacyQuestions: [
                 "1. I believe I will receive an excellent grade in this class.",
                 "2. I'm certain I can understand the most difficult material presented in the readings for this course.",
@@ -283,28 +337,98 @@ export default class SignInScreen extends Component {
                     if (errorCode === 'auth/invalid-email') {
                         this.setState({ email: '' });
                         this.setState({ password: '' });
+                        this.setState({ emailFormValidation: "E-mail is Invalid*" })
                     }
                     
                     else if (errorCode === 'auth/user-not-found') {
                         this.setState({ email: '' });
                         this.setState({ password: '' });
+                        this.setState({ emailFormValidation: "E-mail does not exist*" })
                     }
 
                     else if (errorCode === 'auth/wrong-password') {
                         this.setState({ email: '' });
                         this.setState({ password: '' });
+                        this.setState({ passwordFormValidation: "Wrong Password*" })
+                    }
+                    else if (this.state.email == "") {
+                        this.setState({ emailFormValidation: "E-mail is Required*" })
+                    }
+                    else if (this.state.password == "") {
+                        this.setState({ passwordFormValidation: "Password is Required*" })
                     }
 
                     else {
                         this._handleCloseSignInOvelay();
+                        this.setState({ emailFormValidation: "" })
+                        this.setState({ passwordFormValidation: "" })
                         this.props.navigation.navigate('Profile');
                     }
                 });
     }
 
     _handleSignUp = () => {
-        //Personal Information Database Storing
-        auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
+        //Form Validation of Self Efficacy Fields
+        var errorCounter = 0;
+        if (this.state.selfEfficacyQ1ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ selfEfficacyQ1FormValidation: "This field is required*" })
+        } else {
+            this.setState({ selfEfficacyQ1FormValidation: "" })
+        }
+
+        if (this.state.selfEfficacyQ2ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ selfEfficacyQ2FormValidation: "This field is required*" })
+        } else {
+            this.setState({ selfEfficacyQ2FormValidation: "" })
+        }
+
+        if (this.state.selfEfficacyQ3ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ selfEfficacyQ3FormValidation: "This field is required*" })
+        } else {
+            this.setState({ selfEfficacyQ3FormValidation: "" })
+        }
+
+        if (this.state.selfEfficacyQ4ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ selfEfficacyQ4FormValidation: "This field is required*" })
+        } else {
+            this.setState({ selfEfficacyQ4FormValidation: "" })
+        }
+
+        if (this.state.selfEfficacyQ5ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ selfEfficacyQ5FormValidation: "This field is required*" })
+        } else {
+            this.setState({ selfEfficacyQ5FormValidation: "" })
+        }
+
+        if (this.state.selfEfficacyQ6ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ selfEfficacyQ6FormValidation: "This field is required*" })
+        } else {
+            this.setState({ selfEfficacyQ6FormValidation: "" })
+        }
+
+        if (this.state.selfEfficacyQ7ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ selfEfficacyQ7FormValidation: "This field is required*" })
+        } else {
+            this.setState({ selfEfficacyQ7FormValidation: "" })
+        }
+
+        if (this.state.selfEfficacyQ8ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ selfEfficacyQ8FormValidation: "This field is required*" })
+        } else {
+            this.setState({ selfEfficacyQ8FormValidation: "" })
+        }
+
+        if (errorCounter == 0) {
+            //Personal Information Database Storing
+            auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
             .then(() => auth().FirebaseAuthInvalidCredentialsException())
             .catch((error) => {
                 const errorCode = error.code;
@@ -329,19 +453,19 @@ export default class SignInScreen extends Component {
             .then(() => {
                 //WTC Score Computation
                 var wtcStrangerScore = (this.state.wtcQ1ActiveIndex +
-                                       this.state.wtcQ4ActiveIndex +
-                                       this.state.wtcQ7ActiveIndex +
-                                       this.state.wtcQ10ActiveIndex) / 4;
+                                    this.state.wtcQ4ActiveIndex +
+                                    this.state.wtcQ7ActiveIndex +
+                                    this.state.wtcQ10ActiveIndex) / 4;
 
                 var wtcAcquaintanceScore = (this.state.wtcQ2ActiveIndex +
-                                       this.state.wtcQ6ActiveIndex +
-                                       this.state.wtcQ9ActiveIndex +
-                                       this.state.wtcQ12ActiveIndex) / 4;
+                                    this.state.wtcQ6ActiveIndex +
+                                    this.state.wtcQ9ActiveIndex +
+                                    this.state.wtcQ12ActiveIndex) / 4;
 
                 var wtcFriendScore = (this.state.wtcQ3ActiveIndex +
-                                     this.state.wtcQ5ActiveIndex +
-                                     this.state.wtcQ8ActiveIndex +
-                                     this.state.wtcQ11ActiveIndex) / 4;
+                                    this.state.wtcQ5ActiveIndex +
+                                    this.state.wtcQ8ActiveIndex +
+                                    this.state.wtcQ11ActiveIndex) / 4;
 
                 var wtcTotalScore = (wtcStrangerScore + wtcAcquaintanceScore + wtcFriendScore) / 3;
 
@@ -401,7 +525,7 @@ export default class SignInScreen extends Component {
                     else if (personalityAnswerReversedScored[index] === "Neither Agree nor Disagree") {
                         personalityReverseScores[index] = 3
                     }
-                     else if (personalityAnswerReversedScored[index] === "Agree a Little") {
+                    else if (personalityAnswerReversedScored[index] === "Agree a Little") {
                         personalityReverseScores[index] = 2;
                     }
                     else if (personalityAnswerReversedScored[index] === "Agree Strongly") {
@@ -457,10 +581,10 @@ export default class SignInScreen extends Component {
                 var personalityOpennessScore = (personalityQ5Score + personalityQ10Score) / 2;
 
                 var personalityTotalScore = (personalityExtraversionScore +
-                                             personalityAgreeablenessScore +
-                                             personalityConscientiousnessScore +
-                                             personalityNeuroticismScore +
-                                             personalityOpennessScore) / 5;
+                                            personalityAgreeablenessScore +
+                                            personalityConscientiousnessScore +
+                                            personalityNeuroticismScore +
+                                            personalityOpennessScore) / 5;
 
                 //Learning Styles Score Computation
                 var lsActiveReflectiveAnswers = [
@@ -654,6 +778,8 @@ export default class SignInScreen extends Component {
                         lastName: this.state.lastName, 
                         age: this.state.age,
                         sex: this.state.sex,
+                        course: this.state.course,
+                        topic: this.state.topic,
                         PersonalityScore: personalityTotalScore,
                         WTCScore: wtcTotalScore,
                         LearningStyleScore1: learningStyleScoreAR,
@@ -773,11 +899,14 @@ export default class SignInScreen extends Component {
                         })
                 }
             });
-        this.setState ({ signUpOverlayVisiblility: false });
-        this.setState ({ signUpOverlayPersonalityTestVisibility: false })
-        this.setState ({ signUpOverlayLearningStylesVisibility: false })
-        this.setState ({ signUpOverlayWTCVisibility: false })
-        this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
+
+            //Navigation to other overlays
+            this.setState ({ signUpOverlayVisiblility: false });
+            this.setState ({ signUpOverlayPersonalityTestVisibility: false })
+            this.setState ({ signUpOverlayLearningStylesVisibility: false })
+            this.setState ({ signUpOverlayWTCVisibility: false })
+            this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
+        }
     }
     //Personal Information Overlay Triggers
     _handleOpenSignUpOverlay = (visible) => {
@@ -794,11 +923,80 @@ export default class SignInScreen extends Component {
 
     //Personality Test Overlay Triggers
     _handleOpenPersonalityTestOverlay = (visible) => {
-        this.setState ({ signUpOverlayPersonalityTestVisibility: visible })
-        this.setState ({ signUpOverlayVisiblility: false });
-        this.setState ({ signUpOverlayLearningStylesVisibility: false })
-        this.setState ({ signUpOverlayWTCVisibility: false })
-        this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
+        //From Validation for Personal Information Fields
+        var errorCounter = 0;
+        if (this.state.firstName == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ firstNameFormValidation: "First Name is Required*" })
+        }
+        else {
+            this.setState({ firstNameFormValidation: "" })
+        }
+
+        if (this.state.lastName == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lastNameFormValidation: "Last Name is Required*" })
+        }
+        else {
+            this.setState({ lastNameFormValidation: "" })
+        }
+
+        if (this.state.age == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ ageFormValidation: "Age is Required*" })
+        } 
+        else {
+            this.setState({ ageFormValidation: "" })
+        }
+
+        if (this.state.email == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ emailFormValidation: "E-mail is Required*" })
+        }
+        else {
+            this.setState({ emailFormValidation: "" })
+        }
+
+        if (this.state.password == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ passwordFormValidation: "Password is Required*" })
+        }
+        else {
+            this.setState({ passwordFormValidation: "" })
+        }
+
+        if (this.state.course == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ courseFormValidation: "Course is Required*" })
+        }
+         else {
+             this.setState({ courseFormValidation: "" })
+         }
+
+         if (this.state.topic == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ topicFormValidation: "Topic is Required*" })
+         }
+         else {
+             this.setState({ topicFormValidation: "" })
+         }
+
+         if (this.state.sex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ sexFormValidation: "Sex is Required*" })
+         }
+         else {
+            this.setState({ sexFormValidation: "" })
+         }
+
+        if (errorCounter == 0) {
+            //Navigation of other overlays
+            this.setState ({ signUpOverlayPersonalityTestVisibility: visible })
+            this.setState ({ signUpOverlayVisiblility: false });
+            this.setState ({ signUpOverlayLearningStylesVisibility: false })
+            this.setState ({ signUpOverlayWTCVisibility: false })
+            this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
+        }
     }
 
     _handleClosePersonalityTestOverlay = () => {
@@ -808,11 +1006,96 @@ export default class SignInScreen extends Component {
 
     //Learning Styles Overlay Triggers
     _handleOpenLearningStylesOverlay = (visible) => {
-        this.setState ({ signUpOverlayLearningStylesVisibility: visible })
-        this.setState ({ signUpOverlayVisiblility: false });
-        this.setState ({ signUpOverlayPersonalityTestVisibility: false })
-        this.setState ({ signUpOverlayWTCVisibility: false })
-        this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
+        //Form Validations for Personality Test Fields
+        var errorCounter = 0;
+        if (this.state.personalityTestQ1ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ personalityQ1FormValidation: "This field is required*" })
+        }
+        else {
+            this.setState({ personalityQ1FormValidation: "" })
+        }
+
+        if (this.state.personalityTestQ2ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ personalityQ2FormValidation: "This field is required*" })
+        }
+        else {
+            this.setState({ personalityQ2FormValidation: "" })
+        }
+
+        if (this.state.personalityTestQ3ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ personalityQ3FormValidation: "This field is required*" })
+        }
+        else {
+            this.setState({ personalityQ3FormValidation: "" })
+        }
+
+        if (this.state.personalityTestQ4ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ personalityQ4FormValidation: "This field is required*" })
+        }
+        else {
+            this.setState({ personalityQ4FormValidation: "" })
+        }
+
+        if (this.state.personalityTestQ5ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ personalityQ5FormValidation: "This field is required*" })
+        }
+        else {
+            this.setState({ personalityQ5FormValidation: "" })
+        }
+
+        if (this.state.personalityTestQ6ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ personalityQ6FormValidation: "This field is required*" })
+        }
+        else {
+            this.setState({ personalityQ6FormValidation: "" })
+        }
+
+        if (this.state.personalityTestQ7ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ personalityQ7FormValidation: "This field is required*" })
+        }
+        else {
+            this.setState({ personalityQ7FormValidation: "" })
+        }
+
+        if (this.state.personalityTestQ8ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ personalityQ8FormValidation: "This field is required*" })
+        }
+        else {
+            this.setState({ personalityQ8FormValidation: "" })
+        }
+
+        if (this.state.personalityTestQ9ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ personalityQ9FormValidation: "This field is required*" })
+        }
+        else {
+            this.setState({ personalityQ9FormValidation: "" })
+        }
+
+        if (this.state.personalityTestQ10ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ personalityQ10FormValidation: "This field is required*" })
+        }
+        else {
+            this.setState({ personalityQ10FormValidation: "" })
+        }
+
+        //Navigation of other overlays
+        if (errorCounter == 0) {
+            this.setState ({ signUpOverlayLearningStylesVisibility: visible })
+            this.setState ({ signUpOverlayVisiblility: false });
+            this.setState ({ signUpOverlayPersonalityTestVisibility: false })
+            this.setState ({ signUpOverlayWTCVisibility: false })
+            this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
+        }
     }
 
     _handleCloseLearningStylesOverlay = () => {
@@ -821,11 +1104,170 @@ export default class SignInScreen extends Component {
 
     //Willingness to Communicate Overlay Triggers
     _handleOpenWTCOverlay = (visible) => {
-        this.setState ({ signUpOverlayWTCVisibility: visible })
-        this.setState ({ signUpOverlayVisiblility: false });
-        this.setState ({ signUpOverlayPersonalityTestVisibility: false })
-        this.setState ({ signUpOverlayLearningStylesVisibility: false })
-        this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
+        //Form Validations for Learning Styles Fields
+        var errorCounter = 0;
+        if (this.state.learningStylesQ1ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ1FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ1FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ2ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ2FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ2FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ3ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ3FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ3FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ4ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ4FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ4FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ5ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ5FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ5FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ6ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ6FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ6FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ7ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ7FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ7FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ8ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ8FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ8FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ9ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ9FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ9FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ10ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ10FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ10FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ11ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ11FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ11FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ12ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ12FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ12FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ13ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ13FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ13FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ14ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ14FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ14FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ15ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ15FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ15FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ16ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ16FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ16FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ17ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ17FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ17FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ18ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ18FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ18FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ19ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ19FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ19FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ20ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ20FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ20FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ21ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ21FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ21FormValidation: "" })
+        }
+
+        if (this.state.learningStylesQ22ActiveIndex == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ lsQ22FormValidation: "This field is required*" })
+        } else {
+            this.setState({ lsQ22FormValidation: "" })
+        }
+
+        //Navigation of other overlays
+        if (errorCounter == 0) {
+            this.setState ({ signUpOverlayWTCVisibility: visible })
+            this.setState ({ signUpOverlayVisiblility: false });
+            this.setState ({ signUpOverlayPersonalityTestVisibility: false })
+            this.setState ({ signUpOverlayLearningStylesVisibility: false })
+            this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
+        }
         
     }
 
@@ -864,13 +1306,27 @@ export default class SignInScreen extends Component {
         }
     }
 
-
     render() {
         var logo = require("./assets/StudymateLogo.png");
         const sexList = [
             { sex: "Male" },
             { sex: "Female" }
-        ]
+        ];
+        const courseList = [
+            { title: "Bachelor of Science in Information Technology" },
+            { title: "Bachelor of Science in Compouter Science" },
+            { title: "Bachelor of Library and Information Science" },
+        ];
+        const topicList = [
+            { title: "Multidimensional Array" },
+            { title: "Looping Statements" },
+            { title: "Function" },
+            { title: "Array Data Structure" },
+            { title: "Variables, Constants, and Data Types" },
+            { title: "Selection Statements" },
+            { title: "Input/Output Statements" },
+        ];
+
         return (
             <Container>
                 <Content>
@@ -902,7 +1358,7 @@ export default class SignInScreen extends Component {
                     <Overlay
                         isVisible = { this.state.signUpOverlayVisiblility }
                         onBackdropPress = {() => this._handleCloseSignUpOverlay()}
-                        overlayStyle = {{ backgroundColor: "#2288DC", padding: 0, paddingBottom: 15 }}
+                        overlayStyle = {{ borderWidth: 10, borderColor: "#2288DC" }}
                     >
                         <ScrollView>
                             <Card>
@@ -915,6 +1371,8 @@ export default class SignInScreen extends Component {
                                     labelStyle = {{ color: "#2288DC" }}
                                     onChangeText = {(firstName) => this.setState ({ firstName })}
                                     value = { this.state.firstName }
+                                    errorStyle = {{ color: "red" }}
+                                    errorMessage = { this.state.firstNameFormValidation }
                                 />
                                 <Input 
                                     placeholder = "Last Name"
@@ -923,6 +1381,8 @@ export default class SignInScreen extends Component {
                                     labelStyle = {{ color: "#2288DC" }}
                                     onChangeText = {(lastName) => this.setState ({ lastName })}
                                     value = { this.state.lastName }
+                                    errorStyle = {{ color: "red" }}
+                                    errorMessage = { this.state.lastNameFormValidation }
                                 />
                                 <Input 
                                     keyboardType = "number-pad"
@@ -932,6 +1392,8 @@ export default class SignInScreen extends Component {
                                     labelStyle = {{ color: "#2288DC" }}
                                     onChangeText = {(age) => this.setState ({ age })}
                                     value = { this.state.age }
+                                    errorStyle = {{ color: "red" }}
+                                    errorMessage = { this.state.ageFormValidation }
                                 />
                                 <Text style = {signInPageStyle.signUpText}>
                                     Sex
@@ -944,6 +1406,8 @@ export default class SignInScreen extends Component {
                                                     <CheckBox 
                                                         textStyle = {{ color: "#2288DC" }}
                                                         title = { item.sex }
+                                                        checkedIcon='dot-circle-o'
+                                                        uncheckedIcon='circle-o'
                                                         checked = { this.state.sex === item.sex }
                                                         onPress = {() => this.setState({ sex: item.sex })}
                                                     />
@@ -952,6 +1416,99 @@ export default class SignInScreen extends Component {
                                         })
                                     }
                                 </View>
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.sexFormValidation }
+                                </Text>
+                                <ListItem.Accordion
+                                    content = {
+                                        <>
+                                            <Icon 
+                                                type = "material-community" 
+                                                name = "school"
+                                                color = "#2288DC"
+                                            />
+                                            <ListItem.Content>
+                                                <ListItem.Title style = {{ color: "#2288DC", fontWeight: "bold" }}>
+                                                    {"\u00A0"}{"\u00A0"}Course List
+                                                </ListItem.Title>
+                                            </ListItem.Content>
+                                        </>
+                                    }
+                                    isExpanded = { this.state.courseListAccordion }
+                                    onPress = {() => this.setState({ courseListAccordion: !this.state.courseListAccordion })}
+                                >
+                                    {
+                                        courseList.map((item, index) => {
+                                            return(
+                                                <View key = { index }>
+                                                    <CheckBox 
+                                                        textStyle = {{ color: "#2288DC" }}
+                                                        title = { item.title }
+                                                        checkedIcon='dot-circle-o'
+                                                        uncheckedIcon='circle-o'
+                                                        checked = { this.state.course === item.title }
+                                                        onPress = {() => this.setState({ course: item.title })}
+                                                    />
+                                                </View>
+                                            )
+                                        })
+                                    }
+                                </ListItem.Accordion>
+                                <Card.Divider/>
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.courseFormValidation }
+                                </Text>
+                                <ListItem.Accordion
+                                    content = {
+                                        <>
+                                            <Icon
+                                                type = "material-community"
+                                                name = "bookshelf"
+                                                color = "#2288DC"
+                                            />
+                                            <ListItem.Content>
+                                                <ListItem.Title style = {{ color: "#2288DC", fontWeight: "bold" }}>
+                                                    {"\u00A0"}{"\u00A0"}Topics
+                                                </ListItem.Title>
+                                            </ListItem.Content>
+                                        </>
+                                    }
+                                    isExpanded = { this.state.topicListAccordion }
+                                    onPress = {() => this.setState({ topicListAccordion: !this.state.topicListAccordion })}
+                                >
+                                    {
+                                        topicList.map((item, index) => {
+                                            return(
+                                                <View key = { index }>
+                                                    <CheckBox 
+                                                        textStyle = {{ color: "#2288DC" }}
+                                                        title = { item.title }
+                                                        checkedIcon='dot-circle-o'
+                                                        uncheckedIcon='circle-o'
+                                                        checked = { this.state.topic === item.title }
+                                                        onPress = {() => this.setState({ topic: item.title })}
+                                                    />
+                                                </View>
+                                            )
+                                        })
+                                    }
+                                </ListItem.Accordion>
+                                <Card.Divider/>
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.topicFormValidation }
+                                </Text>
                                 <Input 
                                     placeholder = "email@address.com"
                                     leftIcon = {{ type: "ion-icon", name: "mail", color: "#2288DC" }}
@@ -959,6 +1516,8 @@ export default class SignInScreen extends Component {
                                     labelStyle = {{ color: "#2288DC" }}
                                     onChangeText = {(email) => this.setState ({ email })}
                                     value = { this.state.email }
+                                    errorStyle = {{ color: "red" }}
+                                    errorMessage = { this.state.emailFormValidation }
                                 />
                                 <Input 
                                     placeholder = "Password"
@@ -969,6 +1528,8 @@ export default class SignInScreen extends Component {
                                     value = { this.state.password }
                                     InputComponent = { TextInput }
                                     secureTextEntry = { true }
+                                    errorStyle = {{ color: "red" }}
+                                    errorMessage = { this.state.passwordFormValidation }
                                 />
                                 <Button
                                     title = "Next"
@@ -1012,6 +1573,14 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.personalityQ1FormValidation }
+                                </Text>
+                                <Card.Divider/>
                                 <Text>2. I see myself as someone who is generally Trusting </Text>
                                 {
                                     this.state.personalityTestAnswers.map((item, index) => {
@@ -1026,6 +1595,14 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.personalityQ2FormValidation }
+                                </Text>
+                                <Card.Divider/>
                                 <Text>3. I see myself as someone who is tends to be Lazy </Text>
                                 {
                                     this.state.personalityTestAnswers.map((item, index) => {
@@ -1040,6 +1617,14 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.personalityQ3FormValidation }
+                                </Text>
+                                <Card.Divider/>
                                 <Text>4. I see myself as someone who is Relaxed, Handles stress well </Text>
                                 {
                                     this.state.personalityTestAnswers.map((item, index) => {
@@ -1054,6 +1639,14 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.personalityQ4FormValidation }
+                                </Text>
+                                <Card.Divider/>
                                 <Text>5. I see myself as someone who has few Artistic Interests</Text>
                                 {
                                     this.state.personalityTestAnswers.map((item, index) => {
@@ -1068,6 +1661,14 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.personalityQ5FormValidation }
+                                </Text>
+                                <Card.Divider/>
                                 <Text>6. I see myself as someone who is Outgioing, Sociable </Text>
                                 {
                                     this.state.personalityTestAnswers.map((item, index) => {
@@ -1082,6 +1683,14 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.personalityQ6FormValidation }
+                                </Text>
+                                <Card.Divider/>
                                 <Text>7. I see myself as someone who tends to Find fault with Others </Text>
                                 {
                                     this.state.personalityTestAnswers.map((item, index) => {
@@ -1096,6 +1705,14 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.personalityQ7FormValidation }
+                                </Text>
+                                <Card.Divider/>
                                 <Text>8. I see myself as someone who does a Thorough job </Text>
                                 {
                                     this.state.personalityTestAnswers.map((item, index) => {
@@ -1110,6 +1727,14 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.personalityQ8FormValidation }
+                                </Text>
+                                <Card.Divider/>
                                 <Text>9. I see myself as someone who gets Nervous Easily </Text>
                                 {
                                     this.state.personalityTestAnswers.map((item, index) => {
@@ -1124,6 +1749,14 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.personalityQ9FormValidation }
+                                </Text>
+                                <Card.Divider/>
                                 <Text>10. I see myself as someone who has an Active Imagination </Text>
                                 {
                                     this.state.personalityTestAnswers.map((item, index) => {
@@ -1138,6 +1771,13 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.personalityQ10FormValidation }
+                                </Text>
                                 
                                 <Button 
                                     title = "Previous"
@@ -1185,6 +1825,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ1FormValidation }
+                                </Text>
+                                <Card.Divider/>
+
                                 <Text>2. When I am learning something new, it helps me to</Text>
                                 {
                                     this.state.learningStyleAnswersQ2.map((item, index) => {
@@ -1199,6 +1848,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ2FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>3. In a study group working on difficult material, I am more likely to</Text>
                                 {
                                     this.state.learningStyleAnswersQ3.map((item, index) => {
@@ -1213,6 +1871,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ3FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>4. In classes I have taken</Text>
                                 {
                                     this.state.learningStyleAnswersQ4.map((item, index) => {
@@ -1227,6 +1894,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ4FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>5. When I start a homework problem, I am more likely to</Text>
                                 {
                                     this.state.learningStyleAnswersQ5.map((item, index) => {
@@ -1241,6 +1917,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ5FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>6. I prefer to study</Text>
                                 {
                                     this.state.learningStyleAnswersQ6.map((item, index) => {
@@ -1255,6 +1940,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ6FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>7. I would rather first</Text>
                                 {
                                     this.state.learningStyleAnswersQ7.map((item, index) => {
@@ -1269,6 +1963,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ7FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>8. I more easily remember</Text>
                                 {
                                     this.state.learningStyleAnswersQ8.map((item, index) => {
@@ -1283,6 +1986,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ8FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>9. When I have to work on a group project, I first want to</Text>
                                 {
                                     this.state.learningStyleAnswersQ9.map((item, index) => {
@@ -1297,6 +2009,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ9FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>10. I am more likely to be considered</Text>
                                 {
                                     this.state.learningStyleAnswersQ10.map((item, index) => {
@@ -1311,6 +2032,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ10FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>11. The idea of doing homework in groups, with one grade for the entire group</Text>
                                 {
                                     this.state.learningStyleAnswersQ11.map((item, index) => {
@@ -1325,6 +2055,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ11FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>12. I tend to</Text>
                                 {
                                     this.state.learningStyleAnswersQ12.map((item, index) => {
@@ -1339,6 +2078,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ12FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>13. Once I understand</Text>
                                 {
                                     this.state.learningStyleAnswersQ13.map((item, index) => {
@@ -1353,6 +2101,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ13FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>14. When I solve maths problems</Text>
                                 {
                                     this.state.learningStyleAnswersQ14.map((item, index) => {
@@ -1367,6 +2124,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ14FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>15. When I'm analysing a story or a novel</Text>
                                 {
                                     this.state.learningStyleAnswersQ15.map((item, index) => {
@@ -1381,6 +2147,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ15FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>16. It is more important to me that an instructor</Text>
                                 {
                                     this.state.learningStyleAnswersQ16.map((item, index) => {
@@ -1395,6 +2170,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ16FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>17. I learn</Text>
                                 {
                                     this.state.learningStyleAnswersQ17.map((item, index) => {
@@ -1409,6 +2193,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ17FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>18. When considering a body of information, I am more likely to</Text>
                                 {
                                     this.state.learningStyleAnswersQ18.map((item, index) => {
@@ -1423,6 +2216,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ18FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>19. When writing a paper, I am more likely to</Text>
                                 {
                                     this.state.learningStyleAnswersQ19.map((item, index) => {
@@ -1437,6 +2239,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ19FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>20. When I am learning a new subject, I prefer to</Text>
                                 {
                                     this.state.learningStyleAnswersQ20.map((item, index) => {
@@ -1451,6 +2262,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ20FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>21. Some teachers start their lectures with an outline of what they will cover. Such outlines are </Text>
                                 {
                                     this.state.learningStyleAnswersQ21.map((item, index) => {
@@ -1465,6 +2285,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ21FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>22. When solving problems in a group, I would be more likely to</Text>
                                 {
                                     this.state.learningStyleAnswersQ22.map((item, index) => {
@@ -1479,7 +2308,14 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
-
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.lsQ22FormValidation }
+                                </Text>
+                                
                                 <Button 
                                     title = "Previous"
                                     type = "outline"
@@ -1704,6 +2540,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.selfEfficacyQ1FormValidation }
+                                </Text>
+                                <Card.Divider/>
+
                                 <Text>2. I'm certain I can understand the most difficult material presented in the readings for this course.</Text>
                                 {
                                     this.state.selfEfficacyAnswers.map((item, index) => {
@@ -1718,6 +2563,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.selfEfficacyQ2FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>3. I'm confident I can understand the basic concepts taught in this course.</Text>
                                 {
                                     this.state.selfEfficacyAnswers.map((item, index) => {
@@ -1732,6 +2586,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.selfEfficacyQ3FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>4. I'm confident I can understand the most complex material presented by the instructor in this course.</Text>
                                 {
                                     this.state.selfEfficacyAnswers.map((item, index) => {
@@ -1746,6 +2609,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.selfEfficacyQ4FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>5. I'm confident I can do an excellent job on the assignments and tests in this course.</Text>
                                 {
                                     this.state.selfEfficacyAnswers.map((item, index) => {
@@ -1760,6 +2632,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.selfEfficacyQ5FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>6. I expect to do well in this class.</Text>
                                 {
                                     this.state.selfEfficacyAnswers.map((item, index) => {
@@ -1774,6 +2655,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.selfEfficacyQ6FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>7. I'm certain I can master the skills being taught in this class.</Text>
                                 {
                                     this.state.selfEfficacyAnswers.map((item, index) => {
@@ -1788,6 +2678,15 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.selfEfficacyQ7FormValidation }
+                                </Text>
+                                <Card.Divider/>
+                                
                                 <Text>8.  Considering the difficulty of this course, the teacher, and my skills, I think I will do well in this class.</Text>
                                 {
                                     this.state.selfEfficacyAnswers.map((item, index) => {
@@ -1802,6 +2701,14 @@ export default class SignInScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: 10,
+                                    fontSize: 12
+                                }}>
+                                    { this.state.selfEfficacyQ8FormValidation }
+                                </Text>
+                                <Card.Divider/>
 
                                 <Button 
                                     title = "Previous"
@@ -1840,6 +2747,8 @@ export default class SignInScreen extends Component {
                                 labelStyle = {{ color: "#2288DC" }}
                                 onChangeText = {(email) => this.setState ({ email })}
                                 value = { this.state.email }
+                                errorStyle = {{ color: "red" }}
+                                errorMessage = { this.state.emailFormValidation }
                             />
                             <Input 
                                 placeholder = "Password"
@@ -1850,6 +2759,8 @@ export default class SignInScreen extends Component {
                                 value = { this.state.password }
                                 InputComponent = { TextInput }
                                 secureTextEntry = { true }
+                                errorStyle = {{ color: "red" }}
+                                errorMessage = { this.state.passwordFormValidation }
                             />
                             <Button 
                                 title = "Sign In"

@@ -34,6 +34,8 @@ export default class ForumTopicScreen extends Component {
             stringInitializer: "",
             userName: "",
             forumReply: "",
+            forumCommentFormValidation: "",
+            forumReplyFormValidation: "",
         }
     }
 
@@ -112,9 +114,17 @@ export default class ForumTopicScreen extends Component {
     }
 
     _handleSendComment = (forumComments) => {
-        if (forumComments == "") {
-            console.log("Empty") //Kulang pa ni
+        //Form Validation for Forum Comment Field
+        var errorCounter = 0;
+        if (this.state.forumComment == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ forumCommentFormValidation: "This field is required*" })
         } else {
+            this.setState({ forumCommentFormValidation: "" })
+        }
+
+        if (errorCounter == 0) {
+            //Store the Forum Comment to the database
             firestore()
                 .collection("Forum")
                 .doc(this.state.forumID)
@@ -124,15 +134,24 @@ export default class ForumTopicScreen extends Component {
                     user: this.state.userName,
                     comment: forumComments
                 })
-        }   
-        this.setState({ forumComment: this.state.stringInitializer })
-        this.componentDidMount();
+        
+            this.setState({ forumComment: this.state.stringInitializer })
+            this.componentDidMount();
+        }
     }
 
     _handleReplyComment = (forumReply, forumCommentID) => {
-        if(forumReply == "") {
-            
+        //Form Validation for Forum Comment Reply field
+        var errorCounter = 0;
+        if (this.state.forumReply == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ forumReplyFormValidation: "This field is required*" })
         } else {
+            this.setState({ forumReplyFormValidation: "" })
+        }
+
+        if (errorCounter == 0) {
+            //Store Forum Comment Reply to the database
             firestore()
                 .collection("Forum")
                 .doc(this.state.forumID)
@@ -144,9 +163,10 @@ export default class ForumTopicScreen extends Component {
                     user: this.state.userName,
                     reply: forumReply
                 })
+        
+            this.setState({ forumReply: this.state.stringInitializer })
+            this.componentDidMount();
         }
-        this.setState({ forumReply: this.state.stringInitializer })
-        this.componentDidMount();
     }
 
     _handleViewReplyComment = (forumCommentID) => {
@@ -196,6 +216,8 @@ export default class ForumTopicScreen extends Component {
                                 onPress = {() => this._handleSendComment(this.state.forumComment)}
                             />
                         }
+                        errorStyle = {{ color: "red" }}
+                        errorMessage = { this.state.forumCommentFormValidation }
                     />
 
                     {
@@ -242,6 +264,8 @@ export default class ForumTopicScreen extends Component {
                                                 onPress = {() => this._handleReplyComment(this.state.forumReply, item.forumCommentID)}
                                             />
                                         }
+                                        errorStyle = {{ color: "red" }}
+                                        errorMessage = { this.state.forumReplyFormValidation }
                                     />
                                 </Card>
                             )

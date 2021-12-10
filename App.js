@@ -12,6 +12,7 @@ import DrawerComponent from './src/screens/DrawerComponent';
 import ForumScreen from './src/screens/ForumScreen';
 import ForumTopicScreen from './src/screens/ForumTopicScreen';
 import ForumReplyScreen from './src/screens/ForumReplyScreen';
+import ChatStudyPeerScreen from './src/screens/ChatScreenStudyPeer';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -39,7 +40,8 @@ export default function AppRouter() {
                 <Drawer.Screen name = "Profile" component = { ProfileScreen } options = {{ unmountOnBlur:true }} />
                 <Drawer.Screen name = "User Group" component = { UserGroupScreen } options = {{ unmountOnBlur:true }} />
                 <Drawer.Screen name = "Forums" component = { ForumScreen } options = {{ unmountOnBlur:true }} />
-                <Drawer.Screen name = "Chat" component = { ChatScreen } />
+                <Drawer.Screen name = "Chat" component = { ChatScreen } options = {{ unmountOnBlur:true }} />
+                <Drawer.Screen name = "Chat Study Peers" component = { ChatStudyPeerScreen } options = {{ unmountOnBlur:true }} />
                 <Drawer.Screen name = "Video Call" component = { VideoCallScreen } />
                 <Drawer.Screen name = "Forum Topic" component = { ForumTopicScreen } options = {{ unmountOnBlur:true }} />
                 <Drawer.Screen name = "Forum Reply" component = { ForumReplyScreen } options = {{ unmountOnBlur:true }} />

@@ -31,6 +31,7 @@ export default class ForumReplyScreen extends Component {
             forumReplyCollection: [''],
             forumReply: "",
             stringInitializer: "",
+            forumReplyFormValidation: "",
         }
     }
 
@@ -87,20 +88,32 @@ export default class ForumReplyScreen extends Component {
     }
 
     _handleSendReply = (forumReply) => {
-        firestore()
-            .collection("Forum")
-            .doc(this.state.forumID)
-            .collection("Comment")
-            .doc(this.state.forumCommentID)
-            .collection("Reply")
-            .doc()
-            .set({
-                user: this.state.forumFullName,
-                reply: forumReply
-            })
+        //Form Validation for Forum reply field
+        var errorCounter = 0;
+        if (this.state.forumReply == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ forumReplyFormValidation: "This field is required*" })
+        } else {
+            this.setState({ forumReplyFormValidation: "" })
+        }
 
-        this.setState({ forumReply: this.state.stringInitializer })
-        this.componentDidMount();
+        if (errorCounter == 0) {
+            //Store Forum Reply to the database
+            firestore()
+                .collection("Forum")
+                .doc(this.state.forumID)
+                .collection("Comment")
+                .doc(this.state.forumCommentID)
+                .collection("Reply")
+                .doc()
+                .set({
+                    user: this.state.forumFullName,
+                    reply: forumReply
+                })
+
+            this.setState({ forumReply: this.state.stringInitializer })
+            this.componentDidMount();
+        }
     }
 
     render() {
@@ -126,6 +139,8 @@ export default class ForumReplyScreen extends Component {
                                 onPress = {() => this._handleSendReply(this.state.forumReply)}
                             />
                         }
+                        errorStyle = {{ color: "red" }}
+                        errorMessage = { this.state.forumReplyFormValidation }
                     />
 
                     {
