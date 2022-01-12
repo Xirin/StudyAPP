@@ -43,11 +43,17 @@ export default class ForumScreen extends Component {
             forumContentFormValidation: "",
             forumEditVisibility: false,
             forumDeleteVisibility: false,
-            forumEditCollection: [""],
             forumEditCreatorID: "",
             forumEditCreatorName: "",
             forumEditTitle: "",
             forumEditContent: "",
+            forumEditThreadID: "",
+            forumDeleteVisibility: false,
+            forumDeleteCreatorID: "",
+            forumDeleteCreatorName: "",
+            forumDeleteTitle: "",
+            forumDeleteContent: "",
+            forumDeleteThreadID: "",
         }
     }
 
@@ -83,7 +89,8 @@ export default class ForumScreen extends Component {
                                 forumTitle: snapShot.data().forumTitle,
                                 forumContent: snapShot.data().forumContent,
                                 creatorID: snapShot.data().creatorID,
-                                creatorName: snapShot.data().creatorName
+                                creatorName: snapShot.data().creatorName,
+                                forumThreadID: forumIDArray[index]
                             })
                             this.setState({ forumCard: forumCollection })
                         })
@@ -182,12 +189,13 @@ export default class ForumScreen extends Component {
         })
     }
 
-    _handleOpenForumEditOverlay = (visibile, creatorID, creatorName, forumTitle, forumContent) => {
+    _handleOpenForumEditOverlay = (visibile, creatorID, creatorName, forumTitle, forumContent, forumThreadID) => {
         this.setState({ forumEditVisibility: visibile })
         this.setState({ forumEditCreatorID: creatorID })
         this.setState({ forumEditCreatorName: creatorName })
         this.setState({ forumEditTitle: forumTitle })
         this.setState({ forumEditContent: forumContent })
+        this.setState({ forumEditThreadID: forumThreadID })
     }
 
     _handleCloseForumEditOverlay = () => {
@@ -195,31 +203,29 @@ export default class ForumScreen extends Component {
     }
 
     _handleEditForum = () => {
-        var forumThreadID = "";
         firestore()
             .collection("Forum")
-            .where("creatorID", "==", this.state.forumEditCreatorID)
-            .where("creatorName", "==", this.state.forumEditCreatorName)
-            .where("forumTitle", "==", this.state.forumEditTitle)
-            .where("forumContent", "==", this.state.forumEditContent)
-            .get()
-            .then((snapShot) => {
-                snapShot.forEach((doc) => {
-                    forumThreadID = doc.id
-                })
-            })
-            .then(() => {
-                firestore()
-                    .collection("Forum")
-                    .doc(forumThreadID)
-                    .update({
-                        forumTitle: this.state.forumEditTitle,
-                        forumContent: this.state.forumEditContent
-                    })
+            .doc(this.state.forumEditThreadID)
+            .update({
+                forumTitle: this.state.forumEditTitle,
+                forumContent: this.state.forumEditContent
             })
         
         this._handleCloseForumEditOverlay();
         this.componentDidMount()
+    }
+
+    _handleOpenForumDeleteOverlay = (visible, creatorID, creatorName, forumTitle, forumContent, forumThreadID) => {
+        this.setState({ forumDeleteVisibility: visible })
+        this.setState({ forumDeleteCreatorID: creatorID })
+        this.setState({ forumDeleteCreatorName: creatorName })
+        this.setState({ forumDeleteTitle: forumTitle })
+        this.setState({ forumDeleteContent: forumContent })
+        this.setState({ forumDeleteThreadID: forumThreadID })
+    }
+
+    _handleCloseForumDeleteOverlay = () => {
+        this.setState({ forumDeleteVisibility: false })
     }
 
     render() {
@@ -279,13 +285,14 @@ export default class ForumScreen extends Component {
                                                     name = "square-edit-outline"
                                                     iconStyle = {{ fontSize: 30, marginRight: "5%" }}
                                                     color = "#7B1FA2"
-                                                    onPress = {() => this._handleOpenForumEditOverlay(true, item.creatorID, item.creatorName, item.forumTitle, item.forumContent)}
+                                                    onPress = {() => this._handleOpenForumEditOverlay(true, item.creatorID, item.creatorName, item.forumTitle, item.forumContent, item.forumThreadID)}
                                                 />
                                                 <Icon
                                                     type = "material-community"
                                                     name = "delete"
                                                     iconStyle = {{ fontSize: 30 }}
                                                     color = "#7B1FA2"
+                                                    onPress = {() => this._handleOpenForumDeleteOverlay(true, item.creatorID, item.creatorName, item.forumTitle, item.forumContent, item.forumThreadID)}
                                                 />
                                             </View>
                                             <Card.Title>
@@ -412,34 +419,58 @@ export default class ForumScreen extends Component {
                                 Edit Forum
                             </Card.Title>
                             <Card.Divider/>
-                                <Input
-                                    placeholder = "Title"
-                                    label = "Title"
-                                    labelStyle = {{ color: "#7B1FA2" }}
-                                    onChangeText = {(forumEditTitle) => this.setState({ forumEditTitle })}
-                                    value = { this.state.forumEditTitle }
-                                />
-                                <Input
-                                    placeholder = "Content"
-                                    label = "Content"
-                                    labelStyle = {{ color: "#7B1FA2" }}
-                                    InputComponent = { Textarea }
-                                    rowSpan = { 5 }
-                                    onChangeText = {(forumEditContent) => this.setState({ forumEditContent })}
-                                    value = { this.state.forumEditContent }
-                                />
-                                <Button
-                                    title = "Edit"
-                                    type = "solid"
-                                    buttonStyle = {{ backgroundColor: "#7B1FA2" }}
-                                    onPress = {() => this._handleEditForum()}
-                                />
-                                <Button
-                                    title = "Close"
-                                    type = "solid"
-                                    buttonStyle = {{ backgroundColor: "#7B1FA2", marginTop: "3%" }}
-                                    onPress = {() => this._handleCloseForumEditOverlay()}
-                                />
+                            <Input
+                                placeholder = "Title"
+                                label = "Title"
+                                labelStyle = {{ color: "#7B1FA2" }}
+                                onChangeText = {(forumEditTitle) => this.setState({ forumEditTitle })}
+                                value = { this.state.forumEditTitle }
+                            />
+                            <Input
+                                placeholder = "Content"
+                                label = "Content"
+                                labelStyle = {{ color: "#7B1FA2" }}
+                                InputComponent = { Textarea }
+                                rowSpan = { 5 }
+                                onChangeText = {(forumEditContent) => this.setState({ forumEditContent })}
+                                value = { this.state.forumEditContent }
+                            />
+                            <Button
+                                title = "Edit"
+                                type = "solid"
+                                buttonStyle = {{ backgroundColor: "#7B1FA2" }}
+                                onPress = {() => this._handleEditForum()}
+                            />
+                            <Button
+                                title = "Close"
+                                type = "solid"
+                                buttonStyle = {{ backgroundColor: "#7B1FA2", marginTop: "3%" }}
+                                onPress = {() => this._handleCloseForumEditOverlay()}
+                            />
+                        </Card>
+                    </Overlay>
+
+                    <Overlay
+                        isVisible = { this.state.forumDeleteVisibility }
+                        onBackdropPress = {() => this._handleCloseForumDeleteOverlay()}
+                        overlayStyle = {{ padding: 0, paddingBottom: 15, borderWidth: 5, borderColor: "#7B1FA2" }}
+                    >
+                        <Card>
+                            <Text style = {{ color: "#7B1FA2", fontSize: 25, fontWeight: "bold", textAlign: "center" }} >
+                                Do you want to delete this Forum?
+                            </Text>
+                            <Card.Divider/>
+                            <Button
+                                title = "Delete"
+                                type = "solid"
+                                buttonStyle = {{ backgroundColor: "#7B1FA2" }}
+                            />
+                            <Button
+                                title = "Close"
+                                type = "solid"
+                                buttonStyle = {{ backgroundColor: "#7B1FA2", marginTop: "3%" }}
+                                onPress = {() => this._handleCloseForumDeleteOverlay()}
+                            />
                         </Card>
                     </Overlay>
                 </Content>
