@@ -8,7 +8,8 @@ import {
 import {
     Container,
     Content,
-    Textarea
+    Textarea,
+    View
 } from 'native-base';
 
 import {
@@ -30,6 +31,7 @@ export default class ForumScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            userName: "",
             forumCreateVisbility: false,
             forumTitle: "",
             forumContent: "",
@@ -39,14 +41,30 @@ export default class ForumScreen extends Component {
             arrayIntitalizer: [''],
             forumTitleFormValidation: "",
             forumContentFormValidation: "",
+            forumEditVisibility: false,
+            forumDeleteVisibility: false,
+            forumEditCollection: [""],
+            forumEditCreatorID: "",
+            forumEditCreatorName: "",
+            forumEditTitle: "",
+            forumEditContent: "",
         }
     }
 
     componentDidMount = () => {
+        firestore()
+            .collection("Users")
+            .doc(auth().currentUser.uid)
+            .get()
+            .then((snapShot) => {
+                this.setState({ userName: snapShot.data().firstName.concat(" ", snapShot.data().lastName) })
+            })
+
         var forumIDArray = [];
         var forumCollection = [];
         firestore()
             .collection("Forum")
+            .orderBy("createdAt", "desc")
             .get()
             .then((snapShot) => {
                 snapShot.forEach((doc) => {
@@ -63,7 +81,9 @@ export default class ForumScreen extends Component {
                             forumCollection.push({
                                 forumID: forumIDArray[index],
                                 forumTitle: snapShot.data().forumTitle,
-                                forumContent: snapShot.data().forumContent
+                                forumContent: snapShot.data().forumContent,
+                                creatorID: snapShot.data().creatorID,
+                                creatorName: snapShot.data().creatorName
                             })
                             this.setState({ forumCard: forumCollection })
                         })
@@ -107,7 +127,10 @@ export default class ForumScreen extends Component {
                 .doc()
                 .set({
                     forumTitle: this.state.forumTitle,
-                    forumContent: this.state.forumContent
+                    forumContent: this.state.forumContent, 
+                    createdAt: new Date().getTime(),
+                    creatorID: auth().currentUser.uid,
+                    creatorName: this.state.userName
                 })
         
             this._handleCloseForumCreateOverlayVisibility();
@@ -159,35 +182,77 @@ export default class ForumScreen extends Component {
         })
     }
 
+    _handleOpenForumEditOverlay = (visibile, creatorID, creatorName, forumTitle, forumContent) => {
+        this.setState({ forumEditVisibility: visibile })
+        this.setState({ forumEditCreatorID: creatorID })
+        this.setState({ forumEditCreatorName: creatorName })
+        this.setState({ forumEditTitle: forumTitle })
+        this.setState({ forumEditContent: forumContent })
+    }
+
+    _handleCloseForumEditOverlay = () => {
+        this.setState({ forumEditVisibility: false })
+    }
+
+    _handleEditForum = () => {
+        var forumThreadID = "";
+        firestore()
+            .collection("Forum")
+            .where("creatorID", "==", this.state.forumEditCreatorID)
+            .where("creatorName", "==", this.state.forumEditCreatorName)
+            .where("forumTitle", "==", this.state.forumEditTitle)
+            .where("forumContent", "==", this.state.forumEditContent)
+            .get()
+            .then((snapShot) => {
+                snapShot.forEach((doc) => {
+                    forumThreadID = doc.id
+                })
+            })
+            .then(() => {
+                firestore()
+                    .collection("Forum")
+                    .doc(forumThreadID)
+                    .update({
+                        forumTitle: this.state.forumEditTitle,
+                        forumContent: this.state.forumEditContent
+                    })
+            })
+        
+        this._handleCloseForumEditOverlay();
+        this.componentDidMount()
+    }
+
     render() {
         return (
             
             <Container>
                 <Header 
-                        leftComponent = {{ 
-                            icon: "menu",
-                            color: "#fff",
-                            onPress: () => this._handleOpenDrawer(),
-                        }}
-                        centerComponent = {{
-                            text: "Forum",
-                            style: {color: "#fff"}
-                        }}
-                        rightComponent = {{
-                            icon: "add",
-                            color: "#fff",
-                            onPress: () => this._handleOpenForumCreateOverlayVisibility()
-                        }}
+                    containerStyle = {{ backgroundColor: "#7B1FA2" }}
+                    leftComponent = {{ 
+                        icon: "menu",
+                        color: "#fff",
+                        onPress: () => this._handleOpenDrawer(),
+                    }}
+                    centerComponent = {{
+                        text: "Forum",
+                        style: {color: "#fff"}
+                    }}
+                    rightComponent = {{
+                        icon: "add",
+                        color: "#fff",
+                        onPress: () => this._handleOpenForumCreateOverlayVisibility()
+                    }}
                 />
                 <Content>
 
                     <SearchBar
+                        lightTheme
                         placeholder = "Search Forum"
                         onChangeText = {this._handleSearchForum}
                         value = { this.state.searchForumText }
                         onClear = { this._handleSearchForumCancel }
                         containerStyle = {{
-                            backgroundColor: "#2288DC"
+                            backgroundColor: "#7B1FA2"
                         }}
                     />
 
@@ -196,32 +261,76 @@ export default class ForumScreen extends Component {
                         this.state.forumCard.map((item, index) => {
                             if (this.state.forumCard == "") {
                                 return (
-                                    <Text h4 style = {{  color: "#2288DC", alignSelf: "center", marginTop: 50 }}>
+                                    <Text h4 style = {{  color: "#7B1FA2", alignSelf: "center", marginTop: 50 }}>
                                         No available Topics
                                     </Text>
                                 )
                             }
                             else {
-                                return(
-                                    <Card
-                                        key = { index }
-                                    >
-                                        <Card.Title>
-                                            { item.forumTitle }
-                                        </Card.Title>
-                                        <Card.Divider/>
-                                        <Text>
-                                            { item.forumContent }
-                                        </Text>
-                                        <Card.Divider/>
-                                        <Icon 
-                                            type = "fontisto" 
-                                            name = "commenting" 
-                                            onPress = {() => this._handleForumComment(item.forumTitle, item.forumID)}
-                                            iconStyle = {{ alignSelf: "flex-start" }} 
-                                        />
-                                    </Card>
-                                )
+                                if (item.creatorID == auth().currentUser.uid) {
+                                    return(
+                                        <Card
+                                            key = { index }
+                                            containerStyle = { forumScreenStyle.fCard }
+                                        >   
+                                            <View style = {{ flex: 1, flexDirection: "row", alignSelf: "flex-end" }} >
+                                                <Icon
+                                                    type = "material-community"
+                                                    name = "square-edit-outline"
+                                                    iconStyle = {{ fontSize: 30, marginRight: "5%" }}
+                                                    color = "#7B1FA2"
+                                                    onPress = {() => this._handleOpenForumEditOverlay(true, item.creatorID, item.creatorName, item.forumTitle, item.forumContent)}
+                                                />
+                                                <Icon
+                                                    type = "material-community"
+                                                    name = "delete"
+                                                    iconStyle = {{ fontSize: 30 }}
+                                                    color = "#7B1FA2"
+                                                />
+                                            </View>
+                                            <Card.Title>
+                                                { item.forumTitle }
+                                            </Card.Title>
+                                            <Text style = {{ marginBottom: 15, alignSelf: "flex-start" }} >
+                                                { item.forumContent }
+                                            </Text>
+                                            <View style = {{ flex: 1, flexDirection: "row" }} >
+                                                <Icon 
+                                                    type = "fontisto" 
+                                                    name = "commenting" 
+                                                    onPress = {() => this._handleForumComment(item.forumTitle, item.forumID)}
+                                                    iconStyle = {{ alignSelf: "flex-start" }} 
+                                                    color = "#7B1FA2"
+                                                />
+                                                <Text style = {{ marginLeft: 12 }} >Comment</Text>
+                                            </View>
+                                        </Card>
+                                    )
+                                } else {
+                                    return(
+                                        <Card
+                                            key = { index }
+                                            containerStyle = { forumScreenStyle.fCard }
+                                        >   
+                                            <Card.Title>
+                                                { item.forumTitle }
+                                            </Card.Title>
+                                            <Text style = {{ marginBottom: 15, alignSelf: "flex-start" }} >
+                                                { item.forumContent }
+                                            </Text>
+                                            <View style = {{ flex: 1, flexDirection: "row" }} >
+                                                <Icon 
+                                                    type = "fontisto" 
+                                                    name = "commenting" 
+                                                    onPress = {() => this._handleForumComment(item.forumTitle, item.forumID)}
+                                                    iconStyle = {{ alignSelf: "flex-start" }} 
+                                                    color = "#7B1FA2"
+                                                />
+                                                <Text style = {{ marginLeft: 12 }} >Comment</Text>
+                                            </View>
+                                        </Card>
+                                    )
+                                }
                             }
                         }) 
                         :
@@ -229,32 +338,35 @@ export default class ForumScreen extends Component {
                             return(
                                 <Card
                                     key = { index }
+                                    containerStyle = { forumScreenStyle.fCard }
                                 >
                                     <Card.Title>
                                         { item.forumTitle }
                                     </Card.Title>
-                                    <Card.Divider/>
-                                    <Text>
+                                    <Card.Divider style = {{ borderWidth: 1, borderColor: "#7B1FA2" }} />
+                                    <Text style = {{ marginBottom: 15, alignSelf: "center" }} >
                                         { item.forumContent }
                                     </Text>
-                                    <Card.Divider/>
-                                    <Icon 
-                                        type = "fontisto" 
-                                        name = "commenting" 
-                                        onPress = {() => this._handleForumComment(item.forumTitle, item.forumID)}
-                                        iconStyle = {{ alignSelf: "flex-start" }} 
-                                    />
+                                    <Card.Divider style = {{ borderWidth: 1, borderColor: "#7B1FA2" }} />
+                                    <View style = {{ flex: 1, flexDirection: "row" }} >
+                                            <Icon 
+                                                type = "fontisto" 
+                                                name = "commenting" 
+                                                onPress = {() => this._handleForumComment(item.forumTitle, item.forumID)}
+                                                iconStyle = {{ alignSelf: "flex-start" }} 
+                                                color = "#7B1FA2"
+                                            />
+                                            <Text style = {{ marginLeft: 12 }} >Comment</Text>
+                                        </View>
                                 </Card>
                             )
                         }) 
-                        
-                        
                     }
 
                     <Overlay
                         isVisible = { this.state.forumCreateVisbility }
                         onBackdropPress = {() => this._handleCloseForumCreateOverlayVisibility()}
-                        overlayStyle = {{ backgroundColor: "#2288DC", padding: 0, paddingBottom: 15 }}
+                        overlayStyle = {{ padding: 0, paddingBottom: 15, borderWidth: 5, borderColor: "#7B1FA2" }}
                     >
                         <Card>
                             <Card.Title
@@ -281,9 +393,53 @@ export default class ForumScreen extends Component {
                             />
                             <Button
                                 title = "Save"
-                                type = "outline"
+                                type = "solid"
+                                buttonStyle = {{ backgroundColor: "#7B1FA2" }}
                                 onPress = {() => this._handleCreateForum()}
                             />
+                        </Card>
+                    </Overlay>
+
+                    <Overlay
+                        isVisible = { this.state.forumEditVisibility }
+                        onBackdropPress = {() => this._handleCloseForumEditOverlay()}
+                        overlayStyle = {{ padding: 0, paddingBottom: 15, borderWidth: 5, borderColor: "#7B1FA2" }}
+                    >
+                        <Card>
+                            <Card.Title
+                                style = { forumScreenStyle.fsOverlayCard }
+                            >
+                                Edit Forum
+                            </Card.Title>
+                            <Card.Divider/>
+                                <Input
+                                    placeholder = "Title"
+                                    label = "Title"
+                                    labelStyle = {{ color: "#7B1FA2" }}
+                                    onChangeText = {(forumEditTitle) => this.setState({ forumEditTitle })}
+                                    value = { this.state.forumEditTitle }
+                                />
+                                <Input
+                                    placeholder = "Content"
+                                    label = "Content"
+                                    labelStyle = {{ color: "#7B1FA2" }}
+                                    InputComponent = { Textarea }
+                                    rowSpan = { 5 }
+                                    onChangeText = {(forumEditContent) => this.setState({ forumEditContent })}
+                                    value = { this.state.forumEditContent }
+                                />
+                                <Button
+                                    title = "Edit"
+                                    type = "solid"
+                                    buttonStyle = {{ backgroundColor: "#7B1FA2" }}
+                                    onPress = {() => this._handleEditForum()}
+                                />
+                                <Button
+                                    title = "Close"
+                                    type = "solid"
+                                    buttonStyle = {{ backgroundColor: "#7B1FA2", marginTop: "3%" }}
+                                    onPress = {() => this._handleCloseForumEditOverlay()}
+                                />
                         </Card>
                     </Overlay>
                 </Content>
@@ -296,7 +452,13 @@ const forumScreenStyle  = StyleSheet.create({
 
     fsOverlayCard: {
         marginHorizontal: 95,
-        color: "#2288DC"
+        color: "#7B1FA2"
+    },
+
+    fCard: {
+        borderWidth: 2,
+        borderColor: "#7B1FA2",
+        borderRadius: 10
     }
 
 });

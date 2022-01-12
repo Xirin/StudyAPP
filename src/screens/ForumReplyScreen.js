@@ -120,6 +120,7 @@ export default class ForumReplyScreen extends Component {
         return(
             <Container>
                 <Header
+                    containerStyle = {{ backgroundColor: "#7B1FA2" }}
                     leftComponent = {{ 
                         icon: "arrow-back",
                         color: "#fff",
@@ -137,6 +138,7 @@ export default class ForumReplyScreen extends Component {
                                 type = "material"
                                 name = "send"
                                 onPress = {() => this._handleSendReply(this.state.forumReply)}
+                                color = "#7B1FA2"
                             />
                         }
                         errorStyle = {{ color: "red" }}
@@ -145,16 +147,33 @@ export default class ForumReplyScreen extends Component {
 
                     {
                         this.state.forumReplyCollection.map((item, index) => {
-                            return (
-                                <Card key = { index }>
-                                    <Card.Title style = {{ alignSelf: "flex-start" }} >
-                                        { item.forumUser }
-                                    </Card.Title>
-                                    <Text>
-                                        { item.forumReply }
-                                    </Text>
-                                </Card>
-                            )
+                            if (this.state.forumReplyCollection == "") {
+                                return (
+                                    <Card 
+                                        key = { index }
+                                        containerStyle = {{ borderWidth: 2, borderColor: "#7B1FA2", borderRadius: 10 }}
+                                    >
+                                        <Text style = {{ alignSelf: "center" }} >
+                                            No Replies
+                                        </Text>
+                                    </Card>
+                                )
+                            }
+                            else {
+                                return (
+                                    <Card 
+                                        key = { index }
+                                        containerStyle = {{ borderWidth: 2, borderColor: "#7B1FA2", borderRadius: 10 }}
+                                    >
+                                        <Card.Title style = {{ alignSelf: "flex-start" }} >
+                                            { item.forumUser }
+                                        </Card.Title>
+                                        <Text>
+                                            { item.forumReply }
+                                        </Text>
+                                    </Card>
+                                )
+                            }
                         })
                     }
                 </Content>

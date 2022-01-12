@@ -8,6 +8,7 @@ import {
 import {
     Container,
     Content,
+    View
 } from 'native-base';
 
 import {
@@ -181,6 +182,7 @@ export default class ForumTopicScreen extends Component {
         return(
             <Container>
                 <Header
+                    containerStyle = {{ backgroundColor: "#7B1FA2" }}
                     leftComponent = {{ 
                         icon: "arrow-back",
                         color: "#fff",
@@ -192,15 +194,16 @@ export default class ForumTopicScreen extends Component {
                     {
                         this.state.forumCollection.map((item, index) => {
                             return(
-                                <Card key = { index }>
+                                <Card 
+                                    key = { index }
+                                    containerStyle = {{ borderWidth: 2, borderColor: "#7B1FA2", borderRadius: 10 }}
+                                >
                                     <Card.Title>
                                         { item.forumTitle }
                                     </Card.Title>
-                                    <Card.Divider/>
-                                    <Text>
+                                    <Text style = {{ alignSelf: "center" }} >
                                         { item.forumContent }
                                     </Text>
-                                    <Card.Divider/>
                                 </Card>
                             )
                         })
@@ -214,6 +217,7 @@ export default class ForumTopicScreen extends Component {
                                 type = "material"
                                 name = "send"
                                 onPress = {() => this._handleSendComment(this.state.forumComment)}
+                                color = "#7B1FA2"
                             />
                         }
                         errorStyle = {{ color: "red" }}
@@ -222,7 +226,7 @@ export default class ForumTopicScreen extends Component {
 
                     {
                         this.state.forumCommentCollection == "" ?
-                            <Card>
+                            <Card containerStyle = {{ borderWidth: 2, borderColor: "#7B1FA2", borderRadius: 10 }} >
                                 <Card.Title>
                                     <Text>No Comments</Text>
                                 </Card.Title>
@@ -230,26 +234,25 @@ export default class ForumTopicScreen extends Component {
                         :
                         this.state.forumCommentCollection.map((item, index) => {
                             return(
-                                <Card key = { index }>
+                                <Card 
+                                    key = { index }
+                                    containerStyle = {{ borderWidth: 2, borderColor: "#7B1FA2", borderRadius: 10 }}
+                                >
                                     <Card.FeaturedTitle >                                    
                                         <Text>
                                             { item.user }
                                         </Text>
                                     </Card.FeaturedTitle>
-                                    <Card.Title style = {{ alignSelf: "flex-end" }}>
+                                    <Card.Title style = {{ alignSelf: "flex-end" }} >
                                         <Icon
-                                                type = "evil-icons"
-                                                name = "comment"
-                                                onPress = {() => this._handleViewReplyComment(item.forumCommentID)}
+                                            type = "evil-icons"
+                                            name = "comment"
+                                            onPress = {() => this._handleViewReplyComment(item.forumCommentID)}
+                                            color = "#7B1FA2"
                                         />
-                                        <Text>
-                                                { item.replyCounter }
-                                        </Text>
+                                        <Text> { item.replyCounter } </Text>
                                     </Card.Title>
-                                    <Text>
-                                        { item.comment }
-                                    </Text>
-                                    <Card.Divider/>
+                                    <Text style = {{ marginBottom: 15, fontSize: 15, alignSelf: "flex-start" }} > { item.comment } </Text>
                                     <Text>
                                         Reply
                                     </Text>
@@ -262,6 +265,7 @@ export default class ForumTopicScreen extends Component {
                                                 type = "material"
                                                 name = "send"
                                                 onPress = {() => this._handleReplyComment(this.state.forumReply, item.forumCommentID)}
+                                                color = "#7B1FA2"
                                             />
                                         }
                                         errorStyle = {{ color: "red" }}

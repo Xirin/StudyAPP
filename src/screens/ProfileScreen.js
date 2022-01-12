@@ -13,6 +13,7 @@ import {
     Badge,
     withBadge,
     ListItem,
+    Chip,
 } from 'react-native-elements';
 
 import {
@@ -24,6 +25,7 @@ import {
 import {
     Container,
     Content,
+    Title,
     View,
 } from 'native-base'
 
@@ -59,6 +61,11 @@ export default class ProfileScreen extends Component {
             updateProfileOverlayVisibility: false,
             notificationsOverlayVisibility: false,
             videoCall: false,
+            userGroupRequest: [""],
+            userGroupRequestCounter: 0,
+            userGroupRequestResponse: [""],
+            userGroupRequestResponseCounter: 0,
+            userVideoCallChannel: "",
         }
     }
 
@@ -85,6 +92,10 @@ export default class ProfileScreen extends Component {
         var responseCounter = 0;
         var userGroupInvitationsArray = [];
         var groupInvitationCounter = 0;
+        var userGroupRequestArray = [];
+        var groupRequestCounter = 0;
+        var userGroupRequestResponseArray = [];
+        var groupRequestResponseCounter = 0;
 
         firestore()
             .collection("Users")
@@ -140,7 +151,8 @@ export default class ProfileScreen extends Component {
                                     recipientUserID: doc.data().recipientUserID,
                                     recipientUserFullName: doc.data().recipientUserFullName,
                                     message: doc.data().message,
-                                    groupName: doc.data().groupName
+                                    groupName: doc.data().groupName,
+                                    topics: doc.data().topics
                                 })
                                 groupInvitationCounter = groupInvitationCounter + 1;
                             })
@@ -148,6 +160,31 @@ export default class ProfileScreen extends Component {
                             this.setState({ userGroupInvitationCounter: groupInvitationCounter })
                         })
                 }
+            })
+            .then(() => {
+                //Checking and Getting all Group Request from the requestor
+                firestore()
+                    .collection("Invitations")
+                    .doc(auth().currentUser.uid)
+                    .collection("Group Request")
+                    .where("creatorID", "==", auth().currentUser.uid)
+                    .get()
+                    .then((snapShot) => {
+                        snapShot.forEach((doc) => {
+                            userGroupRequestArray.push({
+                                creatorID: doc.data().creatorID,
+                                creatorName: doc.data().creatorName,
+                                groupName: doc.data().groupName,
+                                requestorUserID: doc.data().requestorUserID,
+                                requestorFullName: doc.data().requestorFullName,
+                                topics: doc.data().topics,
+                                message: doc.data().message
+                            })
+                            groupRequestCounter = groupRequestCounter + 1;
+                        })
+                        this.setState({ userGroupRequest: userGroupRequestArray })
+                        this.setState({ userGroupRequestCounter: groupRequestCounter })
+                    })
             })
             .then(() => {
                 //Checking and Getting all Invitation response from the recipient
@@ -170,8 +207,32 @@ export default class ProfileScreen extends Component {
                         
                         this.setState({ userResponse: otherUsersResponseArray })
                         this.setState({ userResponseCounter: responseCounter })
-                        console.log(this.state.userResponse)
                     })
+            })
+            .then(() => {
+                //Checking and Getting all Group Request Response from the Group Creator
+                for (let index  = 0; index < otherUsersArray.length; index++) {
+                    firestore()
+                        .collection("Invitations")
+                        .doc(otherUsersArray[index].otherUserID)
+                        .collection("Group Request Response")
+                        .where("recipientUserID", "==", auth().currentUser.uid)
+                        .get()
+                        .then((snapShot) => {
+                            snapShot.forEach((doc) => {
+                                userGroupRequestResponseArray.push({
+                                    senderID: doc.data().senderID,
+                                    senderName: doc.data().senderName,
+                                    recipientUserFullName: doc.data().recipientUserFullName,
+                                    recipientUserID: doc.data().recipientUserID,
+                                    response: doc.data().response
+                                })
+                                groupRequestResponseCounter = groupRequestResponseCounter + 1;
+                            })
+                            this.setState({ userGroupRequestResponse: userGroupRequestResponseArray })
+                            this.setState({ userGroupRequestResponseCounter: groupRequestResponseCounter })
+                        })
+                }
             })
         
         //Getting all Study Peers of a User
@@ -200,10 +261,10 @@ export default class ProfileScreen extends Component {
         if (this.state.userSex == "Male") {
             return (
                 <Input 
-                    leftIcon = {{ type: "material-community", name: "gender-male", color: "#2288DC" }}
+                    leftIcon = {{ type: "material-community", name: "gender-male", color: "#7B1FA2" }}
                     label = "Sex"
-                    labelStyle = {{ color: "#2288DC" }}
-                    inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#2288DC" }}
+                    labelStyle = {{ color: "#7B1FA2" }}
+                    inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#7B1FA2" }}
                     defaultValue = { this.state.userSex }
                     disabled = { true }
                 />
@@ -212,10 +273,10 @@ export default class ProfileScreen extends Component {
         else if (this.state.userSex == "Female") {
             return (
                 <Input 
-                    leftIcon = {{ type: "material-community", name: "gender-female", color: "#2288DC" }}
+                    leftIcon = {{ type: "material-community", name: "gender-female", color: "#7B1FA2" }}
                     label = "Sex"
-                    labelStyle = {{ color: "#2288DC" }}
-                    inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#2288DC" }}
+                    labelStyle = {{ color: "#7B1FA2" }}
+                    inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#7B1FA2" }}
                     defaultValue = { this.state.userSex }
                     disabled = { true }
                 />
@@ -276,7 +337,6 @@ export default class ProfileScreen extends Component {
 
     _handleCloseUpdateProfileOverlay = () => {
         this.setState({ updateProfileOverlayVisibility: !this.state.updateProfileOverlayVisibility });
-        this.componentDidMount();
     }
 
     _handleOpenNotifications = (visible) => {
@@ -296,8 +356,32 @@ export default class ProfileScreen extends Component {
                 })
             })
 
-        this.componentDidMount();
+        //Delete all Group Request Response Notification
+        var otherUsersArray = [];
+        firestore()
+            .collection("Users")
+            .where("uid", "!=", auth().currentUser.uid)
+            .get()
+            .then((snapsShot) =>{
+                snapsShot.forEach((doc) => {
+                    otherUsersArray.push({
+                        otherUserID: doc.data().uid
+                    })
+                })
+            })
+            .then(() => {
+                for (let index = 0; index < otherUsersArray.length; index++) {
+                    firestore()
+                        .collection("Invitations")
+                        .doc(otherUsersArray[index].otherUserID)
+                        .collection("Group Request Response")
+                        .doc(auth().currentUser.uid)
+                        .delete()
+                }
+            })
+
         this.setState({ notificationsOverlayVisibility: !this.state.notificationsOverlayVisibility })
+        this.componentDidMount();
     }
 
     _handleAcceptInvitation = (senderID, senderName, recipientUserID, recipientUserFullName) => {
@@ -353,8 +437,8 @@ export default class ProfileScreen extends Component {
                     senderID
                 ],
            })
-                
-        this._handleCloseNotifications();
+
+        this.componentDidMount();
     }
 
     _handleDeclineInvitation = (senderID, senderName, recipientUserID, recipientUserFullName) => {
@@ -379,7 +463,7 @@ export default class ProfileScreen extends Component {
                response: recipientUserFullName.concat(" has declined your Study Peer Invitaion!")
            });
 
-        this._handleCloseNotifications();
+        this.componentDidMount();
     }
 
     _handleChatNavigation = (otherUserID) => {
@@ -399,7 +483,7 @@ export default class ProfileScreen extends Component {
             })
     }
 
-    _handleAcceptGroupInvitation = (senderID, senderName, recipientUserID, recipientUserFullName, groupName) => {
+    _handleAcceptGroupInvitation = (senderID, senderName, recipientUserID, recipientUserFullName, groupName, topics) => {
         //Creation of group and storing all of its users invited
         firestore()
             .collection("Groups")
@@ -407,7 +491,8 @@ export default class ProfileScreen extends Component {
             .set({
                 groupName: groupName,
                 creatorID: senderID,
-                creatorName: senderName
+                creatorName: senderName,
+                topics: topics
             })
             .then(() => {
                 //Store the creator information
@@ -454,7 +539,7 @@ export default class ProfileScreen extends Component {
                 response: recipientUserFullName.concat(" has joined your ".concat(groupName, " group!"))
             })
 
-        this._handleCloseNotifications();
+        this.componentDidMount();
     }
 
     _handleDeclineGroupInvitation = (senderID, senderName, recipientUserID, recipientUserFullName, groupName) => {
@@ -478,10 +563,104 @@ export default class ProfileScreen extends Component {
                 recipientUserFullName: recipientUserFullName,
                 response: recipientUserFullName.concat(" has declined your ".concat(groupName, " group invitation!"))
             })
+        
+        this.componentDidMount();
+    }
 
-        this._handleCloseNotifications();
+    _handleAcceptGroupRequest = (creatorID, creatorName, requestorUserID, requestorFullName, groupName) => {
+        //Storing to the Databse the response of the accepted user
+        firestore()
+            .collection("Invitations")
+            .doc(creatorID)
+            .collection("Group Request Response")
+            .doc(requestorUserID)
+            .set({
+                senderID: creatorID,
+                senderName: creatorName,
+                recipientUserID: requestorUserID,
+                recipientUserFullName: requestorFullName,
+                response: creatorName.concat(" has accepted your request to join the Group ", groupName, "!")
+            })
+
+        //Storing to the Database the information of the accepted user
+        firestore()
+            .collection("Groups")
+            .doc(groupName)
+            .collection("Members")
+            .doc(requestorUserID)
+            .set({
+                userFullName: requestorFullName,
+                userID: requestorUserID
+            })
+
+        //Deleting the Request sent by the Requestor
+        firestore()
+            .collection("Invitations")
+            .doc(creatorID)
+            .collection("Group Request")
+            .doc(requestorUserID)
+            .delete()
+        
+        this.componentDidMount();
+    }
+
+    _handleDeclineGroupRequest = (creatorID, creatorName, requestorUserID, requestorFullName, groupName) => {
+        //Storing to the Databse the response of the declined user
+        firestore()
+            .collection("Invitations")
+            .doc(creatorID)
+            .collection("Group Request Response")
+            .doc(requestorUserID)
+            .set({
+                senderID: creatorID,
+                senderName: creatorName,
+                recipientUserID: requestorUserID,
+                recipientUserFullName: requestorFullName,
+                response: creatorName.concat(" has declined your request to join the Group ", groupName, "!")
+            })
+
+        //Deleting the Request sent by the Requestor
+        firestore()
+            .collection("Invitations")
+            .doc(creatorID)
+            .collection("Group Request")
+            .doc(requestorUserID)
+            .delete()
+
+        this.componentDidMount();
     }
     
+    _handleActiveIndexUser = (otherUserName, otherUserID) => {
+        if (this.state.activeIndex == otherUserName) {
+            this.setState({ activeIndex: "" })
+        } else {
+            this.setState({ activeIndex: otherUserName })
+        }
+        //Getting the Document ID for both Users for Video Call
+        var documentID = [];
+        firestore()
+            .collection("Chat")
+            .where("user", "array-contains", auth().currentUser.uid)
+            .get()
+            .then((snapShot) => {
+                snapShot.forEach((doc) => {
+                    documentID.push({
+                        docID: doc.id,
+                        users: doc.data().user
+                    })
+                })
+            })
+            .then(() => {
+                for (let index = 0; index < documentID.length; index++) {
+                    for (let i = 0; i < 2; i++) {
+                        if (documentID[index].users[i] == otherUserID) {
+                            this.setState({ userVideoCallChannel: documentID[index].docID })
+                        }
+                    }
+                }
+            })
+    }
+
     render() {
 
         LogBox.ignoreAllLogs();
@@ -491,11 +670,18 @@ export default class ProfileScreen extends Component {
             { sex: "Female" }
         ];
 
-        const BadgedIcon = withBadge(this.state.userInvitationCounter + this.state.userGroupInvitationCounter + this.state.userResponseCounter)(Icon);
-
+        const BadgedIcon = 
+            withBadge(
+                this.state.userInvitationCounter + 
+                this.state.userGroupInvitationCounter + 
+                this.state.userResponseCounter + 
+                this.state.userGroupRequestCounter +
+                this.state.userGroupRequestResponseCounter
+            )(Icon);
+        
         const rtcProps = {
             appId: '573557ec13bc4538bdf45c56fe439e73',
-            channel: this.state.activeIndex,
+            channel: this.state.userVideoCallChannel,
         };
 
         const callbacks = {
@@ -508,7 +694,8 @@ export default class ProfileScreen extends Component {
             <Container>
                 <ScrollView>
                     <Content>
-                        <Header 
+                        <Header
+                            containerStyle = {{ backgroundColor: "#7B1FA2" }}
                             leftComponent = {{ 
                                 icon: "menu",
                                 color: "#fff",
@@ -534,59 +721,59 @@ export default class ProfileScreen extends Component {
                             size = "xlarge"
                             title = { this.state.avatarTemp }
                             activeOpacity = { 0.5 }
-                            containerStyle = {{ backgroundColor: "#2288DC", marginTop: 40, alignSelf: "center" }}
+                            containerStyle = {{ backgroundColor: "#7B1FA2", marginTop: 40, alignSelf: "center" }}
                         >
                         </Avatar>
-                        <Card containerStyle = {{ borderColor: "#2288DC" }} >
-                            <Card.Title style = {{ color: "#2288DC" }}>
+                        <Card containerStyle = {{ borderColor: "#7B1FA2", borderRadius: 10 }} >
+                            <Card.Title style = {{ color: "#7B1FA2" }}>
                                 Information
                             </Card.Title>
-                            <Card.Divider style = {{ borderColor: "#2288DC", borderWidth: 0.5 }} />
+                            <Card.Divider style = {{ borderColor: "#7B1FA2", borderWidth: 0.5 }} />
                             <Input 
-                                leftIcon = {{ type: "material-community", name: "alpha-f-box", color: "#2288DC" }}
+                                leftIcon = {{ type: "material-community", name: "alpha-f-box", color: "#7B1FA2" }}
                                 label = "First Name"
-                                labelStyle = {{ color: "#2288DC" }}
-                                inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#2288DC" }}
+                                labelStyle = {{ color: "#7B1FA2" }}
+                                inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#7B1FA2" }}
                                 defaultValue = { this.state.userFirstName }
                                 disabled = { true }
                             />
                             <Input 
-                                leftIcon = {{ type: "material-community", name: "alpha-l-box", color: "#2288DC" }}
+                                leftIcon = {{ type: "material-community", name: "alpha-l-box", color: "#7B1FA2" }}
                                 label = "Last Name"
-                                labelStyle = {{ color: "#2288DC" }}
-                                inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#2288DC" }}
+                                labelStyle = {{ color: "#7B1FA2" }}
+                                inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#7B1FA2" }}
                                 defaultValue = { this.state.userLastName }
                                 disabled = { true }
                             />
                             <Input 
-                                leftIcon = {{ type: "material-community", name: "counter", color: "#2288DC" }}
+                                leftIcon = {{ type: "material-community", name: "counter", color: "#7B1FA2" }}
                                 label = "Age"
-                                labelStyle = {{ color: "#2288DC" }}
-                                inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#2288DC" }}
+                                labelStyle = {{ color: "#7B1FA2" }}
+                                inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#7B1FA2" }}
                                 defaultValue = { this.state.userAge }
                                 disabled = { true }
                             />
                             { this._handleUserSexField() }
                             <Input 
                                 placeholder = "email@address.com"
-                                leftIcon = {{ type: "ion-icon", name: "mail", color: "#2288DC" }}
+                                leftIcon = {{ type: "ion-icon", name: "mail", color: "#7B1FA2" }}
                                 label = "Email Address"
-                                labelStyle = {{ color: "#2288DC" }}
-                                inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#2288DC" }}
+                                labelStyle = {{ color: "#7B1FA2" }}
+                                inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#7B1FA2" }}
                                 defaultValue = { this.state.userEmail }
                                 disabled = { true }
                             />
                         </Card>
                         <Button
                             title = "Edit"
-                            type = "outline"
+                            type = "solid"
                             buttonStyle = { profileScreenStyle.profileButton }
                             onPress = {() => this._handleOpenUpdateProfileOverlay(true)}
                         />
 
                         {/* User Study Peer List */}
-                        <Card containerStyle = {{ borderColor: "#2288DC", marginBottom: 20 }} >
-                            <Card.Title style = {{ color: "#2288DC" }} >Study Peer List</Card.Title>
+                        <Card containerStyle = {{ borderColor: "#7B1FA2", marginBottom: "5%", borderRadius: 10 }} >
+                            <Card.Title style = {{ color: "#7B1FA2" }} >Study Peer List</Card.Title>
                             <Card.Divider/>
                             {
                                 this.state.userStudyPeers.map((item, index) => {
@@ -596,30 +783,28 @@ export default class ProfileScreen extends Component {
                                             content = {
                                                 <>
                                                     <ListItem.Content>
-                                                        <ListItem.Title style = {{ color: "#2288DC", fontWeight: "bold" }} >
+                                                        <ListItem.Title style = {{ color: "#7B1FA2", fontWeight: "bold" }} >
                                                             { item.otherUserName }
                                                         </ListItem.Title>
                                                     </ListItem.Content>
                                                 </>
                                             }
                                             isExpanded = { this.state.activeIndex == item.otherUserName }
-                                            onPress = {() => {
-                                                this.setState({ activeIndex: item.otherUserName })
-                                            }}
+                                            onPress = {() => this._handleActiveIndexUser(item.otherUserName, item.otherUserID)}
                                         >
                                             <ListItem>
-                                                <ListItem.Content>
+                                                <ListItem.Content style = {{ alignItems: "center" }} >
                                                     <Button
                                                         title = "Chat"
-                                                        type = "outline"
+                                                        type = "solid"
                                                         onPress = {() => this._handleChatNavigation(item.otherUserID)}
-                                                        buttonStyle = {{ paddingHorizontal: 115, marginBottom: 5 }}
+                                                        buttonStyle = {{ paddingHorizontal: "42.5%", marginBottom: 5, backgroundColor: "#7B1FA2" }}
                                                     />
                                                     <Button
                                                         title = "Video Call"
-                                                        type = "outline"
+                                                        type = "solid"
                                                         onPress = {() => this.setState({ videoCall: true })}
-                                                        buttonStyle = {{ paddingHorizontal: 96, marginTop: 5 }}
+                                                        buttonStyle = {{ paddingHorizontal: "40%", marginTop: 5, backgroundColor: "#7B1FA2" }}
                                                     />
                                                 </ListItem.Content>
                                             </ListItem>
@@ -633,77 +818,79 @@ export default class ProfileScreen extends Component {
                         <Overlay
                             isVisible = { this.state.updateProfileOverlayVisibility }
                             onBackdropPress = {() => this._handleCloseUpdateProfileOverlay()}
-                            overlayStyle = {{ backgroundColor: "#2288DC", padding: 0, paddingBottom: 15 }}
+                            overlayStyle = {{ padding: 0, paddingBottom: 15, borderWidth: 5, borderColor: "#7B1FA2" }}
                         >
                             <Card>
-                                <Card.Title style = { profileScreenStyle.profileCardTitle } >Update Profile</Card.Title>
-                                <Card.Divider/>
-                                <Input 
-                                    placeholder = "First Name"
-                                    leftIcon = {{ type: "material-community", name: "alpha-f-box", color: "#2288DC" }}
-                                    label = "First Name"
-                                    labelStyle = {{ color: "#2288DC" }}
-                                    onChangeText = {(userFirstName) => this.setState ({ userFirstName })}
-                                    value = { this.state.userFirstName }
-                                    errorStyle = {{ color: "red" }}
-                                    errorMessage = { this.state.userFirstNameFormValidation }
-                                />
-                                <Input 
-                                    placeholder = "Last Name"
-                                    leftIcon = {{ type: "material-community", name: "alpha-l-box", color: "#2288DC" }}
-                                    label = "Last Name"
-                                    labelStyle = {{ color: "#2288DC" }}
-                                    onChangeText = {(userLastName) => this.setState ({ userLastName })}
-                                    value = { this.state.userLastName }
-                                    errorStyle = {{ color: "red" }}
-                                    errorMessage = { this.state.userLastNameFormValidation }
-                                />
-                                <Input 
-                                    placeholder = "Last Name"
-                                    leftIcon = {{ type: "material-community", name: "counter", color: "#2288DC" }}
-                                    label = "Last Name"
-                                    labelStyle = {{ color: "#2288DC" }}
-                                    onChangeText = {(userAge) => this.setState ({ userAge })}
-                                    value = { this.state.userAge }
-                                    errorStyle = {{ color: "red" }}
-                                    errorMessage = { this.state.userAgeFormValidation }
-                                />
-                                <Text style = { profileScreenStyle.profileText }>
-                                    Sex
-                                </Text>
-                                {
-                                    sexList.map((item, index) => {
-                                        return(
-                                            <View key = { index } >
-                                                <CheckBox 
-                                                    textStyle = {{ color: "#2288DC" }}
-                                                    title = { item.sex }
-                                                    checked = { this.state.userSex === item.sex }
-                                                    onPress = {() => this.setState({ userSex: item.sex })}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
-                                <Text style = {{
-                                    color: "red",
-                                    marginLeft: 10,
-                                    fontSize: 12
-                                }}>
-                                    { this.state.userSexFormValidation }
-                                </Text>
-                                <Button
-                                    title = "Save"
-                                    type = "outline"
-                                    buttonStyle = { profileScreenStyle.profileButton2 }
-                                    onPress = {() => this._handleUpdateProfile()}
-                                />
-                                <Button
-                                    title = "Close"
-                                    type = "outline"
-                                    buttonStyle = { profileScreenStyle.profileButton2 }
-                                    onPress = {() => this._handleCloseUpdateProfileOverlay()}
-                                />
+                                <ScrollView>
+                                    <Card.Title style = { profileScreenStyle.profileCardTitle } >Update Profile</Card.Title>
+                                    <Card.Divider/>
+                                    <Input 
+                                        placeholder = "First Name"
+                                        leftIcon = {{ type: "material-community", name: "alpha-f-box", color: "#7B1FA2" }}
+                                        label = "First Name"
+                                        labelStyle = {{ color: "#7B1FA2" }}
+                                        onChangeText = {(userFirstName) => this.setState ({ userFirstName })}
+                                        value = { this.state.userFirstName }
+                                        errorStyle = {{ color: "red" }}
+                                        errorMessage = { this.state.userFirstNameFormValidation }
+                                    />
+                                    <Input 
+                                        placeholder = "Last Name"
+                                        leftIcon = {{ type: "material-community", name: "alpha-l-box", color: "#7B1FA2" }}
+                                        label = "Last Name"
+                                        labelStyle = {{ color: "#7B1FA2" }}
+                                        onChangeText = {(userLastName) => this.setState ({ userLastName })}
+                                        value = { this.state.userLastName }
+                                        errorStyle = {{ color: "red" }}
+                                        errorMessage = { this.state.userLastNameFormValidation }
+                                    />
+                                    <Input 
+                                        placeholder = "Last Name"
+                                        leftIcon = {{ type: "material-community", name: "counter", color: "#7B1FA2" }}
+                                        label = "Last Name"
+                                        labelStyle = {{ color: "#7B1FA2" }}
+                                        onChangeText = {(userAge) => this.setState ({ userAge })}
+                                        value = { this.state.userAge }
+                                        errorStyle = {{ color: "red" }}
+                                        errorMessage = { this.state.userAgeFormValidation }
+                                    />
+                                    <Text style = { profileScreenStyle.profileText }>
+                                        Sex
+                                    </Text>
+                                    {
+                                        sexList.map((item, index) => {
+                                            return(
+                                                <View key = { index } >
+                                                    <CheckBox 
+                                                        textStyle = {{ color: "#7B1FA2" }}
+                                                        title = { item.sex }
+                                                        checked = { this.state.userSex === item.sex }
+                                                        onPress = {() => this.setState({ userSex: item.sex })}
+                                                    />
+                                                </View>
+                                            )
+                                        })
+                                    }
+                                    <Text style = {{
+                                        color: "red",
+                                        marginLeft: 10,
+                                        fontSize: 12
+                                    }}>
+                                        { this.state.userSexFormValidation }
+                                    </Text>
+                                    <Button
+                                        title = "Save"
+                                        type = "solid"
+                                        buttonStyle = { profileScreenStyle.profileButton2 }
+                                        onPress = {() => this._handleUpdateProfile()}
+                                    />
+                                    <Button
+                                        title = "Close"
+                                        type = "solid"
+                                        buttonStyle = { profileScreenStyle.profileButton2 }
+                                        onPress = {() => this._handleCloseUpdateProfileOverlay()}
+                                    />
+                                </ScrollView>
                             </Card>
                         </Overlay>
                         
@@ -711,7 +898,7 @@ export default class ProfileScreen extends Component {
                         <Overlay
                             isVisible = { this.state.notificationsOverlayVisibility }
                             onBackdropPress = {() => this._handleCloseNotifications()}
-                            overlayStyle = {{ backgroundColor: "#2288DC", padding: 0, paddingBottom: 15 }}
+                            overlayStyle = {{ padding: 0, paddingBottom: 15, borderWidth: 5, borderColor: "#7B1FA2" }}
                         >
                             <Card>
                                 <Card.Title>Notfications</Card.Title>
@@ -748,11 +935,13 @@ export default class ProfileScreen extends Component {
                                                 <Card.Title>{ item.senderName }</Card.Title>
                                                 <Card.Divider/>
                                                 <Text>{ item.message }</Text>
+                                                <Text style = {{ marginTop: 10 }} >Topics: { item.topics }</Text>
+                                                <Card.Divider/>
                                                 <View style ={{ flexDirection: "row", alignSelf: "center" }}>
                                                     <Button
                                                         title = "Join"
                                                         type = "standard"
-                                                        onPress = {() => this._handleAcceptGroupInvitation(item.senderID, item.senderName, item.recipientUserID, item.recipientUserFullName, item.groupName)}
+                                                        onPress = {() => this._handleAcceptGroupInvitation(item.senderID, item.senderName, item.recipientUserID, item.recipientUserFullName, item.groupName, item.topics)}
                                                         buttonStyle = {{ backgroundColor: "#42BA96", marginHorizontal: 5, marginTop: 10 }}
                                                     />
                                                     <Button
@@ -762,6 +951,43 @@ export default class ProfileScreen extends Component {
                                                         buttonStyle = {{ backgroundColor: "#DF4759", marginHorizontal: 5, marginTop: 10 }}
                                                     />
                                                 </View>
+                                            </Card>
+                                        )
+                                    })
+                                }
+                                {
+                                    this.state.userGroupRequest.map((item, index) => {
+                                        return (
+                                            <Card key = { index }>
+                                                <Card.Title>{ item.requestorFullName }</Card.Title>
+                                                <Card.Divider/>
+                                                <Text>{ item.message }</Text>
+                                                <Card.Divider/>
+                                                <View style ={{ flexDirection: "row", alignSelf: "center" }}>
+                                                    <Button
+                                                        title = "Accept"
+                                                        type = "standard"
+                                                        onPress = {() => this._handleAcceptGroupRequest(item.creatorID, item.creatorName, item.requestorUserID, item.requestorFullName, item.groupName)}
+                                                        buttonStyle = {{ backgroundColor: "#42BA96", marginHorizontal: 5, marginTop: 10 }}
+                                                    />
+                                                    <Button
+                                                        title = "Decline"
+                                                        type = "standard"
+                                                        onPress = {() => this._handleDeclineGroupRequest(item.creatorID, item.creatorName, item.requestorUserID, item.requestorFullName, item.groupName)}
+                                                        buttonStyle = {{ backgroundColor: "#DF4759", marginHorizontal: 5, marginTop: 10 }}
+                                                    />
+                                                </View>
+                                            </Card>
+                                        )
+                                    })
+                                }
+                                {
+                                    this.state.userGroupRequestResponse.map((item, index) => {
+                                        return (
+                                            <Card key = { index }>
+                                                <Card.Title>{ item.senderName }</Card.Title>
+                                                <Card.Divider/>
+                                                <Text>{ item.response }</Text>
                                             </Card>
                                         )
                                     })
@@ -779,7 +1005,7 @@ export default class ProfileScreen extends Component {
                                 }
                                 <Button
                                     title = "Close"
-                                    type = "outline"
+                                    type = "solid"
                                     buttonStyle = { profileScreenStyle.profileButton2 }
                                     onPress = {() => this._handleCloseNotifications()}
                                 />
@@ -795,26 +1021,28 @@ export default class ProfileScreen extends Component {
 const profileScreenStyle = StyleSheet.create({
     profileButton: {
         alignSelf: "center",
-        marginTop: 35,
-        marginBottom: 30,
-        paddingHorizontal: 100,
-        borderWidth: 1
+        marginTop: "10%",
+        marginBottom: "5%",
+        paddingHorizontal: "30%",
+        borderWidth: 1,
+        backgroundColor: "#7B1FA2"
     },
 
     profileButton2: {
         alignSelf: "center",
         marginTop: 15,
-        paddingHorizontal: 100,
-        borderWidth: 1
+        paddingHorizontal: "40%",
+        borderWidth: 1,
+        backgroundColor: "#7B1FA2"
     },
 
     profileCardTitle: {
-        marginHorizontal: 100,
-        color: "#2288DC"
+        marginHorizontal: 0,
+        color: "#7B1FA2"
     },
 
     profileText: {
-        color: "#2288DC",
+        color: "#7B1FA2",
         marginLeft: 11,
         fontWeight: "bold",
         fontSize: 16

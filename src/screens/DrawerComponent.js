@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 
 import {
-    StyleSheet
+    StyleSheet,
 } from 'react-native';
 
 import {
     Container,
     Content,
+    View,
 } from 'native-base'
 
 
@@ -14,6 +15,7 @@ import {
     Card,
     Text,
     Button,
+    Avatar,
 } from 'react-native-elements';
 
 import auth, { firebase } from '@react-native-firebase/auth';
@@ -42,6 +44,8 @@ export default class DrawerComponent extends Component {
     }
 
     render() {
+        var logo = require("./assets/logo.jpg");
+        
         return (
             <Container>
                 <Content>
@@ -49,9 +53,19 @@ export default class DrawerComponent extends Component {
                         containerStyle = { drawerComponentStyle.dcCardContainterTitle} 
                         wrapperStyle = {drawerComponentStyle.dcCardWrapperTitle} 
                     >
-                        <Card.Title style = { drawerComponentStyle.dcCardWrapperTitle } >
-                            StudyMate
-                        </Card.Title>
+                        <View style = {{ flex: 1, flexDirection: "row", alignSelf: "center" }}>
+                            <Avatar
+                                source = { logo }
+                                rounded
+                                size = "small"
+                                activeOpacity = { 0.5 }
+                                containerStyle = {{ backgroundColor: "#7B1FA2" ,alignSelf: "center", marginBottom: 10 }}
+                            >
+                            </Avatar>
+                            <Card.Title style = { drawerComponentStyle.dcCardWrapperTitle } >
+                                StudyMate
+                            </Card.Title>
+                        </View>
                     </Card>
                     <Card
                         containerStyle = { drawerComponentStyle.dcCardContent} 
@@ -59,8 +73,9 @@ export default class DrawerComponent extends Component {
                     >
                         <Button
                             title = "Profile"
+                            titleStyle  = {{ color: "#7B1FA2" }}
                             type = "outline"
-                            icon = {{ type: "ion-icon", name: "person", color: "#2288DC" }}
+                            icon = {{ type: "ion-icon", name: "person", color: "#7B1FA2" }}
                             onPress = {() => this._handleProfileScreenNavigation()}
                         />
                     </Card>
@@ -70,8 +85,9 @@ export default class DrawerComponent extends Component {
                     >
                         <Button
                             title = "Groups"
+                            titleStyle  = {{ color: "#7B1FA2" }}
                             type = "outline"
-                            icon = {{ type: "ion-icon", name: "people", color: "#2288DC" }}
+                            icon = {{ type: "ion-icon", name: "people", color: "#7B1FA2" }}
                             onPress = {() => this._handleUserGroupScreenNavigation()}
                         />
                     </Card>
@@ -81,8 +97,9 @@ export default class DrawerComponent extends Component {
                     >
                         <Button  
                             title = "Forums"
+                            titleStyle  = {{ color: "#7B1FA2" }}
                             type = "outline"
-                            icon = {{ type: "font-awesome", name: "comments", color: "#2288DC" }}
+                            icon = {{ type: "font-awesome", name: "comments", color: "#7B1FA2" }}
                             onPress = {() => this._handleForumsScreenNavigation()}
                         />
                     </Card>
@@ -92,8 +109,9 @@ export default class DrawerComponent extends Component {
                     >
                         <Button
                             title = "Logout"
+                            titleStyle  = {{ color: "#7B1FA2" }}
                             type = "outline"
-                            icon = {{ type: "material-community", name: "logout", color: "#2288DC" }}
+                            icon = {{ type: "material-community", name: "logout", color: "#7B1FA2" }}
                             onPress = {() => this._handleSignOut()}
                         />
                     </Card>
@@ -113,9 +131,9 @@ const drawerComponentStyle = StyleSheet.create({
     },
     
     dcCardWrapperTitle: {
-        margin: 0,
-        padding: 0,
-        color: "#2288DC",
+        marginTop: 6,
+        marginLeft: 10,
+        color: "#7B1FA2",
     },
 
     dcCardContent: {
