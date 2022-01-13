@@ -58,14 +58,6 @@ export default class ForumScreen extends Component {
     }
 
     componentDidMount = () => {
-        firestore()
-            .collection("Users")
-            .doc(auth().currentUser.uid)
-            .get()
-            .then((snapShot) => {
-                this.setState({ userName: snapShot.data().firstName.concat(" ", snapShot.data().lastName) })
-            })
-
         var forumIDArray = [];
         var forumCollection = [];
         firestore()
@@ -95,6 +87,14 @@ export default class ForumScreen extends Component {
                             this.setState({ forumCard: forumCollection })
                         })
                 }
+            })
+        
+        firestore()
+            .collection("Users")
+            .doc(auth().currentUser.uid)
+            .get()
+            .then((snapShot) => {
+                this.setState({ userName: snapShot.data().firstName.concat(" ", snapShot.data().lastName) })
             })
     }
 
@@ -212,7 +212,7 @@ export default class ForumScreen extends Component {
             })
         
         this._handleCloseForumEditOverlay();
-        this.componentDidMount()
+        this.componentDidMount();
     }
 
     _handleOpenForumDeleteOverlay = (visible, creatorID, creatorName, forumTitle, forumContent, forumThreadID) => {
@@ -226,6 +226,16 @@ export default class ForumScreen extends Component {
 
     _handleCloseForumDeleteOverlay = () => {
         this.setState({ forumDeleteVisibility: false })
+    }
+
+    _handleForumDelete = () => {
+        firestore()
+            .collection("Forum")
+            .doc(this.state.forumDeleteThreadID)
+            .delete()
+
+        this._handleCloseForumDeleteOverlay();
+        this.componentDidMount();
     }
 
     render() {
@@ -464,6 +474,7 @@ export default class ForumScreen extends Component {
                                 title = "Delete"
                                 type = "solid"
                                 buttonStyle = {{ backgroundColor: "#7B1FA2" }}
+                                onPress = {() => this._handleForumDelete()}
                             />
                             <Button
                                 title = "Close"

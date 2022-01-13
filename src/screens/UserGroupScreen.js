@@ -923,8 +923,9 @@ export default class UserGroupScreen extends Component {
                             return 0
                         })
 
+                        var counter = 0;
                         //Get all the Information about the users base on their reciprocal recommender scores
-                        for (let index = 0; index < 5; index++) {
+                        for (let index = 0; index < reciprocalRecommenderScore.length; index++) {
                             firestore()
                                 .collection("Users")
                                 .where("uid", "==", reciprocalRecommenderScore[index].otherUserID)
@@ -970,11 +971,14 @@ export default class UserGroupScreen extends Component {
                                                 .get()
                                                 .then((doc) => {
                                                     if (!doc.exists) {
-                                                        availableUsersArray.push({
-                                                            otherUserID: userInvitationStatusArray[index].otherUserID,
-                                                            otherUserFullName: userInvitationStatusArray[index].otherUserFullName,
-                                                            otherUserInviationStatus: userInvitationStatusArray[index].otherUserInviationStatus,
-                                                        })
+                                                        if (counter < 5) {
+                                                            availableUsersArray.push({
+                                                                otherUserID: userInvitationStatusArray[index].otherUserID,
+                                                                otherUserFullName: userInvitationStatusArray[index].otherUserFullName,
+                                                                otherUserInviationStatus: userInvitationStatusArray[index].otherUserInviationStatus,
+                                                            })
+                                                            counter = counter + 1
+                                                        }
                                                     }
                                                     this.setState({ availableUsers: availableUsersArray })
                                                 })
@@ -1121,6 +1125,18 @@ export default class UserGroupScreen extends Component {
 
             this._handleFindMatchOverlay();
             this.setState({ activeIndex: "" })
+    }
+
+    _handleCancelPeerRequest = (otherUserID, otherUserFullName) => {
+        firestore()
+            .collection("Invitations")
+            .doc(auth().currentUser.uid)
+            .collection("Sent")
+            .doc(otherUserID)
+            .delete()
+
+        this._handleFindMatchOverlay();
+        this.setState({ activeIndex: "" })
     }
 
     _handleOpenSearchGroupOverlay = (visible) => {
@@ -1608,9 +1624,9 @@ export default class UserGroupScreen extends Component {
                                                                 <Button
                                                                     type = "solid"
                                                                     titleStyle = {{ fontSize: 12 }}
-                                                                    title = "Request Sent"
-                                                                    buttonStyle = { userGroupScreenStyle.ugButton4 }
-                                                                    disabled = { true }
+                                                                    title = "Cancel Request"
+                                                                    buttonStyle = {{ backgroundColor: "#DF4759", paddingHorizontal: "40%", marginBottom: "3%", }}
+                                                                    onPress ={() => this._handleCancelPeerRequest(item.otherUserID, item.otherUserFullName)}
                                                                 />
                                                             }   
                                                             <Button
