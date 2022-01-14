@@ -1464,7 +1464,7 @@ export default class UserGroupScreen extends Component {
                                                         <Button
                                                             type = "solid"
                                                             title = "Members"
-                                                            buttonStyle = {{ paddingHorizontal: "35%", marginTop: "3.5%", backgroundColor: "#7B1FA2" }}
+                                                            buttonStyle = {{ paddingHorizontal: "37.1%", marginTop: "3.5%", backgroundColor: "#7B1FA2" }}
                                                             onPress = {() => this._handleOpenUserGroupMembersOverlay(true)}
                                                         />
                                                     </ListItem.Content>
@@ -1848,7 +1848,7 @@ const userGroupScreenStyle = StyleSheet.create({
 
     ugButton: {
         backgroundColor: "#7B1FA2",
-        paddingHorizontal: "42.5%",
+        paddingHorizontal: "43.5%",
         marginBottom: 10,
     },
 
@@ -1859,7 +1859,7 @@ const userGroupScreenStyle = StyleSheet.create({
 
     ugButton3: {
         backgroundColor: "#7B1FA2",
-        paddingHorizontal: "40%",
+        paddingHorizontal: "41.9%",
     },
 
     ugButton4: {

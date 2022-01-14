@@ -1485,7 +1485,7 @@ export default class SignInScreen extends Component {
                     <Button 
                         title = "Close"
                         type = "solid"
-                        buttonStyle = { signInPageStyle.signInButton }
+                        buttonStyle = {{ backgroundColor: "#7B1FA2", alignSelf: "center", marginTop: "3%", paddingHorizontal: "33.5%", }}
                         onPress = {() => this._handleCloseProgressAlertOverlay()}
                     />
                 </View>
@@ -1527,7 +1527,7 @@ export default class SignInScreen extends Component {
                     <Button 
                         title = "Close"
                         type = "solid"
-                        buttonStyle = { signInPageStyle.signInButton }
+                        buttonStyle = {{ backgroundColor: "#7B1FA2", alignSelf: "center", marginTop: "3%", paddingHorizontal: "33.5%", }}
                         onPress = {() => this._handleCloseProgressAlertOverlay()}
                     />
                 </View>
@@ -1595,7 +1595,7 @@ export default class SignInScreen extends Component {
                         <Button 
                             title = "Sign In"
                             type = "solid"
-                            buttonStyle = { signInPageStyle.signInButton }
+                            buttonStyle = {{ backgroundColor: "#7B1FA2", alignSelf: "center", marginTop: "3%", paddingHorizontal: "31%", }}
                             onPress = {() => this._handleOpenSignInOvelay(true)}
                         />
                         <Button 
@@ -1792,7 +1792,7 @@ export default class SignInScreen extends Component {
                                 <Button 
                                     title = "Next"
                                     type = "solid"
-                                    buttonStyle = { signInPageStyle.signInButton }
+                                    buttonStyle = {{ backgroundColor: "#7B1FA2", alignSelf: "center", marginTop: "3%", paddingHorizontal: "31%", }}
                                     onPress = {() => this._handleOpenProgressAlertOverlay(true, "Personality Test")}
                                 />
                                 <Button 
@@ -2085,13 +2085,13 @@ export default class SignInScreen extends Component {
                                 <Button 
                                     title = "Next"
                                     type = "solid"
-                                    buttonStyle = { signInPageStyle.signInButton }
+                                    buttonStyle = {{ backgroundColor: "#7B1FA2", alignSelf: "center", marginTop: "3%", paddingHorizontal: "35%", }}
                                     onPress = {() => this._handleOpenProgressAlertOverlay(true, "Willingness to Communicate Test")}
                                 />
                                 <Button 
                                     title = "Close"
                                     type = "solid"
-                                    buttonStyle = { signInPageStyle.signInButton }
+                                    buttonStyle = {{ backgroundColor: "#7B1FA2", alignSelf: "center", marginTop: "3%", paddingHorizontal: "34%", }}
                                     onPress = {() => this._handleClosePersonalityTestOverlay()}
                                 />
                             </Card>
@@ -2883,13 +2883,13 @@ export default class SignInScreen extends Component {
                                 <Button 
                                     title = "Save"
                                     type = "solid"
-                                    buttonStyle = { signInPageStyle.signInButton }
+                                    buttonStyle = {{ backgroundColor: "#7B1FA2", alignSelf: "center", marginTop: "3%", paddingHorizontal: "35%", }}
                                     onPress = {() => this._handleSignUp()}
                                 />
                                 <Button 
                                     title = "Close"
                                     type = "solid"
-                                    buttonStyle = { signInPageStyle.signInButton }
+                                    buttonStyle = {{ backgroundColor: "#7B1FA2", alignSelf: "center", marginTop: "3%", paddingHorizontal: "34%", }}
                                     onPress = {() => this._handleCloseWTCOverlay()}
                                 />
                             </Card>
@@ -3176,7 +3176,7 @@ export default class SignInScreen extends Component {
                             <Button 
                                 title = "Close"
                                 type = "solid"
-                                buttonStyle = { signInPageStyle.signInButton }
+                                buttonStyle = {{ backgroundColor: "#7B1FA2", alignSelf: "center", marginTop: "3%", paddingHorizontal: "32%", }}
                                 onPress = {() => this._handleCloseSignInOvelay()}
                             />
                         </Card>

@@ -798,7 +798,7 @@ export default class ProfileScreen extends Component {
                                                         title = "Chat"
                                                         type = "solid"
                                                         onPress = {() => this._handleChatNavigation(item.otherUserID)}
-                                                        buttonStyle = {{ paddingHorizontal: "42.5%", marginBottom: 5, backgroundColor: "#7B1FA2" }}
+                                                        buttonStyle = {{ paddingHorizontal: "43.5%", marginBottom: 5, backgroundColor: "#7B1FA2" }}
                                                     />
                                                     <Button
                                                         title = "Video Call"
@@ -881,7 +881,7 @@ export default class ProfileScreen extends Component {
                                     <Button
                                         title = "Save"
                                         type = "solid"
-                                        buttonStyle = { profileScreenStyle.profileButton2 }
+                                        buttonStyle = {{ alignSelf: "center", marginTop: 15, paddingHorizontal: "41%", borderWidth: 1, backgroundColor: "#7B1FA2" }}
                                         onPress = {() => this._handleUpdateProfile()}
                                     />
                                     <Button
