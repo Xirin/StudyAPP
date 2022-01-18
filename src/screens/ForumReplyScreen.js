@@ -64,7 +64,8 @@ export default class ForumReplyScreen extends Component {
                         .then((snapShot) => {
                             forumReplyCollectionArray.push({
                                 forumReplyID: forumReplyID[index],
-                                forumUser: snapShot.data().user,
+                                forumUser: snapShot.data().replierName,
+                                forumUserID: snapShot.data().replierID,
                                 forumReply: snapShot.data().reply
                             })
                             this.setState({ forumReplyCollection: forumReplyCollectionArray })
@@ -107,7 +108,8 @@ export default class ForumReplyScreen extends Component {
                 .collection("Reply")
                 .doc()
                 .set({
-                    user: this.state.forumFullName,
+                    replierID: auth().currentUser.uid,
+                    replierName: this.state.forumFullName,
                     reply: forumReply
                 })
 

@@ -901,114 +901,116 @@ export default class ProfileScreen extends Component {
                             overlayStyle = {{ padding: 0, paddingBottom: 15, borderWidth: 5, borderColor: "#7B1FA2" }}
                         >
                             <Card>
-                                <Card.Title>Notfications</Card.Title>
-                                <Card.Divider/>
-                                {
-                                    this.state.userInvitations.map((item, index) => {
-                                        return(
-                                            <Card key = { index } >
-                                                <Card.Title>{ item.senderName }</Card.Title>
-                                                <Card.Divider/>
-                                                <Text>{ item.message }</Text>
-                                                <View style ={{ flexDirection: "row", alignSelf: "center" }}>
-                                                    <Button
-                                                        title = "Accept"
-                                                        type = "standard"
-                                                        onPress = {() => this._handleAcceptInvitation(item.senderID, item.senderName, item.recipientUserID, item.recipientUserFullName)}
-                                                        buttonStyle = {{ backgroundColor: "#42BA96", marginHorizontal: 5, marginTop: 10 }}
-                                                    />
-                                                    <Button
-                                                        title = "Decline"
-                                                        type = "standard"
-                                                        onPress = {() => this._handleDeclineInvitation(item.senderID, item.senderName, item.recipientUserID, item.recipientUserFullName)}
-                                                        buttonStyle = {{ backgroundColor: "#DF4759", marginHorizontal: 5, marginTop: 10 }}
-                                                    />
-                                                </View>
-                                            </Card>
-                                        )
-                                    })
-                                }
-                                {
-                                    this.state.userGroupsInvitations.map((item, index) => {
-                                        return (
-                                            <Card key = { index }>
-                                                <Card.Title>{ item.senderName }</Card.Title>
-                                                <Card.Divider/>
-                                                <Text>{ item.message }</Text>
-                                                <Text style = {{ marginTop: 10 }} >Topics: { item.topics }</Text>
-                                                <Card.Divider/>
-                                                <View style ={{ flexDirection: "row", alignSelf: "center" }}>
-                                                    <Button
-                                                        title = "Join"
-                                                        type = "standard"
-                                                        onPress = {() => this._handleAcceptGroupInvitation(item.senderID, item.senderName, item.recipientUserID, item.recipientUserFullName, item.groupName, item.topics)}
-                                                        buttonStyle = {{ backgroundColor: "#42BA96", marginHorizontal: 5, marginTop: 10 }}
-                                                    />
-                                                    <Button
-                                                        title = "Decline"
-                                                        type = "standard"
-                                                        onPress = {() => this._handleDeclineGroupInvitation(item.senderID, item.senderName, item.recipientUserID, item.recipientUserFullName, item.groupName)}
-                                                        buttonStyle = {{ backgroundColor: "#DF4759", marginHorizontal: 5, marginTop: 10 }}
-                                                    />
-                                                </View>
-                                            </Card>
-                                        )
-                                    })
-                                }
-                                {
-                                    this.state.userGroupRequest.map((item, index) => {
-                                        return (
-                                            <Card key = { index }>
-                                                <Card.Title>{ item.requestorFullName }</Card.Title>
-                                                <Card.Divider/>
-                                                <Text>{ item.message }</Text>
-                                                <Card.Divider/>
-                                                <View style ={{ flexDirection: "row", alignSelf: "center" }}>
-                                                    <Button
-                                                        title = "Accept"
-                                                        type = "standard"
-                                                        onPress = {() => this._handleAcceptGroupRequest(item.creatorID, item.creatorName, item.requestorUserID, item.requestorFullName, item.groupName)}
-                                                        buttonStyle = {{ backgroundColor: "#42BA96", marginHorizontal: 5, marginTop: 10 }}
-                                                    />
-                                                    <Button
-                                                        title = "Decline"
-                                                        type = "standard"
-                                                        onPress = {() => this._handleDeclineGroupRequest(item.creatorID, item.creatorName, item.requestorUserID, item.requestorFullName, item.groupName)}
-                                                        buttonStyle = {{ backgroundColor: "#DF4759", marginHorizontal: 5, marginTop: 10 }}
-                                                    />
-                                                </View>
-                                            </Card>
-                                        )
-                                    })
-                                }
-                                {
-                                    this.state.userGroupRequestResponse.map((item, index) => {
-                                        return (
-                                            <Card key = { index }>
-                                                <Card.Title>{ item.senderName }</Card.Title>
-                                                <Card.Divider/>
-                                                <Text>{ item.response }</Text>
-                                            </Card>
-                                        )
-                                    })
-                                }
-                                {
-                                    this.state.userResponse.map((item, index) => {
-                                        return (
-                                            <Card key = { index }>
-                                                <Card.Title>{ item.recipientUserFullName }</Card.Title>
-                                                <Card.Divider/>
-                                                <Text>{ item.response }</Text>
-                                            </Card>
-                                        )
-                                    })
-                                }
-                                <Button
-                                    title = "Close"
-                                    type = "solid"
-                                    buttonStyle = { profileScreenStyle.profileButton2 }
-                                    onPress = {() => this._handleCloseNotifications()}
-                                />
+                                <ScrollView>
+                                    <Card.Title>Notfications</Card.Title>
+                                    <Card.Divider/>
+                                    {
+                                        this.state.userInvitations.map((item, index) => {
+                                            return(
+                                                <Card key = { index } >
+                                                    <Card.Title>{ item.senderName }</Card.Title>
+                                                    <Card.Divider/>
+                                                    <Text>{ item.message }</Text>
+                                                    <View style ={{ flexDirection: "row", alignSelf: "center" }}>
+                                                        <Button
+                                                            title = "Accept"
+                                                            type = "standard"
+                                                            onPress = {() => this._handleAcceptInvitation(item.senderID, item.senderName, item.recipientUserID, item.recipientUserFullName)}
+                                                            buttonStyle = {{ backgroundColor: "#42BA96", marginHorizontal: 5, marginTop: 10 }}
+                                                        />
+                                                        <Button
+                                                            title = "Decline"
+                                                            type = "standard"
+                                                            onPress = {() => this._handleDeclineInvitation(item.senderID, item.senderName, item.recipientUserID, item.recipientUserFullName)}
+                                                            buttonStyle = {{ backgroundColor: "#DF4759", marginHorizontal: 5, marginTop: 10 }}
+                                                        />
+                                                    </View>
+                                                </Card>
+                                            )
+                                        })
+                                    }
+                                    {
+                                        this.state.userGroupsInvitations.map((item, index) => {
+                                            return (
+                                                <Card key = { index }>
+                                                    <Card.Title>{ item.senderName }</Card.Title>
+                                                    <Card.Divider/>
+                                                    <Text>{ item.message }</Text>
+                                                    <Text style = {{ marginTop: 10 }} >Topics: { item.topics }</Text>
+                                                    <Card.Divider/>
+                                                    <View style ={{ flexDirection: "row", alignSelf: "center" }}>
+                                                        <Button
+                                                            title = "Join"
+                                                            type = "standard"
+                                                            onPress = {() => this._handleAcceptGroupInvitation(item.senderID, item.senderName, item.recipientUserID, item.recipientUserFullName, item.groupName, item.topics)}
+                                                            buttonStyle = {{ backgroundColor: "#42BA96", marginHorizontal: 5, marginTop: 10 }}
+                                                        />
+                                                        <Button
+                                                            title = "Decline"
+                                                            type = "standard"
+                                                            onPress = {() => this._handleDeclineGroupInvitation(item.senderID, item.senderName, item.recipientUserID, item.recipientUserFullName, item.groupName)}
+                                                            buttonStyle = {{ backgroundColor: "#DF4759", marginHorizontal: 5, marginTop: 10 }}
+                                                        />
+                                                    </View>
+                                                </Card>
+                                            )
+                                        })
+                                    }
+                                    {
+                                        this.state.userGroupRequest.map((item, index) => {
+                                            return (
+                                                <Card key = { index }>
+                                                    <Card.Title>{ item.requestorFullName }</Card.Title>
+                                                    <Card.Divider/>
+                                                    <Text>{ item.message }</Text>
+                                                    <Card.Divider/>
+                                                    <View style ={{ flexDirection: "row", alignSelf: "center" }}>
+                                                        <Button
+                                                            title = "Accept"
+                                                            type = "standard"
+                                                            onPress = {() => this._handleAcceptGroupRequest(item.creatorID, item.creatorName, item.requestorUserID, item.requestorFullName, item.groupName)}
+                                                            buttonStyle = {{ backgroundColor: "#42BA96", marginHorizontal: 5, marginTop: 10 }}
+                                                        />
+                                                        <Button
+                                                            title = "Decline"
+                                                            type = "standard"
+                                                            onPress = {() => this._handleDeclineGroupRequest(item.creatorID, item.creatorName, item.requestorUserID, item.requestorFullName, item.groupName)}
+                                                            buttonStyle = {{ backgroundColor: "#DF4759", marginHorizontal: 5, marginTop: 10 }}
+                                                        />
+                                                    </View>
+                                                </Card>
+                                            )
+                                        })
+                                    }
+                                    {
+                                        this.state.userGroupRequestResponse.map((item, index) => {
+                                            return (
+                                                <Card key = { index }>
+                                                    <Card.Title>{ item.senderName }</Card.Title>
+                                                    <Card.Divider/>
+                                                    <Text>{ item.response }</Text>
+                                                </Card>
+                                            )
+                                        })
+                                    }
+                                    {
+                                        this.state.userResponse.map((item, index) => {
+                                            return (
+                                                <Card key = { index }>
+                                                    <Card.Title>{ item.recipientUserFullName }</Card.Title>
+                                                    <Card.Divider/>
+                                                    <Text>{ item.response }</Text>
+                                                </Card>
+                                            )
+                                        })
+                                    }
+                                    <Button
+                                        title = "Close"
+                                        type = "solid"
+                                        buttonStyle = { profileScreenStyle.profileButton2 }
+                                        onPress = {() => this._handleCloseNotifications()}
+                                    />
+                                </ScrollView>
                             </Card>
                         </Overlay>
                     </Content>

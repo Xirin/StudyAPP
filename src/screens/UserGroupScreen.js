@@ -66,11 +66,13 @@ export default class UserGroupScreen extends Component {
             searchAvailableGroupsAccordion: "",
             userGroupMembersOverlayVisibility: false,
             userGroupMembersList: [""],
+            editGroupOverlayVisibility: false,
+            editGroupName: "",
+            groupForEdit: "",
         }
     }
 
     componentDidMount = () => {
-        this.forceUpdate();
 
         //Fetch All the Groups that the User is Part of
         var userGroupCollection = "";
@@ -112,6 +114,7 @@ export default class UserGroupScreen extends Component {
             })
         
         this.setState({ availableUsers: this.state.arrayInitializer })
+        this.forceUpdate();
     }
 
     _handleOpenDrawer = () => {
@@ -1334,6 +1337,38 @@ export default class UserGroupScreen extends Component {
         this._handleCloseUserGroupMembersOverlay();
     }
 
+    _handleOpenEditGroupOverlay = (visible, groupName) => {
+        this.setState({ editGroupOverlayVisibility: visible });
+        this.setState({ editGroupName: groupName });
+        this.setState({ groupForEdit: groupName })
+    }
+
+    _handleCloseEditGroupOverlay = () => {
+        this.setState({ editGroupOverlayVisibility: false })
+    }
+
+    _handleEditGroup = () => {
+        // //Get all topic that is selected by the user
+        // var topicListSelectedArray = this.state.topicList;
+        // var topicLstSelectedCollection = [];
+        // for (let index = 0; index < topicListSelectedArray.length; index++) {
+        //     if (topicListSelectedArray[index].checked === true) {
+        //         topicLstSelectedCollection.push(
+        //             topicListSelectedArray[index].title
+        //         )
+        //     }
+        // }
+
+        // //Edit Group Name and Topics
+        // firestore()
+        //     .collection("Groups")
+        //     .doc(this.state.groupForEdit)
+        //     .update({
+        //         groupName: this.state.editGroupName,
+        //         topics: topicLstSelectedCollection
+        //     })
+    }
+
     render() {
         LogBox.ignoreAllLogs();
 
@@ -1466,6 +1501,17 @@ export default class UserGroupScreen extends Component {
                                                             title = "Members"
                                                             buttonStyle = {{ paddingHorizontal: "37.1%", marginTop: "3.5%", backgroundColor: "#7B1FA2" }}
                                                             onPress = {() => this._handleOpenUserGroupMembersOverlay(true)}
+                                                        />
+                                                        <Button
+                                                            type = "solid"
+                                                            title = "Edit"
+                                                            buttonStyle = {{ paddingHorizontal: "44.4%", marginTop: "3.5%", backgroundColor: "#DF4759" }}
+                                                            onPress = {() => this._handleOpenEditGroupOverlay(true, item.groupName, item.topics)}
+                                                        />
+                                                         <Button
+                                                            type = "solid"
+                                                            title = "Delete"
+                                                            buttonStyle = {{ paddingHorizontal: "41%", marginTop: "3.5%", backgroundColor: "#DF4759" }}
                                                         />
                                                     </ListItem.Content>
                                                 </ListItem>
@@ -1699,83 +1745,85 @@ export default class UserGroupScreen extends Component {
                             overlayStyle = {{ padding: 0, paddingBottom: "5%", borderWidth: 5, borderColor: "#7B1FA2" }}
                         >
                             <Card>
-                                <Card.Title style = { userGroupScreenStyle.ugOverlayCard2 }>
-                                    Discover Study Groups
-                                </Card.Title>
-                                <Card.Divider/>
-                                <Text
-                                    style = {{ color: "#7B1FA2", fontWeight: "bold", fontSize: 16, marginBottom: "4%" }}
-                                >
-                                    Topic/s Selected:
-                                </Text>
-                                {
-                                    this.state.searchGroupTopicSelected.map((item, index) => {
-                                        return (
-                                            <View key = { index }>
-                                                <Chip
-                                                    containerStyle = {{ alignSelf: "center", marginBottom: "3%" }}
-                                                    buttonStyle = {{ backgroundColor: "#7B1FA2" }}
-                                                    title = { item }
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                }
-                                <Card.Divider/>
-                                <Text
-                                    style = {{ color: "#7B1FA2", fontWeight: "bold", fontSize: 16, marginBottom: "2%" }}
-                                >
-                                    Available Groups:
-                                </Text>
-                                {
-                                    this.state.searchAvailableGroups.map((item, index) => {
-                                        return (
-                                            <ListItem.Accordion
-                                                style = { userGroupScreenStyle.ugCardTitle }
-                                                key = { index }
-                                                content = {
-                                                    <>
-                                                        <ListItem.Content>
-                                                            <ListItem.Title style = {{ color: "#7B1FA2" }}>
-                                                                { item.groupName }
-                                                            </ListItem.Title>
-                                                            <ListItem.Subtitle>
-                                                                { item.creatorName }
-                                                            </ListItem.Subtitle>
-                                                        </ListItem.Content>
-                                                    </>
-                                                }
-                                                isExpanded = { this.state.searchAvailableGroupsAccordion === item.groupName }
-                                                onPress = {() => {
-                                                    if (this.state.searchAvailableGroupsAccordion == item.groupName) {
-                                                        this.setState({ searchAvailableGroupsAccordion: "" })
-                                                    } else {
-                                                        this.setState({ searchAvailableGroupsAccordion: item.groupName })
+                                <ScrollView>
+                                    <Card.Title style = { userGroupScreenStyle.ugOverlayCard2 }>
+                                        Discover Study Groups
+                                    </Card.Title>
+                                    <Card.Divider/>
+                                    <Text
+                                        style = {{ color: "#7B1FA2", fontWeight: "bold", fontSize: 16, marginBottom: "4%" }}
+                                    >
+                                        Topic/s Selected:
+                                    </Text>
+                                    {
+                                        this.state.searchGroupTopicSelected.map((item, index) => {
+                                            return (
+                                                <View key = { index }>
+                                                    <Chip
+                                                        containerStyle = {{ alignSelf: "center", marginBottom: "3%" }}
+                                                        buttonStyle = {{ backgroundColor: "#7B1FA2" }}
+                                                        title = { item }
+                                                    />
+                                                </View>
+                                            )
+                                        })
+                                    }
+                                    <Card.Divider/>
+                                    <Text
+                                        style = {{ color: "#7B1FA2", fontWeight: "bold", fontSize: 16, marginBottom: "2%" }}
+                                    >
+                                        Available Groups:
+                                    </Text>
+                                    {
+                                        this.state.searchAvailableGroups.map((item, index) => {
+                                            return (
+                                                <ListItem.Accordion
+                                                    style = { userGroupScreenStyle.ugCardTitle }
+                                                    key = { index }
+                                                    content = {
+                                                        <>
+                                                            <ListItem.Content>
+                                                                <ListItem.Title style = {{ color: "#7B1FA2" }}>
+                                                                    { item.groupName }
+                                                                </ListItem.Title>
+                                                                <ListItem.Subtitle>
+                                                                    { item.creatorName }
+                                                                </ListItem.Subtitle>
+                                                            </ListItem.Content>
+                                                        </>
                                                     }
-                                                }}
-                                            >
-                                                <Text style = {{ color: "#7B1FA2", marginTop: "2%", alignSelf: "center", fontWeight: "bold" }} >Topics: </Text>
-                                                <Text
-                                                    style = {{ color: "#7B1FA2", alignSelf: "center" }}
+                                                    isExpanded = { this.state.searchAvailableGroupsAccordion === item.groupName }
+                                                    onPress = {() => {
+                                                        if (this.state.searchAvailableGroupsAccordion == item.groupName) {
+                                                            this.setState({ searchAvailableGroupsAccordion: "" })
+                                                        } else {
+                                                            this.setState({ searchAvailableGroupsAccordion: item.groupName })
+                                                        }
+                                                    }}
                                                 >
-                                                    { item.topics }
-                                                </Text>
-                                                <Button
-                                                    title = "Join"
-                                                    type = "solid"
-                                                    buttonStyle = {{ marginTop: "3%", backgroundColor: "#7B1FA2" }}
-                                                    onPress = {() => this._handleApplyToGroup(item.creatorID, item.creatorName, item.groupName, item.topics)}
-                                                />
-                                                <Button
-                                                    title = "Close"
-                                                    type = "solid"
-                                                    buttonStyle = {{ marginTop: "3%", backgroundColor: "#7B1FA2" }}
-                                                    onPress = {() => this._handleCloseSearchResultsOverlay()}
-                                                />
-                                            </ListItem.Accordion>
-                                        )
-                                    })
-                                }
+                                                    <Text style = {{ color: "#7B1FA2", marginTop: "2%", alignSelf: "center", fontWeight: "bold" }} >Topics: </Text>
+                                                    <Text
+                                                        style = {{ color: "#7B1FA2", alignSelf: "center" }}
+                                                    >
+                                                        { item.topics }
+                                                    </Text>
+                                                    <Button
+                                                        title = "Join"
+                                                        type = "solid"
+                                                        buttonStyle = {{ marginTop: "3%", backgroundColor: "#7B1FA2" }}
+                                                        onPress = {() => this._handleApplyToGroup(item.creatorID, item.creatorName, item.groupName, item.topics)}
+                                                    />
+                                                    <Button
+                                                        title = "Close"
+                                                        type = "solid"
+                                                        buttonStyle = {{ marginTop: "3%", backgroundColor: "#7B1FA2" }}
+                                                        onPress = {() => this._handleCloseSearchResultsOverlay()}
+                                                    />
+                                                </ListItem.Accordion>
+                                            )
+                                        })
+                                    }
+                                </ScrollView>
                             </Card>
                         </Overlay>
 
@@ -1821,6 +1869,60 @@ export default class UserGroupScreen extends Component {
                                     onPress = {() => this._handleCloseUserGroupMembersOverlay()}
                                 />
                             </Card>
+                        </Overlay>
+
+                        {/* Edit Group Overlay */}
+                        <Overlay
+                            isVisible = { this.state.editGroupOverlayVisibility }
+                            onBackdropPress = {() => this._handleCloseEditGroupOverlay()}
+                            overlayStyle = {{ padding: 0, paddingBottom: "5%", borderWidth: 5, borderColor: "#7B1FA2" }}
+                        >
+                           <ScrollView>
+                                <Card>
+                                    <Card.Title style = { userGroupScreenStyle.ugOverlayCard2 }>
+                                        Edit Group
+                                    </Card.Title>
+                                    <Card.Divider/>
+                                    <Input
+                                        placeholder = "Group Name"
+                                        label = "Group Name"
+                                        labelStyle = {{ color: "#7B1FA2" }}
+                                        onChangeText = {(editGroupName) => this.setState({ editGroupName })}
+                                        value = { this.state.editGroupName }
+                                    />
+                                    <Text
+                                        style = {{ color: "#7B1FA2", fontWeight: "bold", fontSize: 16, marginBottom: "4%" }}
+                                    >
+                                        Please Selact your desired Topic/s:
+                                    </Text>
+                                    {
+                                        this.state.topicList.map((item, index) => {
+                                            return (
+                                                <View key  = { index } >
+                                                    <CheckBox
+                                                        title = { item.title }
+                                                        textStyle = { userGroupScreenStyle.ugOverlayCheckbox }
+                                                        checked = { item.checked }
+                                                        onPress = {() => this._handleTopicCheckBox(item.title)}
+                                                    />
+                                                </View>
+                                            )
+                                        })
+                                    }
+                                    <Button
+                                        title = "Save"
+                                        type = "solid"
+                                        buttonStyle = {{ marginTop: "3%", backgroundColor: "#7B1FA2" }}
+                                        onPress = {() => this._handleEditGroup()}
+                                    />
+                                    <Button
+                                        title = "Close"
+                                        type = "solid"
+                                        buttonStyle = {{ marginTop: "3%", marginBottom: "3%", backgroundColor: "#7B1FA2" }}
+                                        onPress = {() => this._handleCloseEditGroupOverlay()}
+                                    />
+                                </Card>
+                           </ScrollView>
                         </Overlay>
                     </Content>
                 </Container>
