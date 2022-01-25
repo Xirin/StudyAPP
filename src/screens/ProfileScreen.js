@@ -20,6 +20,7 @@ import {
     StyleSheet,
     ScrollView,
     LogBox,
+    TouchableOpacity,
 } from 'react-native';
 
 import {
@@ -66,6 +67,12 @@ export default class ProfileScreen extends Component {
             userGroupRequestResponse: [""],
             userGroupRequestResponseCounter: 0,
             userVideoCallChannel: "",
+            messageOverlayVisibility: false,
+            userLatestMessages: [""],
+            userMessagesCounter: 0,
+            groupLatestMessages: [""],
+            groupMessagesCounter: 0,
+
         }
     }
 
@@ -231,6 +238,64 @@ export default class ProfileScreen extends Component {
                             })
                             this.setState({ userGroupRequestResponse: userGroupRequestResponseArray })
                             this.setState({ userGroupRequestResponseCounter: groupRequestResponseCounter })
+                        })
+                }
+            })
+
+        //Getting the Counter for Individual Latest Messages
+        var messageThread = [];
+        var messagecounter = 0;
+        firestore() 
+            .collection("Chat")
+            .where("user", "array-contains", auth().currentUser.uid)
+            .get()
+            .then((snapShot) => {
+                snapShot.forEach((doc) => {
+                    messageThread.push({
+                        threadID: doc.id,
+                        recieved: doc.data().recieved,
+                        sender: doc.data().sender
+                    })
+                })
+            })
+            .then(() => {
+                for (let index = 0; index < messageThread.length; index++) {
+                    if (messageThread[index].sender._id != auth().currentUser.uid && messageThread[index].recieved == false) {
+                        messagecounter = messagecounter + 1;
+                    }
+                }
+                this.setState({ userMessagesCounter: messagecounter })
+            })
+
+
+        //Getting the Counter for Group Latest Messages
+        var groupID = [];
+        var groupMessagesCounter = 0;
+        firestore()
+            .collection("Groups")
+            .get()
+            .then((snapShot) => {
+                snapShot.forEach((doc) => {
+                    groupID.push({
+                        documentID: doc.id,
+                        recieved: doc.data().recieved,
+                        sender: doc.data().sender,
+                    })
+                })
+            })
+            .then(() => {
+                for (let index = 0; index < groupID.length; index++) {
+                    firestore()
+                        .collection("Groups")
+                        .doc(groupID[index].documentID)
+                        .collection("Members")
+                        .where("userID", "==", auth().currentUser.uid)
+                        .get()
+                        .then(() => {
+                            if (groupID[index].sender._id != auth().currentUser.uid && groupID[index].recieved == false) {
+                                groupMessagesCounter = groupMessagesCounter + 1;
+                            }
+                            this.setState({ groupMessagesCounter: groupMessagesCounter })
                         })
                 }
             })
@@ -484,32 +549,23 @@ export default class ProfileScreen extends Component {
     }
 
     _handleAcceptGroupInvitation = (senderID, senderName, recipientUserID, recipientUserFullName, groupName, topics) => {
-        //Creation of group and storing all of its users invited
+        //Getting Group ID
+        var groupID = "";
         firestore()
             .collection("Groups")
-            .doc(groupName)
-            .set({
-                groupName: groupName,
-                creatorID: senderID,
-                creatorName: senderName,
-                topics: topics
+            .where("creatorID", "==", senderID)
+            .where("groupName", "==", groupName)
+            .get()
+            .then((snapShot) => {
+                snapShot.forEach((doc) => {
+                    groupID = doc.id;
+                })
             })
             .then(() => {
-                //Store the creator information
+            //Store the invited peer information
                 firestore()
                     .collection("Groups")
-                    .doc(groupName)
-                    .collection("Members")
-                    .doc(senderID)
-                    .set({
-                        userID: senderID,
-                        userFullName: senderName
-                    })
-                
-                //Store the invited peer information
-                firestore()
-                    .collection("Groups")
-                    .doc(groupName)
+                    .doc(groupID)
                     .collection("Members")
                     .doc(recipientUserID)
                     .set({
@@ -517,6 +573,39 @@ export default class ProfileScreen extends Component {
                         userFullName: recipientUserFullName
                     })
             })
+
+        // firestore()
+        //     .collection("Groups")
+        //     .doc(groupName)
+        //     .set({
+        //         groupName: groupName,
+        //         creatorID: senderID,
+        //         creatorName: senderName,
+        //         topics: topics
+        //     })
+        //     .then(() => {
+        //         //Store the creator information
+        //         firestore()
+        //             .collection("Groups")
+        //             .doc(groupName)
+        //             .collection("Members")
+        //             .doc(senderID)
+        //             .set({
+        //                 userID: senderID,
+        //                 userFullName: senderName
+        //             })
+                
+        //         //Store the invited peer information
+        //         firestore()
+        //             .collection("Groups")
+        //             .doc(groupName)
+        //             .collection("Members")
+        //             .doc(recipientUserID)
+        //             .set({
+        //                 userID: recipientUserID,
+        //                 userFullName: recipientUserFullName
+        //             })
+        //     })
 
         //Deleting the group invitation for getting a response
         firestore()
@@ -568,6 +657,19 @@ export default class ProfileScreen extends Component {
     }
 
     _handleAcceptGroupRequest = (creatorID, creatorName, requestorUserID, requestorFullName, groupName) => {
+        //Getting Group ID
+        var groupID = "";
+        firestore()
+            .collection("Groups")
+            .where("creatorID", "==", creatorID)
+            .where("groupName", "==", groupName)
+            .get()
+            .then((snapShot) => {
+                snapShot.forEach((doc) => {
+                    groupID = doc.id;
+                })
+            })
+
         //Storing to the Databse the response of the accepted user
         firestore()
             .collection("Invitations")
@@ -585,13 +687,22 @@ export default class ProfileScreen extends Component {
         //Storing to the Database the information of the accepted user
         firestore()
             .collection("Groups")
-            .doc(groupName)
+            .doc(groupID)
             .collection("Members")
             .doc(requestorUserID)
             .set({
                 userFullName: requestorFullName,
                 userID: requestorUserID
             })
+        // firestore()
+        //     .collection("Groups")
+        //     .doc(groupName)
+        //     .collection("Members")
+        //     .doc(requestorUserID)
+        //     .set({
+        //         userFullName: requestorFullName,
+        //         userID: requestorUserID
+        //     })
 
         //Deleting the Request sent by the Requestor
         firestore()
@@ -661,6 +772,131 @@ export default class ProfileScreen extends Component {
             })
     }
 
+    _handleOpenMessageOverlay = (visible) => {
+        //Getting all Individual Message Threads that is connected to the current user
+        var messageThread = [];
+        var latestMessages = [];
+        firestore()
+            .collection("Chat")
+            .where("user", "array-contains", auth().currentUser.uid)
+            .get()
+            .then((snapShot) => {
+                snapShot.forEach((doc) => {
+                    messageThread.push({
+                        threadID: doc.id
+                    })
+                })
+            })
+            .then(() => {
+                for (let index = 0; index < messageThread.length; index++) {
+                    firestore()
+                        .collection("Chat")
+                        .doc(messageThread[index].threadID)
+                        .get()
+                        .then((snapShot) => {
+                            latestMessages.push({
+                                threadID: messageThread[index].threadID,
+                                message: snapShot.data().latestMessage,
+                                createdAt: new Date(snapShot.data().latestMessage.createdAt).toDateString(),
+                                recieved: snapShot.data().recieved,
+                                system: snapShot.data().system,
+                                sender: snapShot.data().sender,
+                                user: snapShot.data().user,
+                            })
+                            this.setState({ userLatestMessages: latestMessages })
+                        })
+                }
+            })
+
+        //Getting all Group Message Threads that is connected to the current user
+        var groupID = [];
+        var groupLatestMessages = [];
+        firestore()
+            .collection("Groups")
+            .get()
+            .then((snapShot) => {
+                snapShot.forEach((doc) => {
+                    groupID.push({
+                        documentID: doc.id,
+                        groupName: doc.data().groupName,
+                        message: doc.data().latestMessage,
+                        createdAt: new Date(doc.data().latestMessage.createdAt).toDateString(),
+                        recieved: doc.data().recieved,
+                        sender: doc.data().sender,
+                        system: doc.data().system,
+                    })
+                })
+            })
+            .then(() => {
+                for (let index = 0; index < groupID.length; index++) {
+                    firestore()
+                        .collection("Groups")
+                        .doc(groupID[index].documentID)
+                        .collection("Members")
+                        .where("userID", "==", auth().currentUser.uid)
+                        .get()
+                        .then(() => {
+                            groupLatestMessages.push({
+                                groupID: groupID[index].documentID,
+                                groupName: groupID[index].groupName,
+                                message: groupID[index].message,
+                                createdAt: groupID[index].createdAt,
+                                recieved: groupID[index].recieved,
+                                sender: groupID[index].sender,
+                                system: groupID[index].system,
+                            })
+                            this.setState({ groupLatestMessages: groupLatestMessages })
+                        })
+                }
+            })
+
+        this.setState({ messageOverlayVisibility: visible })
+    }
+
+    _handleCloseMessageOverlay = () => {
+        this.setState({ messageOverlayVisibility: false })
+    }
+
+    _handleLatestMessageChatNavigation = (user, threadID) => {
+        //Navigating Latest Messages for Invdividuals
+        var otherUserID = "";
+        for (let index = 0; index < user.length; index++) {
+            if (user[index] != auth().currentUser.uid) {
+                otherUserID = user[index];
+            }
+        }
+
+        firestore()
+            .collection("Chat")
+            .doc(threadID)
+            .update({
+                recieved: true
+            })
+
+        this.props.navigation.navigate("Chat Study Peers" ,{
+            documentID: threadID,
+            otherUserID: otherUserID,
+            currentUserID: auth().currentUser.uid,
+            currentUserLastName: this.state.userLastName,
+        })
+    }
+
+    _handleGroupLatestMessageChatNavigation = (groupID) => {
+        //Navigating Latest Messages for Groups
+        firestore()
+            .collection("Groups")
+            .doc(groupID)
+            .update({
+                recieved: true
+            })
+
+        this.props.navigation.navigate("Chat", {
+            userLastName: this.state.userLastName,
+            studyGroupID: groupID,
+            currentUserID: auth().currentUser.uid,
+        })
+    }
+
     render() {
 
         LogBox.ignoreAllLogs();
@@ -670,13 +906,19 @@ export default class ProfileScreen extends Component {
             { sex: "Female" }
         ];
 
-        const BadgedIcon = 
+        const BadgedIconInvitations = 
             withBadge(
                 this.state.userInvitationCounter + 
                 this.state.userGroupInvitationCounter + 
                 this.state.userResponseCounter + 
                 this.state.userGroupRequestCounter +
                 this.state.userGroupRequestResponseCounter
+            )(Icon);
+
+        const BadgedIconMessages = 
+            withBadge(
+                this.state.userMessagesCounter +
+                this.state.groupMessagesCounter
             )(Icon);
         
         const rtcProps = {
@@ -706,12 +948,19 @@ export default class ProfileScreen extends Component {
                                 style: {color: "#fff"}
                             }}
                             rightComponent = {
-                                <View style = {{ marginRight: 10 }}>
-                                    <BadgedIcon 
+                                <View style = {{ marginRight: 10, flex: 1, flexDirection: "row" }}>
+                                     <BadgedIconMessages
+                                        type = "material-community"
+                                        name = "message-bulleted"
+                                        color = "#fff"
+                                        onPress = {() => this._handleOpenMessageOverlay(true)}
+                                    />
+                                    <BadgedIconInvitations 
                                         type = "material-community" 
                                         name = "bell" 
                                         color = "#fff"
                                         onPress = {() => this._handleOpenNotifications(true)}
+                                        containerStyle ={{ paddingLeft: "40%" }}
                                     />
                                 </View>
                             }
@@ -1012,6 +1261,80 @@ export default class ProfileScreen extends Component {
                                     />
                                 </ScrollView>
                             </Card>
+                        </Overlay>
+
+                        {/* Message Notification Overlay */}
+                        <Overlay
+                            isVisible = { this.state.messageOverlayVisibility }
+                            onBackdropPress = {() => this._handleCloseMessageOverlay()}
+                            overlayStyle = {{ padding: 0, paddingBottom: 15, borderWidth: 5, borderColor: "#7B1FA2" }}
+                            fullScreen = { true }
+                        >
+                            <ScrollView>
+                                <Card>
+                                    <Card.Title style = {{ color: "#7B1FA2" }} >Messages</Card.Title>
+                                    <Card.Divider/>
+                                    {
+                                        this.state.userLatestMessages.map((item, index) => {
+                                            if (this.state.userLatestMessages == "" || item.sender._id == auth().currentUser.uid || item.recieved == true) {
+                                                return (
+                                                    <Text h4 style = {{  color: "#7B1FA2", alignSelf: "center" }}>
+                                                        No Individual Messages
+                                                    </Text>
+                                                )
+                                            } else {
+                                                return (
+                                                    <ListItem key  = { index }>
+                                                        <ListItem.Content>
+                                                            <TouchableOpacity  onPress = {() => this._handleLatestMessageChatNavigation(item.user, item.threadID)} >
+                                                                <ListItem.Subtitle>{ item.createdAt }</ListItem.Subtitle>
+                                                                <ListItem.Title style = {{ fontWeight: "bold" }} >{ item.sender.displayName }: {item.message.text}</ListItem.Title>
+                                                            </TouchableOpacity>
+                                                        </ListItem.Content>
+                                                        <ListItem.Chevron 
+                                                            iconStyle = {{ color: "#7B1FA2", fontSize: 30, fontWeight: "bold" }} 
+                                                            onPress = {() => this._handleLatestMessageChatNavigation(item.user, item.threadID)} 
+                                                        />
+                                                    </ListItem>
+                                                )
+                                            }
+                                        })
+                                    }
+                                    {
+                                        this.state.groupLatestMessages.map((item, index) => {
+                                            if (this.state.groupLatestMessages == "" || item.sender._id == auth().currentUser.uid || item.recieved == true) {
+                                                return (
+                                                    <Text h4 style = {{  color: "#7B1FA2", alignSelf: "center" }}>
+                                                        No Group Messages
+                                                    </Text>
+                                                )
+                                            } else {
+                                                return (
+                                                    <ListItem key = { index }>
+                                                        <ListItem.Content>
+                                                            <TouchableOpacity onPress = {() => this._handleGroupLatestMessageChatNavigation(item.groupID)} >
+                                                                <ListItem.Subtitle>{ item.createdAt }</ListItem.Subtitle>
+                                                                <ListItem.Title style = {{ fontStyle: "italic" }}>Group: { item.groupName }</ListItem.Title>
+                                                                <ListItem.Title style = {{ fontWeight: "bold" }} >{ item.sender.displayName }: {item.message.text}</ListItem.Title>
+                                                            </TouchableOpacity>
+                                                        </ListItem.Content>
+                                                        <ListItem.Chevron
+                                                            iconStyle = {{ color: "#7B1FA2", fontSize: 30, fontWeight: "bold" }}
+                                                            onPress = {() => this._handleGroupLatestMessageChatNavigation(item.groupID)}
+                                                        />
+                                                    </ListItem>
+                                                )
+                                            }
+                                        })
+                                    }
+                                </Card>
+                            </ScrollView>
+                            <Button
+                                title = "Close"
+                                type = "solid"
+                                buttonStyle = {{ backgroundColor: "#7B1FA2", marginHorizontal: "10%", marginTop: "3%" }}
+                                onPress = {() => this._handleCloseMessageOverlay()}
+                            />
                         </Overlay>
                     </Content>
                 </ScrollView>

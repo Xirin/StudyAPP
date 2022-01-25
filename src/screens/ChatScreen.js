@@ -15,7 +15,7 @@ export default class ChatScreen extends Component {
         super (props);
         this.state = {
             currentUserName: this.props.route.params.userLastName,
-            studyGroupName: this.props.route.params.studyGroupName,
+            studyGroupID: this.props.route.params.studyGroupID,
             currentUserID: this.props.route.params.currentUserID,
             messages: [{
                 _id: '',
@@ -37,7 +37,7 @@ export default class ChatScreen extends Component {
         const listnerA = 
         firestore()
             .collection('Groups')
-            .doc(this.state.studyGroupName)
+            .doc(this.state.studyGroupID)
             .collection('Messages')
             .orderBy('createdAt', 'desc')
             .onSnapshot((querySnapShot) => {
@@ -74,7 +74,7 @@ export default class ChatScreen extends Component {
         var text = messages[0].text;
         firestore()
             .collection('Groups')
-            .doc(this.state.studyGroupName)
+            .doc(this.state.studyGroupID)
             .collection('Messages')
             .add({
                 text,
@@ -84,6 +84,23 @@ export default class ChatScreen extends Component {
                     _id: this.state.currentUserID,
                     displayName: this.state.currentUserName
                 }
+            })
+            .then(() => {
+                firestore()
+                    .collection("Groups")
+                    .doc(this.state.studyGroupID)
+                    .update({
+                        latestMessage: {
+                            text,
+                            createdAt: new Date().getTime()
+                        },
+                        recieved: false,
+                        system: false,
+                        sender: {
+                            _id: this.state.currentUserID,
+                            displayName: this.state.currentUserName
+                        }
+                    })
             });
     }
 

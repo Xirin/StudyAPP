@@ -83,9 +83,26 @@ export default class ChatScreen extends Component {
                     _id: this.state.currentUserID,
                     displayName: this.state.currentUserLastName
                 }
+            })
+            .then(() => {
+                firestore()
+                    .collection("Chat")
+                    .doc(this.state.documentID)
+                    .update({
+                        latestMessage: {
+                            text,
+                            createdAt: new Date().getTime(),
+                        },
+                        recieved: false,
+                        system: false,
+                        sender: {
+                            _id: this.state.currentUserID,
+                            displayName: this.state.currentUserLastName
+                        }
+                    })
             });
     }
-
+x   
     render() {
         LogBox.ignoreAllLogs();
         return (

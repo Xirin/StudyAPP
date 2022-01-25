@@ -360,11 +360,9 @@ export default class ForumScreen extends Component {
                                     <Card.Title>
                                         { item.forumTitle }
                                     </Card.Title>
-                                    <Card.Divider style = {{ borderWidth: 1, borderColor: "#7B1FA2" }} />
                                     <Text style = {{ marginBottom: 15, alignSelf: "center" }} >
                                         { item.forumContent }
                                     </Text>
-                                    <Card.Divider style = {{ borderWidth: 1, borderColor: "#7B1FA2" }} />
                                     <View style = {{ flex: 1, flexDirection: "row" }} >
                                             <Icon 
                                                 type = "fontisto" 
