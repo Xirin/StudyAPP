@@ -71,6 +71,8 @@ export default class UserGroupScreen extends Component {
             groupForEdit: "",
             deleteOverlayVisibility: "",
             groupForDelete: "",
+            leaveGroupVisibility: false,
+            groupForLeave: "",
         }
     }
 
@@ -916,6 +918,28 @@ export default class UserGroupScreen extends Component {
         this.componentDidMount();
     }
 
+    _handleOpenLeaveGroupOverlay = (visible, groupID) => {
+        this.setState({ leaveGroupVisibility: visible })
+        this.setState({ groupForLeave: groupID })
+    }
+
+    _handleCloseLeaveGroupOverlay = () => {
+        this.setState({ leaveGroupVisibility: false })
+    }
+
+    _handleLeaveGroup = () => {
+        //Delete the Document Where the user is on
+        firestore()
+            .collection("Groups")
+            .doc(this.state.groupForLeave)
+            .collection("Members")
+            .doc(auth().currentUser.uid)
+            .delete()
+
+        this._handleCloseLeaveGroupOverlay();
+        this.componentDidMount();
+    }
+
     render() {
         LogBox.ignoreAllLogs();
 
@@ -1130,6 +1154,12 @@ export default class UserGroupScreen extends Component {
                                                                 title = "Members"
                                                                 buttonStyle = {{ paddingHorizontal: "37.1%", marginTop: "3.5%", backgroundColor: "#7B1FA2" }}
                                                                 onPress = {() => this._handleOpenUserGroupMembersOverlay(true)}
+                                                            />
+                                                            <Button
+                                                                type = "solid"
+                                                                title = "Leave Group"
+                                                                buttonStyle = {{ paddingHorizontal: "35.7%", marginTop: "3.5%", backgroundColor: "#DF4759" }}
+                                                                onPress = {() => this._handleOpenLeaveGroupOverlay(true, item.groupID)}
                                                             />
                                                         </ListItem.Content>
                                                     </ListItem>
@@ -1580,6 +1610,32 @@ export default class UserGroupScreen extends Component {
                                     type = "solid"
                                     buttonStyle = {{ backgroundColor: "#7B1FA2", marginTop: "3%" }}
                                     onPress = {() => this._handleCloseDeleteGroupOverlay()}
+                                />
+                            </Card>
+                        </Overlay>
+
+                        {/* Leave Group Overlay */}
+                        <Overlay
+                            isVisible = { this.state.leaveGroupVisibility }
+                            onBackdropPress = {() => this._handleCloseLeaveGroupOverlay()}
+                            overlayStyle = {{ padding: 0, paddingBottom: "5%", borderWidth: 5, borderColor: "#7B1FA2" }}
+                        >
+                            <Card>
+                                <Text style = {{ color: "#7B1FA2", fontSize: 25, fontWeight: "bold", textAlign: "center" }} >
+                                    Do you want to leave this Group?
+                                </Text>
+                                <Card.Divider/>
+                                <Button
+                                    title = "Leave"
+                                    type = "solid"
+                                    buttonStyle = {{ backgroundColor: "#7B1FA2" }}
+                                    onPress = {() => this._handleLeaveGroup()}
+                                />
+                                <Button
+                                    title = "Close"
+                                    type = "solid"
+                                    buttonStyle = {{ backgroundColor: "#7B1FA2", marginTop: "3%" }}
+                                    onPress = {() => this._handleCloseLeaveGroupOverlay()}
                                 />
                             </Card>
                         </Overlay>
