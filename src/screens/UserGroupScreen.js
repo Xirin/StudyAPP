@@ -58,7 +58,9 @@ export default class UserGroupScreen extends Component {
                 { title: "Variables, Constants, and Data Types", checked: false },
                 { title: "Selection Statements", checked: false },
                 { title: "Input/Output Statements", checked: false },
+                { title: "Others", checked: false },
             ],
+            topicListFormValidation: "",
             searchGroupOverlayVisibility: false,
             searchGroupResultOverlayVisibility: false,
             searchGroupTopicSelected: [""],
@@ -68,6 +70,7 @@ export default class UserGroupScreen extends Component {
             userGroupMembersList: [""],
             editGroupOverlayVisibility: false,
             editGroupName: "",
+            editGroupNameFormValidation: "",
             groupForEdit: "",
             deleteOverlayVisibility: "",
             groupForDelete: "",
@@ -466,6 +469,21 @@ export default class UserGroupScreen extends Component {
         } else {
             this.setState({ userGroupNameFormValidation: "" })
         }
+
+        var topicListFormValidation = this.state.topicList;
+        var topicListFormValidationCounter = 0;
+        for (let index = 0; index < topicListFormValidation.length; index++) {
+            if (topicListFormValidation[index].checked === false) {
+                topicListFormValidationCounter = topicListFormValidationCounter + 1;
+            }
+        }
+
+        if (topicListFormValidationCounter == 8) {
+            errorCounter = errorCounter + 1;
+            this.setState({ topicListFormValidation: "This field is required*" })
+        } else {
+            this.setState({ topicListFormValidation: "" })
+        }
         
         if (errorCounter == 0) {
             //Get all topic that is selected by the user
@@ -627,82 +645,100 @@ export default class UserGroupScreen extends Component {
     }
 
     _handleOpenSearchResultsOverlay = (visible) => {
-        //Get all topics that is selected by the user
-        var topicsSelectedArray = this.state.topicList;
-        var topicsSelectedCollection = [];
-        for (let index = 0; index  < topicsSelectedArray.length; index++) {
-            if (topicsSelectedArray[index].checked === true) {
-                topicsSelectedCollection.push(
-                    topicsSelectedArray[index].title
-                )
+        //Form Validation
+        var errorCounter = 0;
+        var topicListFormValidation = this.state.topicList;
+        var topicListFormValidationCounter = 0;
+        for (let index = 0; index < topicListFormValidation.length; index++) {
+            if (topicListFormValidation[index].checked === false) {
+                topicListFormValidationCounter = topicListFormValidationCounter + 1;
             }
         }
-        this.setState({ searchGroupTopicSelected: topicsSelectedCollection })
 
-        //Get all available groups that got the topics preferred by the user
-        var topicArray = [];
-        var topicCounter = 0;
-        var availableGroups = [];
-        var availableGroupsCollection = [];
-        firestore()
-            .collection("Groups")
-            .where("topics", "array-contains-any", topicsSelectedCollection)
-            .get()
-            .then((snapShot) => {
-                snapShot.forEach((doc, i) => {
-                    for (let index = 0; index < doc.data().topics.length; index++) {
-                        for (let i = 0; i < topicsSelectedCollection.length; i++) {
-                            if (doc.data().topics[index] == topicsSelectedCollection[i]) {
-                                topicCounter = topicCounter + 1;
+        if (topicListFormValidationCounter == 8) {
+            errorCounter = errorCounter + 1;
+            this.setState({ topicListFormValidation: "This field is required*" })
+        } else {
+            this.setState({ topicListFormValidation: "" })
+        }
+
+        if (errorCounter == 0) {
+            //Get all topics that is selected by the user
+            var topicsSelectedArray = this.state.topicList;
+            var topicsSelectedCollection = [];
+            for (let index = 0; index  < topicsSelectedArray.length; index++) {
+                if (topicsSelectedArray[index].checked === true) {
+                    topicsSelectedCollection.push(
+                        topicsSelectedArray[index].title
+                    )
+                }
+            }
+            this.setState({ searchGroupTopicSelected: topicsSelectedCollection })
+
+            //Get all available groups that got the topics preferred by the user
+            var topicArray = [];
+            var topicCounter = 0;
+            var availableGroups = [];
+            var availableGroupsCollection = [];
+            firestore()
+                .collection("Groups")
+                .where("topics", "array-contains-any", topicsSelectedCollection)
+                .get()
+                .then((snapShot) => {
+                    snapShot.forEach((doc, i) => {
+                        for (let index = 0; index < doc.data().topics.length; index++) {
+                            for (let i = 0; i < topicsSelectedCollection.length; i++) {
+                                if (doc.data().topics[index] == topicsSelectedCollection[i]) {
+                                    topicCounter = topicCounter + 1;
+                                }
                             }
                         }
-                    }
-                    availableGroups.push({
-                        groupID: doc.id,
-                        creatorID: doc.data().creatorID,
-                        creatorName: doc.data().creatorName,
-                        groupName: doc.data().groupName,
-                        topics: doc.data().topics, 
-                        matchCounter: topicCounter
+                        availableGroups.push({
+                            groupID: doc.id,
+                            creatorID: doc.data().creatorID,
+                            creatorName: doc.data().creatorName,
+                            groupName: doc.data().groupName,
+                            topics: doc.data().topics, 
+                            matchCounter: topicCounter
+                        })
                     })
                 })
-            })
-            .then(() => {
-                for (let index = 0; index < availableGroups.length; index++) {
-                    firestore()
-                        .collection("Groups")
-                        .doc(availableGroups[index].groupID)
-                        .collection("Members")
-                        .doc(auth().currentUser.uid)
-                        .get()
-                        .then((doc) => {
-                            if (!doc.exists) {
-                                availableGroupsCollection.push({
-                                    groupID: availableGroups[index].groupID,
-                                    creatorID: availableGroups[index].creatorID,
-                                    creatorName: availableGroups[index].creatorName,
-                                    groupName: availableGroups[index].groupName,
-                                    topics: availableGroups[index].topics,
-                                    matchCounter: availableGroups[index].matchCounter,
+                .then(() => {
+                    for (let index = 0; index < availableGroups.length; index++) {
+                        firestore()
+                            .collection("Groups")
+                            .doc(availableGroups[index].groupID)
+                            .collection("Members")
+                            .doc(auth().currentUser.uid)
+                            .get()
+                            .then((doc) => {
+                                if (!doc.exists) {
+                                    availableGroupsCollection.push({
+                                        groupID: availableGroups[index].groupID,
+                                        creatorID: availableGroups[index].creatorID,
+                                        creatorName: availableGroups[index].creatorName,
+                                        groupName: availableGroups[index].groupName,
+                                        topics: availableGroups[index].topics,
+                                        matchCounter: availableGroups[index].matchCounter,
+                                    })
+                                }
+                                //Sorting the Matched Topics
+                                availableGroupsCollection.sort((a, b) => {
+                                    if (a.matchCounter > b.matchCounter) {
+                                        return -1;
+                                    }
+                                    if (a.matchCounter < b.matchCounter) {
+                                        return 1;
+                                    }
+                                    return 0;
                                 })
-                            }
-                            //Sorting the Matched Topics
-                            availableGroupsCollection.sort((a, b) => {
-                                if (a.matchCounter > b.matchCounter) {
-                                    return -1;
-                                }
-                                if (a.matchCounter < b.matchCounter) {
-                                    return 1;
-                                }
-                                return 0;
+                                this.setState({ searchAvailableGroups: availableGroupsCollection })
                             })
-                            this.setState({ searchAvailableGroups: availableGroupsCollection })
-                        })
-                }
-            })
-            
-        this.setState({ searchGroupResultOverlayVisibility: visible })
-        this._handleCloseSearchGroupOverlay()
+                    }
+                    this.setState({ searchGroupResultOverlayVisibility: visible })
+                    this._handleCloseSearchGroupOverlay()
+                })
+        }
     }
 
     _handleCloseSearchResultsOverlay = () => {
@@ -822,25 +858,51 @@ export default class UserGroupScreen extends Component {
     }
 
     _handleEditGroup = () => {
-        //Get all topic that is selected by the user
-        var topicListSelectedArray = this.state.topicList;
-        var topicLstSelectedCollection = [];
-        for (let index = 0; index < topicListSelectedArray.length; index++) {
-            if (topicListSelectedArray[index].checked === true) {
-                topicLstSelectedCollection.push(
-                    topicListSelectedArray[index].title
-                )
+        //Form Validation
+        var errorCounter = 0;
+        var topicListFormValidation = this.state.topicList;
+        var topicListFormValidationCounter = 0;
+        for (let index = 0; index < topicListFormValidation.length; index++) {
+            if (topicListFormValidation[index].checked === false) {
+                topicListFormValidationCounter = topicListFormValidationCounter + 1;
             }
         }
 
-        //Edit Group Name and Topics
-        firestore()
-            .collection("Groups")
-            .doc(this.state.groupForEdit)
-            .update({
-                groupName: this.state.editGroupName,
-                topics: topicLstSelectedCollection
-            })
+        if (topicListFormValidationCounter == 8) {
+            errorCounter = errorCounter + 1;
+            this.setState({ topicListFormValidation: "This field is required*" })
+        } else {
+            this.setState({ topicListFormValidation: "" })
+        }
+
+        if (this.state.editGroupName == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ editGroupNameFormValidation: "This field is required*" })
+        } else {
+            this.setState({ editGroupNameFormValidation: "" })
+        }
+        
+        if (errorCounter == 0) {
+            //Get all topic that is selected by the user
+            var topicListSelectedArray = this.state.topicList;
+            var topicLstSelectedCollection = [];
+            for (let index = 0; index < topicListSelectedArray.length; index++) {
+                if (topicListSelectedArray[index].checked === true) {
+                    topicLstSelectedCollection.push(
+                        topicListSelectedArray[index].title
+                    )
+                }
+            }
+
+            //Edit Group Name and Topics
+            firestore()
+                .collection("Groups")
+                .doc(this.state.groupForEdit)
+                .update({
+                    groupName: this.state.editGroupName,
+                    topics: topicLstSelectedCollection
+                })
+        }
 
         this._handleCloseEditGroupOverlay();
         this.componentDidMount();
@@ -1224,6 +1286,14 @@ export default class UserGroupScreen extends Component {
                                             })
                                         }
                                     </ListItem.Accordion>
+                                    <Text style = {{
+                                        color: "red",
+                                        marginLeft: "5%",
+                                        marginBottom: "3%",
+                                        fontSize: 12
+                                    }}>
+                                        { this.state.topicListFormValidation }
+                                    </Text>
                                     <Card.Divider/>
                                     <View style = {{ flex: 1, flexDirection: "row", marginLeft: 13, marginBottom: 5 }}>
                                         <Icon 
@@ -1371,6 +1441,14 @@ export default class UserGroupScreen extends Component {
                                         )
                                     })
                                 }
+                                <Text style = {{
+                                    color: "red",
+                                    marginLeft: "5%",
+                                    marginBottom: "3%",
+                                    fontSize: 12
+                                }}>
+                                    { this.state.topicListFormValidation }
+                                </Text>
                                 <Card.Divider/>
                                 <Button
                                     title = "Search"
@@ -1552,6 +1630,8 @@ export default class UserGroupScreen extends Component {
                                         labelStyle = {{ color: "#7B1FA2" }}
                                         onChangeText = {(editGroupName) => this.setState({ editGroupName })}
                                         value = { this.state.editGroupName }
+                                        errorStyle = {{ color: "red" }}
+                                        errorMessage = { this.state.editGroupNameFormValidation }
                                     />
                                     <Text
                                         style = {{ color: "#7B1FA2", fontWeight: "bold", fontSize: 16, marginBottom: "4%" }}
@@ -1572,6 +1652,15 @@ export default class UserGroupScreen extends Component {
                                             )
                                         })
                                     }
+                                    <Text style = {{
+                                        color: "red",
+                                        marginLeft: "5%",
+                                        marginBottom: "3%",
+                                        fontSize: 12
+                                    }}>
+                                        { this.state.topicListFormValidation }
+                                    </Text>
+                                    <Card.Divider/>
                                     <Button
                                         title = "Save"
                                         type = "solid"
