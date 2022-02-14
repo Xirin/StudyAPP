@@ -58,7 +58,6 @@ export default class UserGroupScreen extends Component {
                 { title: "Variables, Constants, and Data Types", checked: false },
                 { title: "Selection Statements", checked: false },
                 { title: "Input/Output Statements", checked: false },
-                { title: "Others", checked: false },
             ],
             topicListFormValidation: "",
             searchGroupOverlayVisibility: false,

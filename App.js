@@ -13,6 +13,7 @@ import ForumScreen from './src/screens/ForumScreen';
 import ForumTopicScreen from './src/screens/ForumTopicScreen';
 import ForumReplyScreen from './src/screens/ForumReplyScreen';
 import ChatStudyPeerScreen from './src/screens/ChatScreenStudyPeer';
+import StudyPeerScreen from './src/screens/StudyPeerScreen';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -28,6 +29,7 @@ function App() {
         <Stack.Screen name = "Video Call" component = { VideoCallScreen } />
         <Stack.Screen name = "Forum Topic" component = { ForumTopicScreen } />
         <Stack.Screen name = "Forum Reply" component = { ForumReplyScreen } />
+        <Stack.Screen name = "Study Peer" component = { StudyPeerScreen } />
     </Stack.Navigator>
   );
 }
@@ -45,6 +47,7 @@ export default function AppRouter() {
                 <Drawer.Screen name = "Video Call" component = { VideoCallScreen } />
                 <Drawer.Screen name = "Forum Topic" component = { ForumTopicScreen } options = {{ unmountOnBlur:true }} />
                 <Drawer.Screen name = "Forum Reply" component = { ForumReplyScreen } options = {{ unmountOnBlur:true }} />
+                <Drawer.Screen name = "Study Peer" component = { StudyPeerScreen } options = {{ unmountOnBlur: true }} />
             </Drawer.Navigator>
         </NavigationContainer>
     );

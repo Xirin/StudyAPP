@@ -30,6 +30,10 @@ export default class DrawerComponent extends Component {
         this.props.navigation.navigate('Profile')
     }
 
+    _handleStudyPeerScreenNavigation = () => {
+        this.props.navigation.navigate("Study Peer")
+    }
+
     _handleUserGroupScreenNavigation = () => {
         this.props.navigation.navigate('User Group')
     }
@@ -77,6 +81,18 @@ export default class DrawerComponent extends Component {
                             type = "outline"
                             icon = {{ type: "ion-icon", name: "person", color: "#7B1FA2" }}
                             onPress = {() => this._handleProfileScreenNavigation()}
+                        />
+                    </Card>
+                    <Card
+                        containerStyle = { drawerComponentStyle.dcCardContent} 
+                        wrapperStyle = {drawerComponentStyle.dcCardWrapper} 
+                    >
+                        <Button
+                            title = "Study Peers"
+                            titleStyle  = {{ color: "#7B1FA2" }}
+                            type = "outline"
+                            icon = {{ type: "material-community", name: "account-group", color: "#7B1FA2" }}
+                            onPress = {() => this._handleStudyPeerScreenNavigation()}
                         />
                     </Card>
                     <Card
