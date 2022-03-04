@@ -21,6 +21,7 @@ import {
     ScrollView,
     LogBox,
     TouchableOpacity,
+    RefreshControl,
 } from 'react-native';
 
 import {
@@ -47,10 +48,12 @@ export default class ProfileScreen extends Component {
             userEmail: "",
             userSex: "",
             userAge: "",
+            userCourse: "",
             userFirstNameFormValidation: "",
             userLastNameFormValidation: "",
             userSexFormValidation: "",
             userAgeFormValidation: "",
+            userCourseFormValidation: "",
             userInvitationCounter: 0,
             userInvitations: [""],
             userResponseCounter: 0,
@@ -72,7 +75,7 @@ export default class ProfileScreen extends Component {
             userMessagesCounter: 0,
             groupLatestMessages: [""],
             groupMessagesCounter: 0,
-
+            setRefresh: false,
         }
     }
 
@@ -88,6 +91,7 @@ export default class ProfileScreen extends Component {
                 this.setState({ avatarTemp: this.state.userFirstName[0].concat(this.state.userLastName[0]) })
                 this.setState({ userAge: snapShot.data().age })
                 this.setState({ userSex: snapShot.data().sex })
+                this.setState({ userCourse: snapShot.data().course })
                 this.setState({ userEmail: firebase.auth().currentUser.email })
             });
 
@@ -300,11 +304,18 @@ export default class ProfileScreen extends Component {
             this.setState({ userAgeFormValidation: "" })
         }
 
-        if (this.state.userFirstName == "") {
+        if (this.state.userSex == "") {
             errorCounter = errorCounter + 1;
-            this.setState({ userFirstNameFormValidation: "Sex is required*" })
+            this.setState({ userSexFormValidation: "Sex is required*" })
         } else {
-            this.setState({ userFirstNameFormValidation: "" })
+            this.setState({ userSexFormValidation: "" })
+        }
+
+        if (this.state.userCourse == "") {
+            errorCounter = errorCounter + 1;
+            this.setState({ userCourseFormValidation: "Course is required*" })
+        } else {
+            this.setState({ userCourseFormValidation: "" })
         }
 
         if (errorCounter == 0) {
@@ -584,6 +595,14 @@ export default class ProfileScreen extends Component {
         this.componentDidMount();
     }
 
+    _handleRefresh = () => {
+        this.setState({ setRefresh: true })
+        setTimeout(() => {
+            this.setState({ setRefresh: false })
+            this.componentDidMount();
+        }, 5000)
+    }
+
     render() {
 
         LogBox.ignoreAllLogs();
@@ -591,6 +610,12 @@ export default class ProfileScreen extends Component {
         const sexList = [
             { sex: "Male" },
             { sex: "Female" }
+        ];
+
+        const courseList = [
+            { title: "Bachelor of Science in Information Technology" },
+            { title: "Bachelor of Science in Computer Science" },
+            { title: "Bachelor of Library and Information Science" }
         ];
 
         const BadgedIconInvitations = 
@@ -602,11 +627,16 @@ export default class ProfileScreen extends Component {
                 this.state.userGroupRequestResponseCounter
             )(Icon);
 
-     
-
         return (
             <Container>
-                <ScrollView>
+                <ScrollView
+                    refreshControl = {
+                        <RefreshControl
+                            refreshing = { this.state.setRefresh }
+                            onRefresh = {() => this._handleRefresh()}
+                        />
+                    }
+                >
                     <Content>
                         <Header
                             containerStyle = {{ backgroundColor: "#7B1FA2" }}
@@ -676,6 +706,15 @@ export default class ProfileScreen extends Component {
                                 labelStyle = {{ color: "#7B1FA2" }}
                                 inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#7B1FA2" }}
                                 defaultValue = { this.state.userEmail }
+                                disabled = { true }
+                            />
+                            <Input 
+                                leftIcon = {{ type: "ion-icon", name: "laptop", color: "#7B1FA2" }}
+                                label = "Email Address"
+                                labelStyle = {{ color: "#7B1FA2" }}
+                                style = {{ fontSize: 11 }}
+                                inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#7B1FA2" }}
+                                defaultValue = { this.state.userCourse }
                                 disabled = { true }
                             />
                         </Card>
@@ -749,6 +788,30 @@ export default class ProfileScreen extends Component {
                                         fontSize: 12
                                     }}>
                                         { this.state.userSexFormValidation }
+                                    </Text>
+                                    <Text style = { profileScreenStyle.profileText }>
+                                        Course
+                                    </Text>
+                                    {
+                                        courseList.map((item, index) => {
+                                            return (
+                                                <View key = { index }>
+                                                    <CheckBox
+                                                        textStyle = {{ color: "#7B1FA2" }} 
+                                                        title = { item.title }
+                                                        checked = { this.state.userCourse === item.title }
+                                                        onPress = {() => this.setState({ userCourse: item.title })}
+                                                    />
+                                                </View>
+                                            )
+                                        })
+                                    }
+                                    <Text style = {{
+                                        color: "red",
+                                        marginLeft: 10,
+                                        fontSize: 12
+                                    }}>
+                                        { this.state.userCourseFormValidation }
                                     </Text>
                                     <Button
                                         title = "Save"

@@ -77,9 +77,10 @@ export default class DrawerComponent extends Component {
                     >
                         <Button
                             title = "Profile"
-                            titleStyle  = {{ color: "#7B1FA2" }}
+                            titleStyle  = {{ color: "#FFF" }}
+                            buttonStyle = {{ backgroundColor: "#7B1FA2", marginHorizontal: "2%" }}
                             type = "outline"
-                            icon = {{ type: "ion-icon", name: "person", color: "#7B1FA2" }}
+                            icon = {{ type: "ion-icon", name: "person", color: "#FFF" }}
                             onPress = {() => this._handleProfileScreenNavigation()}
                         />
                     </Card>
@@ -89,9 +90,10 @@ export default class DrawerComponent extends Component {
                     >
                         <Button
                             title = "Study Peers"
-                            titleStyle  = {{ color: "#7B1FA2" }}
+                            titleStyle  = {{ color: "#FFF" }}
+                            buttonStyle = {{ backgroundColor: "#7B1FA2", marginHorizontal: "2%" }}
                             type = "outline"
-                            icon = {{ type: "material-community", name: "account-group", color: "#7B1FA2" }}
+                            icon = {{ type: "material-community", name: "account-group", color: "#FFF" }}
                             onPress = {() => this._handleStudyPeerScreenNavigation()}
                         />
                     </Card>
@@ -101,9 +103,10 @@ export default class DrawerComponent extends Component {
                     >
                         <Button
                             title = "Groups"
-                            titleStyle  = {{ color: "#7B1FA2" }}
+                            titleStyle  = {{ color: "#FFF" }}
+                            buttonStyle = {{ backgroundColor: "#7B1FA2", marginHorizontal: "2%" }}
                             type = "outline"
-                            icon = {{ type: "ion-icon", name: "people", color: "#7B1FA2" }}
+                            icon = {{ type: "ion-icon", name: "people", color: "#FFF" }}
                             onPress = {() => this._handleUserGroupScreenNavigation()}
                         />
                     </Card>
@@ -113,9 +116,10 @@ export default class DrawerComponent extends Component {
                     >
                         <Button  
                             title = "Forums"
-                            titleStyle  = {{ color: "#7B1FA2" }}
+                            titleStyle  = {{ color: "#FFF" }}
+                            buttonStyle = {{ backgroundColor: "#7B1FA2", marginHorizontal: "2%" }}
                             type = "outline"
-                            icon = {{ type: "font-awesome", name: "comments", color: "#7B1FA2" }}
+                            icon = {{ type: "font-awesome", name: "comments", color: "#FFF" }}
                             onPress = {() => this._handleForumsScreenNavigation()}
                         />
                     </Card>
@@ -125,9 +129,10 @@ export default class DrawerComponent extends Component {
                     >
                         <Button
                             title = "Logout"
-                            titleStyle  = {{ color: "#7B1FA2" }}
+                            titleStyle  = {{ color: "#FFF" }}
+                            buttonStyle = {{ backgroundColor: "#7B1FA2", marginHorizontal: "2%" }}
                             type = "outline"
-                            icon = {{ type: "material-community", name: "logout", color: "#7B1FA2" }}
+                            icon = {{ type: "material-community", name: "logout", color: "#FFF" }}
                             onPress = {() => this._handleSignOut()}
                         />
                     </Card>

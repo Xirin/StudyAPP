@@ -21,6 +21,7 @@ import {
     ScrollView,
     LogBox,
     TouchableOpacity,
+    RefreshControl,
 } from 'react-native';
 
 import {
@@ -72,7 +73,7 @@ export default class StudyPeerScreen extends Component {
             userMessagesCounter: 0,
             groupLatestMessages: [""],
             groupMessagesCounter: 0,
-
+            setRefresh: false,
         }
     }
 
@@ -108,6 +109,7 @@ export default class StudyPeerScreen extends Component {
             })
             .then(() => {
                 for (let index = 0; index < messageThread.length; index++) {
+                    console.log(messageThread[index].sender._id)
                     if (messageThread[index].sender._id != auth().currentUser.uid && messageThread[index].recieved == false) {
                         messagecounter = messagecounter + 1;
                     }
@@ -127,7 +129,7 @@ export default class StudyPeerScreen extends Component {
                     groupID.push({
                         documentID: doc.id,
                         recieved: doc.data().recieved,
-                        sender: doc.data().sender,
+                        sender: doc.data().sender
                     })
                 })
             })
@@ -139,10 +141,12 @@ export default class StudyPeerScreen extends Component {
                         .collection("Members")
                         .where("userID", "==", auth().currentUser.uid)
                         .get()
-                        .then(() => {
-                            if (groupID[index].sender._id != auth().currentUser.uid && groupID[index].recieved == false) {
-                                groupMessagesCounter = groupMessagesCounter + 1;
-                            }
+                        .then((snapShot) => {
+                            snapShot.forEach((doc) => {
+                                if (groupID[index].sender._id != auth().currentUser.uid && groupID[index].recieved == false) {
+                                    groupMessagesCounter = groupMessagesCounter + 1;
+                                }
+                            })
                             this.setState({ groupMessagesCounter: groupMessagesCounter })
                         })
                 }
@@ -171,19 +175,32 @@ export default class StudyPeerScreen extends Component {
     }
 
     _handleChatNavigation = (otherUserID) => {
+        var documentID = [];
         firestore()
             .collection("Chat")
-            .where("user", "array-contains-any", [auth().currentUser.uid, otherUserID])
+            .where("user", "array-contains", auth().currentUser.uid)
             .get()
             .then((snapShot) => {
                 snapShot.forEach((doc) => {
-                    this.props.navigation.navigate("Chat Study Peers" ,{
-                        documentID: doc.id,
-                        otherUserID: otherUserID,
-                        currentUserID: auth().currentUser.uid,
-                        currentUserLastName: this.state.userLastName,
+                    documentID.push({
+                        docID: doc.id,
+                        users: doc.data().user
                     })
                 })
+            })
+            .then(() => {
+                for (let index = 0; index < documentID.length; index++) {
+                    for (let i = 0; i < 2; i++) {
+                        if (documentID[index].users[i] == otherUserID) {
+                            this.props.navigation.navigate("Chat Study Peers" ,{
+                                documentID: documentID[index].docID,
+                                otherUserID: otherUserID,
+                                currentUserID: auth().currentUser.uid,
+                                currentUserLastName: this.state.userLastName,
+                            })
+                        }
+                    }
+                }
             })
     }
     
@@ -343,6 +360,14 @@ export default class StudyPeerScreen extends Component {
         })
     }
 
+    _handleRefresh = () => {
+        this.setState({ setRefresh: true })
+        setTimeout(() => {
+            this.setState({ setRefresh: false })
+            this.componentDidMount();
+        }, 5000)
+    }
+
     render() {
 
         LogBox.ignoreAllLogs();
@@ -367,7 +392,14 @@ export default class StudyPeerScreen extends Component {
         ) : (
             <Container>
                 <ScrollView>
-                    <Content>
+                    <Content
+                        refreshControl = {
+                            <RefreshControl
+                                refreshing = { this.state.setRefresh }
+                                onRefresh = {() => this._handleRefresh()}
+                            />
+                        }
+                    >
                         <Header
                             containerStyle = {{ backgroundColor: "#7B1FA2" }}
                             leftComponent = {{ 
@@ -448,11 +480,7 @@ export default class StudyPeerScreen extends Component {
                                     {
                                         this.state.userLatestMessages.map((item, index) => {
                                             if (this.state.userLatestMessages == "" || item.sender._id == auth().currentUser.uid || item.recieved == true) {
-                                                return (
-                                                    <Text h4 style = {{  color: "#7B1FA2", alignSelf: "center" }}>
-                                                        No Messages
-                                                    </Text>
-                                                )
+                                                return null;
                                             } else {
                                                 return (
                                                     <ListItem key  = { index }>

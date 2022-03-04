@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 
 import {
-    StyleSheet
+    StyleSheet,
+    RefreshControl,
 } from 'react-native';
 
 import {
@@ -32,6 +33,7 @@ export default class ForumReplyScreen extends Component {
             forumReply: "",
             stringInitializer: "",
             forumReplyFormValidation: "",
+            setRefresh: false,
         }
     }
 
@@ -118,6 +120,14 @@ export default class ForumReplyScreen extends Component {
         }
     }
 
+    _handleRefresh = () => {
+        this.setState({ setRefresh: true })
+        setTimeout(() => {
+            this.setState({ setRefresh: false })
+            this.componentDidMount();
+        }, 5000)
+    }
+
     render() {
         return(
             <Container>
@@ -129,7 +139,14 @@ export default class ForumReplyScreen extends Component {
                         onPress: () => this._handleReturn(),
                     }}
                 />
-                <Content>
+                <Content
+                    refreshControl = {
+                        <RefreshControl
+                            refreshing = { this.state.setRefresh }
+                            onRefresh = {() => this._handleRefresh()}
+                        />
+                    }
+                >
 
                     <Input
                         placeholder = "Add a Reply"

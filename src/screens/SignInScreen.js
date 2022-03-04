@@ -11,6 +11,7 @@ import {
     View,
     TextInput,
     ScrollView,
+    RefreshControl,
 } from 'react-native';
 
 import {
@@ -45,6 +46,7 @@ export default class SignInScreen extends Component {
             sex: "",
             course: "",
             topic: "",
+            setRefresh: false,
             signUpOverlayVisiblility: false,
             signInOverlayVisibility: false,
             courseListAccordion: false,
@@ -1556,6 +1558,14 @@ export default class SignInScreen extends Component {
         // }
     }
 
+    _handleRefresh = () => {
+        this.setState({ setRefresh: true })
+        setTimeout(() => {
+            this.setState({ setRefresh: false })
+            this.componentDidMount();
+        }, 5000)
+    }
+
     render() {
         var logo = require("./assets/logo.jpg");
         const sexList = [
@@ -1579,7 +1589,15 @@ export default class SignInScreen extends Component {
 
         return (
             <Container>
-                <Content style = {{ borderWidth: 3, borderRadius: 10, borderColor: "#7B1FA2", marginHorizontal: "5%", marginVertical: "40%" }} >
+                <Content 
+                    style = {{ borderWidth: 3, borderRadius: 10, borderColor: "#7B1FA2", marginHorizontal: "5%", marginVertical: "40%" }} 
+                    refreshControl = {
+                        <RefreshControl
+                            refreshing = { this.state.setRefresh }
+                            onRefresh = {() => this._handleRefresh()}
+                        />
+                    }
+                >
                     <Avatar
                         source = { logo }
                         rounded

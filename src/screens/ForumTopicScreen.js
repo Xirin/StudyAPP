@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import {
     StyleSheet,
     LogBox,
+    RefreshControl,
 } from 'react-native';
 
 import {
@@ -45,6 +46,7 @@ export default class ForumTopicScreen extends Component {
             editReplyID: "",
             deleteReplyOverlayVisibility: false,
             deleteReplyID: "",
+            setRefresh: false,
         }
     }
 
@@ -235,6 +237,14 @@ export default class ForumTopicScreen extends Component {
         this.componentDidMount()
     }
 
+    _handleRefresh = () => {
+        this.setState({ setRefresh: true })
+        setTimeout(() => {
+            this.setState({ setRefresh: false })
+            this.componentDidMount();
+        }, 5000)
+    }
+
     render() {
         LogBox.ignoreAllLogs();
         return(
@@ -248,7 +258,14 @@ export default class ForumTopicScreen extends Component {
                     }}
                 />
 
-                <Content>
+                <Content
+                    refreshControl = {
+                        <RefreshControl
+                            refreshing = { this.state.setRefresh }
+                            onRefresh = {() => this._handleRefresh()}
+                        />
+                    }
+                >
                     {
                         this.state.forumCollection.map((item, index) => {
                             return(

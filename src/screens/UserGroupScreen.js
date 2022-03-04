@@ -5,6 +5,7 @@ import {
     LogBox,
     ScrollView,
     View,
+    RefreshControl,
 } from 'react-native';
 
 import {
@@ -75,6 +76,7 @@ export default class UserGroupScreen extends Component {
             groupForDelete: "",
             leaveGroupVisibility: false,
             groupForLeave: "",
+            setRefresh: false,
         }
     }
 
@@ -498,86 +500,139 @@ export default class UserGroupScreen extends Component {
 
             //Store Group Invitations to other users in database 
             var userStudyPeersSelectedArray = this.state.userStudyPeers;
-            for (let index = 0; index < userStudyPeersSelectedArray.length; index++) {
-                if (userStudyPeersSelectedArray[index].checked == true) {
-                    firestore()
-                        .collection("Invitations")
-                        .doc(auth().currentUser.uid)
-                        .set({
-                            senderID: auth().currentUser.uid
-                        })
-                        .then(() => {
-                            // firestore()
-                            //     .collection("Groups")
-                            //     .doc(this.state.userGroup)
-                            //     .set({
-                            //         creatorID: auth().currentUser.uid,
-                            //         creatorName: this.state.userFirstName.concat(" ", this.state.userLastName),
-                            //         groupName: this.state.userGroup,
-                            //         topics: topicLstSelectedCollection
-                            //     })
-                            //     .then(() => {
-                            //         firestore()
-                            //             .collection("Groups")
-                            //             .doc(this.state.userGroup)
-                            //             .collection("Members")
-                            //             .doc(auth().currentUser.uid)
-                            //             .set({
-                            //                 userFullName: this.state.userFirstName.concat(" ", this.state.userLastName),
-                            //                 userID: auth().currentUser.uid
-                            //             })
-                            //     })
-                            firestore()
-                                .collection("Groups")
-                                .add({
-                                    creatorID: auth().currentUser.uid,
-                                    creatorName: this.state.userFirstName.concat(" ", this.state.userLastName),
-                                    groupName: this.state.userGroup,
-                                    topics: topicLstSelectedCollection
-                                })
-                                .then(() => {
-                                    firestore()
-                                        .collection("Groups")
-                                        .where("creatorID", "==", auth().currentUser.uid)
-                                        .where("groupName", "==", this.state.userGroup)
-                                        .get()
-                                        .then((snapShot) => {
-                                            snapShot.forEach((doc) => {
-                                                groupID = doc.id
+            var isStudyPeerChecked = 0;
+            if (userStudyPeersSelectedArray.length) {
+                for (let index = 0; index < userStudyPeersSelectedArray.length; index++) {
+                    if (userStudyPeersSelectedArray[index].checked == true) {
+                        firestore()
+                            .collection("Invitations")
+                            .doc(auth().currentUser.uid)
+                            .set({
+                                senderID: auth().currentUser.uid
+                            })
+                            .then(() => {
+                                firestore()
+                                    .collection("Groups")
+                                    .add({
+                                        creatorID: auth().currentUser.uid,
+                                        creatorName: this.state.userFirstName.concat(" ", this.state.userLastName),
+                                        groupName: this.state.userGroup,
+                                        topics: topicLstSelectedCollection
+                                    })
+                                    .then(() => {
+                                        firestore()
+                                            .collection("Groups")
+                                            .where("creatorID", "==", auth().currentUser.uid)
+                                            .where("groupName", "==", this.state.userGroup)
+                                            .get()
+                                            .then((snapShot) => {
+                                                snapShot.forEach((doc) => {
+                                                    groupID = doc.id
+                                                })
                                             })
-                                        })
-                                        .then(() => {
-                                            firestore()
-                                                .collection("Groups")
-                                                .doc(groupID)
-                                                .collection("Members")
-                                                .doc(auth().currentUser.uid)
-                                                .set({
-                                                    userFullName: this.state.userFirstName.concat(" ", this.state.userLastName),
-                                                    userID: auth().currentUser.uid
+                                            .then(() => {
+                                                firestore()
+                                                    .collection("Groups")
+                                                    .doc(groupID)
+                                                    .collection("Members")
+                                                    .doc(auth().currentUser.uid)
+                                                    .set({
+                                                        userFullName: this.state.userFirstName.concat(" ", this.state.userLastName),
+                                                        userID: auth().currentUser.uid
+                                                    })
+                                            })
+                                            .then(() => {
+                                                firestore()
+                                                    .collection("Invitations")
+                                                    .doc(auth().currentUser.uid)
+                                                    .collection("Group Sent")
+                                                    .doc(userStudyPeersSelectedArray[index].otherUserID)
+                                                    .set({
+                                                        groupID: groupID,
+                                                        recipientUserID: userStudyPeersSelectedArray[index].otherUserID,
+                                                        recipientUserFullName: userStudyPeersSelectedArray[index].otherUserName,
+                                                        senderID: auth().currentUser.uid,
+                                                        senderName: this.state.userFirstName.concat(" ", this.state.userLastName),
+                                                        message: "You have been invited by ".concat(this.state.userFirstName.concat(" ", this.state.userLastName), " in the group ", this.state.userGroup),
+                                                        groupName: this.state.userGroup,
+                                                        topics: topicLstSelectedCollection
+                                                    })
+                                            })
+                                    })
+                            })  
+                    }
+                    else {
+                        isStudyPeerChecked = isStudyPeerChecked + 1;
+                        if (isStudyPeerChecked == userStudyPeersSelectedArray.length) {
+                            firestore()
+                                    .collection("Groups")
+                                    .add({
+                                        creatorID: auth().currentUser.uid,
+                                        creatorName: this.state.userFirstName.concat(" ", this.state.userLastName),
+                                        groupName: this.state.userGroup,
+                                        topics: topicLstSelectedCollection
+                                    })
+                                    .then(() => {
+                                        firestore()
+                                            .collection("Groups")
+                                            .where("creatorID", "==", auth().currentUser.uid)
+                                            .where("groupName", "==", this.state.userGroup)
+                                            .get()
+                                            .then((snapShot) => {
+                                                snapShot.forEach((doc) => {
+                                                    groupID = doc.id
                                                 })
-                                        })
-                                        .then(() => {
-                                            firestore()
-                                                .collection("Invitations")
-                                                .doc(auth().currentUser.uid)
-                                                .collection("Group Sent")
-                                                .doc(userStudyPeersSelectedArray[index].otherUserID)
-                                                .set({
-                                                    groupID: groupID,
-                                                    recipientUserID: userStudyPeersSelectedArray[index].otherUserID,
-                                                    recipientUserFullName: userStudyPeersSelectedArray[index].otherUserName,
-                                                    senderID: auth().currentUser.uid,
-                                                    senderName: this.state.userFirstName.concat(" ", this.state.userLastName),
-                                                    message: "You have been invited by ".concat(this.state.userFirstName.concat(" ", this.state.userLastName), " in the group ", this.state.userGroup),
-                                                    groupName: this.state.userGroup,
-                                                    topics: topicLstSelectedCollection
-                                                })
-                                        })
-                                })
-                        })  
+                                            })
+                                            .then(() => {
+                                                firestore()
+                                                    .collection("Groups")
+                                                    .doc(groupID)
+                                                    .collection("Members")
+                                                    .doc(auth().currentUser.uid)
+                                                    .set({
+                                                        userFullName: this.state.userFirstName.concat(" ", this.state.userLastName),
+                                                        userID: auth().currentUser.uid
+                                                    })
+                                            })
+                                    })
+                        }
+                    }
                 }
             }
+            else {
+                firestore()
+                    .collection("Groups")
+                    .add({
+                        creatorID: auth().currentUser.uid,
+                        creatorName: this.state.userFirstName.concat(" ", this.state.userLastName),
+                        groupName: this.state.userGroup,
+                        topics: topicLstSelectedCollection
+                    })
+                    .then(() => {
+                        firestore()
+                            .collection("Groups")
+                            .where("creatorID", "==", auth().currentUser.uid)
+                            .where("groupName", "==", this.state.userGroup)
+                            .get()
+                            .then((snapShot) => {
+                                snapShot.forEach((doc) => {
+                                    groupID = doc.id
+                                })
+                            })
+                            .then(() => {
+                                firestore()
+                                    .collection("Groups")
+                                    .doc(groupID)
+                                    .collection("Members")
+                                    .doc(auth().currentUser.uid)
+                                    .set({
+                                        userFullName: this.state.userFirstName.concat(" ", this.state.userLastName),
+                                        userID: auth().currentUser.uid
+                                    })
+                            })
+                    })
+            }
+            
 
             this._handleCloseCreateGroupOverlay();
             this.componentDidMount();
@@ -1001,6 +1056,14 @@ export default class UserGroupScreen extends Component {
         this.componentDidMount();
     }
 
+    _handleRefresh = () => {
+        this.setState({ setRefresh: true })
+        setTimeout(() => {
+            this.setState({ setRefresh: false })
+            this.componentDidMount();
+        }, 5000)
+    }
+
     render() {
         LogBox.ignoreAllLogs();
 
@@ -1016,7 +1079,14 @@ export default class UserGroupScreen extends Component {
             <AgoraUIKit rtcProps = {rtcProps} callbacks = { callbacks }  />
         ) : (
                 <Container>
-                    <Content>
+                    <Content
+                        refreshControl = {
+                            <RefreshControl
+                                refreshing = { this.state.setRefresh }
+                                onRefresh = {() => this._handleRefresh()}
+                            />
+                        }
+                    >
                         <Header
                             containerStyle = {{ backgroundColor: "#7B1FA2" }}
                             leftComponent = {{ 

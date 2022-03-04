@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 
 import {
     StyleSheet,
+    RefreshControl,
 } from 'react-native';
 
 import {
@@ -54,6 +55,7 @@ export default class ForumScreen extends Component {
             forumDeleteTitle: "",
             forumDeleteContent: "",
             forumDeleteThreadID: "",
+            setRefresh: false,
         }
     }
 
@@ -80,6 +82,7 @@ export default class ForumScreen extends Component {
                                 forumID: forumIDArray[index],
                                 forumTitle: snapShot.data().forumTitle,
                                 forumContent: snapShot.data().forumContent,
+                                forumCreatedAt: snapShot.data().createdAt,
                                 creatorID: snapShot.data().creatorID,
                                 creatorName: snapShot.data().creatorName,
                                 forumThreadID: forumIDArray[index]
@@ -169,7 +172,8 @@ export default class ForumScreen extends Component {
                                 searchForumCollection.push({
                                     forumID: searchForumIDArray[index],
                                     forumTitle: snapShot.data().forumTitle,
-                                    forumContent: snapShot.data().forumContent
+                                    forumContent: snapShot.data().forumContent,
+                                    forumCreatedAt: snapShot.data().createdAt
                                 })
                                 this.setState({ searcForumCollection: searchForumCollection })
                             }
@@ -238,6 +242,14 @@ export default class ForumScreen extends Component {
         this.componentDidMount();
     }
 
+    _handleRefresh = () => {
+        this.setState({ setRefresh: true })
+        setTimeout(() => {
+            this.setState({ setRefresh: false })
+            this.componentDidMount();
+        }, 5000)
+    }
+
     render() {
         return (
             
@@ -259,7 +271,14 @@ export default class ForumScreen extends Component {
                         onPress: () => this._handleOpenForumCreateOverlayVisibility()
                     }}
                 />
-                <Content>
+                <Content
+                    refreshControl = {
+                        <RefreshControl
+                            refreshing = { this.state.setRefresh }
+                            onRefresh = {() => this._handleRefresh()}
+                        />
+                    }
+                >
 
                     <SearchBar
                         lightTheme
@@ -311,6 +330,9 @@ export default class ForumScreen extends Component {
                                             <Text style = {{ marginBottom: 15, alignSelf: "flex-start" }} >
                                                 { item.forumContent }
                                             </Text>
+                                            <Text style = {{ color: "#808080", alignSelf: "flex-end", marginVertical: "3%", fontStyle: "italic" }} >
+                                                { new Date(item.forumCreatedAt).toLocaleString() }
+                                            </Text>
                                             <View style = {{ flex: 1, flexDirection: "row" }} >
                                                 <Icon 
                                                     type = "fontisto" 
@@ -332,8 +354,11 @@ export default class ForumScreen extends Component {
                                             <Card.Title>
                                                 { item.forumTitle }
                                             </Card.Title>
-                                            <Text style = {{ marginBottom: 15, alignSelf: "flex-start" }} >
+                                            <Text style = {{ alignSelf: "flex-start" }} >
                                                 { item.forumContent }
+                                            </Text>
+                                            <Text style = {{ color: "#808080", alignSelf: "flex-end", marginVertical: "3%", fontStyle: "italic" }} >
+                                                { new Date(item.forumCreatedAt).toLocaleString() }
                                             </Text>
                                             <View style = {{ flex: 1, flexDirection: "row" }} >
                                                 <Icon 
@@ -360,8 +385,11 @@ export default class ForumScreen extends Component {
                                     <Card.Title>
                                         { item.forumTitle }
                                     </Card.Title>
-                                    <Text style = {{ marginBottom: 15, alignSelf: "center" }} >
+                                    <Text>
                                         { item.forumContent }
+                                    </Text>
+                                    <Text style = {{ color: "#808080", alignSelf: "flex-end", marginVertical: "3%", fontStyle: "italic" }} >
+                                        { new Date(item.forumCreatedAt).toLocaleString() }
                                     </Text>
                                     <View style = {{ flex: 1, flexDirection: "row" }} >
                                             <Icon 
