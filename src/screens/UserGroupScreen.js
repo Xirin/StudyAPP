@@ -478,8 +478,8 @@ export default class UserGroupScreen extends Component {
                 topicListFormValidationCounter = topicListFormValidationCounter + 1;
             }
         }
-
-        if (topicListFormValidationCounter == 8) {
+        console.log(topicListFormValidationCounter)
+        if (topicListFormValidationCounter == 7) {
             errorCounter = errorCounter + 1;
             this.setState({ topicListFormValidation: "This field is required*" })
         } else {
@@ -709,7 +709,7 @@ export default class UserGroupScreen extends Component {
             }
         }
 
-        if (topicListFormValidationCounter == 8) {
+        if (topicListFormValidationCounter == 7) {
             errorCounter = errorCounter + 1;
             this.setState({ topicListFormValidation: "This field is required*" })
         } else {
@@ -767,27 +767,51 @@ export default class UserGroupScreen extends Component {
                             .get()
                             .then((doc) => {
                                 if (!doc.exists) {
-                                    availableGroupsCollection.push({
-                                        groupID: availableGroups[index].groupID,
-                                        creatorID: availableGroups[index].creatorID,
-                                        creatorName: availableGroups[index].creatorName,
-                                        groupName: availableGroups[index].groupName,
-                                        topics: availableGroups[index].topics,
-                                        matchCounter: availableGroups[index].matchCounter,
-                                    })
+                                    firestore()
+                                        .collection("Invitations")
+                                        .doc(availableGroups[index].creatorID)
+                                        .collection("Group Request")
+                                        .doc(auth().currentUser.uid)
+                                        .get()
+                                        .then((groupReqDoc) => {
+                                            if (groupReqDoc.exists) {
+                                                availableGroupsCollection.push({
+                                                    groupID: availableGroups[index].groupID,
+                                                    creatorID: availableGroups[index].creatorID,
+                                                    creatorName: availableGroups[index].creatorName,
+                                                    groupName: availableGroups[index].groupName,
+                                                    topics: availableGroups[index].topics,
+                                                    matchCounter: availableGroups[index].matchCounter,
+                                                    groupRequestStatus: true,
+                                                })
+                                            }
+                                            else {
+                                                availableGroupsCollection.push({
+                                                    groupID: availableGroups[index].groupID,
+                                                    creatorID: availableGroups[index].creatorID,
+                                                    creatorName: availableGroups[index].creatorName,
+                                                    groupName: availableGroups[index].groupName,
+                                                    topics: availableGroups[index].topics,
+                                                    matchCounter: availableGroups[index].matchCounter,
+                                                    groupRequestStatus: false,
+                                                })
+                                            }
+
+                                            //Sorting the Matched Topics
+                                            availableGroupsCollection.sort((a, b) => {
+                                                if (a.matchCounter > b.matchCounter) {
+                                                    return -1;
+                                                }
+                                                if (a.matchCounter < b.matchCounter) {
+                                                    return 1;
+                                                }
+                                                return 0;
+                                            })
+                                            console.log(availableGroupsCollection)
+                                            this.setState({ searchAvailableGroups: availableGroupsCollection })
+                                        })
                                 }
-                                //Sorting the Matched Topics
-                                availableGroupsCollection.sort((a, b) => {
-                                    if (a.matchCounter > b.matchCounter) {
-                                        return -1;
-                                    }
-                                    if (a.matchCounter < b.matchCounter) {
-                                        return 1;
-                                    }
-                                    return 0;
-                                })
-                                this.setState({ searchAvailableGroups: availableGroupsCollection })
-                            })
+                            })  
                     }
                     this.setState({ searchGroupResultOverlayVisibility: visible })
                     this._handleCloseSearchGroupOverlay()
@@ -817,7 +841,19 @@ export default class UserGroupScreen extends Component {
                 message: this.state.userFirstName.concat(" ", this.state.userLastName, " has requested to join your group ", groupName)
             })
 
-        this._handleCloseSearchResultsOverlay();
+        this._handleOpenSearchResultsOverlay();
+    }
+
+    _handleCancelGroupRequest = (creatorID) => {
+        //Delete the group request form the database
+        firestore()
+            .collection("Invitations")
+            .doc(creatorID)
+            .collection("Group Request")
+            .doc(auth().currentUser.uid)
+            .delete()
+        
+        this._handleOpenSearchResultsOverlay();
     }
 
     _handleOpenUserGroupMembersOverlay = (visibility) => {
@@ -922,7 +958,7 @@ export default class UserGroupScreen extends Component {
             }
         }
 
-        if (topicListFormValidationCounter == 8) {
+        if (topicListFormValidationCounter == 7) {
             errorCounter = errorCounter + 1;
             this.setState({ topicListFormValidation: "This field is required*" })
         } else {
@@ -1610,12 +1646,24 @@ export default class UserGroupScreen extends Component {
                                                                })
                                                            }
                                                         </Text>
-                                                        <Button
-                                                            title = "Join"
-                                                            type = "solid"
-                                                            buttonStyle = {{ marginTop: "3%", backgroundColor: "#7B1FA2" }}
-                                                            onPress = {() => this._handleApplyToGroup(item.groupID, item.creatorID, item.creatorName, item.groupName, item.topics)}
-                                                        />
+
+                                                        {
+                                                            item.groupRequestStatus == false ?    
+                                                            <Button
+                                                                title = "Join"
+                                                                type = "solid"
+                                                                buttonStyle = {{ marginTop: "3%", backgroundColor: "#7B1FA2" }}
+                                                                onPress = {() => this._handleApplyToGroup(item.groupID, item.creatorID, item.creatorName, item.groupName, item.topics)}
+                                                            />
+                                                            :
+                                                            <Button
+                                                                titleStyle = {{ fontSize: 12 }}
+                                                                title = "Cancel Request"
+                                                                buttonStyle = {{ backgroundColor: "#DF4759", paddingHorizontal: "40%" }}
+                                                                onPress = {() => this._handleCancelGroupRequest(item.creatorID)}
+                                                            />
+                                                        }
+                                                        
                                                         <Button
                                                             title = "Close"
                                                             type = "solid"
@@ -1645,7 +1693,6 @@ export default class UserGroupScreen extends Component {
                         >
                             <Card>
                                 <Card.Title style = { userGroupScreenStyle.ugOverlayCard2 }>
-                                    Groupname: { this.state.activeIndex }{"\n"}
                                     List of Members
                                 </Card.Title>
                                 <Card.Divider/>

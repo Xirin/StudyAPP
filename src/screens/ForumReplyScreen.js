@@ -3,11 +3,13 @@ import React, { Component } from 'react';
 import {
     StyleSheet,
     RefreshControl,
+    View,
 } from 'react-native';
 
 import {
     Container,
-    Content
+    Content,
+    Textarea
 } from 'native-base';
 
 import {
@@ -16,6 +18,8 @@ import {
     Text,
     Input,
     Icon,
+    Overlay,
+    Button
 } from 'react-native-elements';
 
 import auth, { firebase } from '@react-native-firebase/auth';
@@ -33,6 +37,11 @@ export default class ForumReplyScreen extends Component {
             forumReply: "",
             stringInitializer: "",
             forumReplyFormValidation: "",
+            editReplyOverlayVisibility: false,
+            editReply: "",
+            editReplyID: "",
+            deleteReplyOverlayVisibility: false,
+            deleteReplyID: "",
             setRefresh: false,
         }
     }
@@ -120,6 +129,57 @@ export default class ForumReplyScreen extends Component {
         }
     }
 
+    _handleOpenEditReplyOverlay = (visible, forumReply, forumReplyID) => {
+        this.setState({ editReplyOverlayVisibility: visible });
+        this.setState({ editReply: forumReply });
+        this.setState({ editReplyID: forumReplyID });
+    }
+
+    _handleCloseEditReplyOverlay = () => {
+        this.setState({ editReplyOverlayVisibility: false });
+    }
+
+    _handleEditReply = () => {
+        //Edit Reply
+        firestore()
+            .collection("Forum")
+            .doc(this.state.forumID)
+            .collection("Comment")
+            .doc(this.state.forumCommentID)
+            .collection("Reply")
+            .doc(this.state.editReplyID)
+            .update({
+                reply: this.state.editReply
+            })
+
+        this._handleCloseEditReplyOverlay();
+        this.componentDidMount();
+    }
+
+    _handleOpenDeleteReplyOverlay = (visible, forumReplyID) => {
+        this.setState({ deleteReplyOverlayVisibility: visible });
+        this.setState({ deleteReplyID: forumReplyID });
+    }
+
+    _handleCloseDeleteReplyOverlay = () => {
+        this.setState({ deleteReplyOverlayVisibility: false })
+    }
+
+    _handleDeleteReply = () => {
+        //Delete Comment
+        firestore()
+            .collection("Forum")
+            .doc(this.state.forumID)
+            .collection("Comment")
+            .doc(this.state.forumCommentID)
+            .collection("Reply")
+            .doc(this.state.deleteReplyID)
+            .delete()
+
+        this._handleCloseDeleteReplyOverlay()
+        this.componentDidMount()
+    }
+
     _handleRefresh = () => {
         this.setState({ setRefresh: true })
         setTimeout(() => {
@@ -179,22 +239,114 @@ export default class ForumReplyScreen extends Component {
                                 )
                             }
                             else {
-                                return (
-                                    <Card 
-                                        key = { index }
-                                        containerStyle = {{ borderWidth: 2, borderColor: "#7B1FA2", borderRadius: 10 }}
-                                    >
-                                        <Card.Title style = {{ alignSelf: "flex-start" }} >
-                                            { item.forumUser }
-                                        </Card.Title>
-                                        <Text>
-                                            { item.forumReply }
-                                        </Text>
-                                    </Card>
-                                )
+                                if (item.forumUserID == auth().currentUser.uid) {
+                                    return (
+                                        <Card 
+                                            key = { index }
+                                            containerStyle = {{ borderWidth: 2, borderColor: "#7B1FA2", borderRadius: 10 }}
+                                        >
+                                            <View style = {{ flex: 1, flexDirection: "row", alignSelf: "flex-end" }}>
+                                                <Icon
+                                                    type = "material-community"
+                                                    name = "square-edit-outline"
+                                                    iconStyle = {{ fontSize: 30, marginRight: "3%" }}
+                                                    color = "#7B1FA2"
+                                                    onPress = {() => this._handleOpenEditReplyOverlay(true, item.forumReply, item.forumReplyID)}
+                                                />
+                                                <Icon
+                                                    type = "material-community"
+                                                    name = "delete"
+                                                    iconStyle = {{ fontSize: 30 }}
+                                                    color = "#7B1FA2"
+                                                    onPress = {() => this._handleOpenDeleteReplyOverlay(true, item.forumReplyID)}
+                                                />
+                                            </View>
+                                            <Card.Title style = {{ alignSelf: "flex-start" }} >
+                                                { item.forumUser }
+                                            </Card.Title>
+                                            <Text>
+                                                { item.forumReply }
+                                            </Text>
+                                        </Card>
+                                    )
+                                }
+                                else {
+                                    return (
+                                        <Card 
+                                            key = { index }
+                                            containerStyle = {{ borderWidth: 2, borderColor: "#7B1FA2", borderRadius: 10 }}
+                                        >
+                                            <Card.Title style = {{ alignSelf: "flex-start" }} >
+                                                { item.forumUser }
+                                            </Card.Title>
+                                            <Text>
+                                                { item.forumReply }
+                                            </Text>
+                                        </Card>
+                                    )
+                                }
                             }
                         })
                     }
+
+                     {/* Edit Comment Overlay */}
+                     <Overlay
+                        isVisible = { this.state.editReplyOverlayVisibility }
+                        onBackdropPress = {() => this._handleCloseEditReplyOverlay()}
+                        overlayStyle = {{ padding: 0, paddingBottom: 15, borderWidth: 5, borderColor: "#7B1FA2" }}
+                    >
+                        <Card>
+                            <Card.Title style = {{ color: "#7B1FA2", marginHorizontal: "30%" }} >Edit Comment</Card.Title>
+                            <Card.Divider/>
+                            <Input
+                                placeholder = "Reply"
+                                label = "Reply"
+                                labelStyle = {{ color: "#7B1FA2" }}
+                                InputComponent = { Textarea }
+                                rowSpan = { 5 }
+                                onChangeText = {(editReply) => this.setState({ editReply })}
+                                value = { this.state.editReply }
+                            />
+                            <Button
+                                title = "Save"
+                                type = "solid"
+                                buttonStyle = {{ backgroundColor: "#7B1FA2" }}
+                                onPress = {() => this._handleEditReply()}
+                            />
+                            <Button
+                                title = "Close"
+                                type = "solid"
+                                buttonStyle = {{ backgroundColor: "#7B1FA2", marginTop: "3%" }}
+                                onPress = {() => this._handleCloseEditReplyOverlay()}
+                            />
+                        </Card>
+                    </Overlay>
+
+                     {/* Delete Comment Overlay */}
+                    <Overlay
+                        isVisible = { this.state.deleteReplyOverlayVisibility }
+                        onBackdropPress = {() => this._handleCloseDeleteReplyOverlay()}
+                        overlayStyle = {{ padding: 0, paddingBottom: 15, borderWidth: 5, borderColor: "#7B1FA2" }}
+                    >
+                        <Card>
+                            <Text style = {{ color: "#7B1FA2", fontSize: 25, fontWeight: "bold", textAlign: "center" }} >
+                                Do you want to delete this Comment?
+                            </Text>
+                            <Card.Divider/>
+                            <Button
+                                title = "Delete"
+                                type = "solid"
+                                buttonStyle = {{ backgroundColor: "#7B1FA2" }}
+                                onPress = {() => this._handleDeleteReply()}
+                            />
+                            <Button
+                                title = "Close"
+                                type = "solid"
+                                buttonStyle = {{ backgroundColor: "#7B1FA2", marginTop: "3%" }}
+                                onPress = {() => this._handleCloseDeleteReplyOverlay()}
+                            />
+                        </Card>
+                    </Overlay>
                 </Content>
             </Container>
         )

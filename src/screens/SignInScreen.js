@@ -64,7 +64,7 @@ export default class SignInScreen extends Component {
 
             //Personality Test Variables
             signUpOverlayPersonalityTestVisibility: false,
-            preferredPersonalityScore: 0,
+            preferredPersonalityScore: 1,
             personalityTestQ1ActiveIndex: "",
             personalityTestQ2ActiveIndex: "",
             personalityTestQ3ActiveIndex: "",
@@ -105,168 +105,9 @@ export default class SignInScreen extends Component {
                 { title: "Agree Strongly" },
             ],
 
-            //Learning Styles Variables
-            // signUpOverlayLearningStylesVisibility: false,
-            // learningStylesQ1ActiveIndex: "",
-            // learningStylesQ2ActiveIndex: "",
-            // learningStylesQ3ActiveIndex: "",
-            // learningStylesQ4ActiveIndex: "",
-            // learningStylesQ5ActiveIndex: "",
-            // learningStylesQ6ActiveIndex: "",
-            // learningStylesQ7ActiveIndex: "",
-            // learningStylesQ8ActiveIndex: "",
-            // learningStylesQ9ActiveIndex: "",
-            // learningStylesQ10ActiveIndex: "",
-            // learningStylesQ11ActiveIndex: "",
-            // learningStylesQ12ActiveIndex: "",
-            // learningStylesQ13ActiveIndex: "",
-            // learningStylesQ14ActiveIndex: "",
-            // learningStylesQ15ActiveIndex: "",
-            // learningStylesQ16ActiveIndex: "",
-            // learningStylesQ17ActiveIndex: "",
-            // learningStylesQ18ActiveIndex: "",
-            // learningStylesQ19ActiveIndex: "",
-            // learningStylesQ20ActiveIndex: "",
-            // learningStylesQ21ActiveIndex: "",
-            // learningStylesQ22ActiveIndex: "",
-            // lsQ1FormValidation: "",
-            // lsQ2FormValidation: "",
-            // lsQ3FormValidation: "",
-            // lsQ4FormValidation: "",
-            // lsQ5FormValidation: "",
-            // lsQ6FormValidation: "",
-            // lsQ7FormValidation: "",
-            // lsQ8FormValidation: "",
-            // lsQ9FormValidation: "",
-            // lsQ10FormValidation: "",
-            // lsQ11FormValidation: "",
-            // lsQ12FormValidation: "",
-            // lsQ13FormValidation: "",
-            // lsQ14FormValidation: "",
-            // lsQ15FormValidation: "",
-            // lsQ16FormValidation: "",
-            // lsQ17FormValidation: "",
-            // lsQ18FormValidation: "",
-            // lsQ19FormValidation: "",
-            // lsQ20FormValidation: "",
-            // lsQ21FormValidation: "",
-            // lsQ22FormValidation: "",
-            // learningStylesQuestions: [
-            //     "1.) I understand something better after I",
-            //     "2.) When I am learning something new, it helps me to",
-            //     "3.) In a study group working on difficult material, I am more likely to",
-            //     "4.) In classes I have taken",
-            //     "5.) When I start a homework problem, I am more likely to",
-            //     "6.) I prefer to study",
-            //     "7.) I would rather first",
-            //     "8.) I more easily remember",
-            //     "9.) When I have to work on a group project, I first want to) ",
-            //     "10.) I am more likely to be considered",
-            //     "11.) The idea of doing homework in groups, with one grade for the entire group",
-            //     "12.) I tend to",
-            //     "13.) Once I understand",
-            //     "14.) When I solve maths problems",
-            //     "15.) When I'm analysing a story or a novel",
-            //     "16.) It is more important to me that an instructor",
-            //     "17.) I learn",
-            //     "18.) When considering a body of information, I am more likely to",
-            //     "19.) When writing a paper, I am more likely to",
-            //     "20.) When I am learning a new subject, I prefer to",
-            //     "21.) .Some teachers start their lectures with an outline of what they will cover. Such outlines are",
-            //     "22.) When solving problems in a group, I would be more likely to",
-            // ],
-            // learningStyleAnswersQ1: [
-            //     { title: "try it out." },
-            //     { title: "think it through." }
-            // ],
-            // learningStyleAnswersQ2: [
-            //     { title: "talk about it." },
-            //     { title: "think about it. " }
-            // ],
-            // learningStyleAnswersQ3: [
-            //     { title: "jump in and contribute ideas." },
-            //     { title: "sit back and listen." }
-            // ],
-            // learningStyleAnswersQ4: [
-            //     { title: "I have usually got to know many of the students." },
-            //     { title: "I have rarely got to know many of the students." }
-            // ],
-            // learningStyleAnswersQ5: [
-            //     { title: "start working on the solution immediately." },
-            //     { title: "try to fully understand the problem first." }
-            // ],
-            // learningStyleAnswersQ6: [
-            //     { title: "in a group." },
-            //     { title: "alone." }
-            // ],
-            // learningStyleAnswersQ7: [
-            //     { title: "try things out." },
-            //     { title: "think about how I'm going to do it." }
-            // ],
-            // learningStyleAnswersQ8: [
-            //     { title: "something I have done." },
-            //     { title: "something I have thought a lot about." }
-            // ],
-            // learningStyleAnswersQ9: [
-            //     { title: "(have a \"group brainstorming\" where everyone contributes ideas." },
-            //     { title: "brainstorm individually and then come together as a group to compare ideas." }
-            // ],
-            // learningStyleAnswersQ10: [
-            //     { title: "outgoing." },
-            //     { title: "reserved." }
-            // ],
-            // learningStyleAnswersQ11: [
-            //     { title: "appeals to me." },
-            //     { title: "does not appeal to me." }
-            // ],
-            // learningStyleAnswersQ12: [
-            //     { title: "understand details of a subject but may be fuzzy about its overall structure." },
-            //     { title: "understand the overall structure but may be fuzzy about details." }
-            // ],
-            // learningStyleAnswersQ13: [
-            //     { title: "all the parts, I understand the whole thing." },
-            //     { title: "the whole thing, I see how the parts fit." }
-            // ],
-            // learningStyleAnswersQ14: [
-            //     { title: "I usually work my way to the solutions one step at a time." },
-            //     { title: "I often just see the solutions but then have to struggle to figure out the steps to get to them." }
-            // ],
-            // learningStyleAnswersQ15: [
-            //     { title: "I think of the incidents and try to put them together to figure out the themes." },
-            //     { title: "I just know what the themes are when I finish reading and then I have to go back and find the incidents that demonstrate them." }
-            // ],
-            // learningStyleAnswersQ16: [
-            //     { title: "lay out the material in clear sequential steps." },
-            //     { title: "give me an overall picture and relate the material to other subjects." }
-            // ],
-            // learningStyleAnswersQ17: [
-            //     { title: "at a fairly regular pace. If I study hard, I'll \"get it.\"" },
-            //     { title: "in fits and starts. I'll be totally confused and then suddenly it all \"clicks.\"" }
-            // ],
-            // learningStyleAnswersQ18: [
-            //     { title: "focus on details and miss the big picture." },
-            //     { title: "try to understand the big picture before getting into the details." }
-            // ],
-            // learningStyleAnswersQ19: [
-            //     { title: "work on (think about or write) the beginning of the paper and progress forward." },
-            //     { title: "work on (think about or write) different parts of the paper and then order them." }
-            // ],
-            // learningStyleAnswersQ20: [
-            //     { title: "stay focused on that subject, learning as much about it as I can." },
-            //     { title: "try to make connections between that subject and related subjects." }
-            // ],
-            // learningStyleAnswersQ21: [
-            //     { title: "somewhat helpful to me." },
-            //     { title: "very helpful to me." }
-            // ],
-            // learningStyleAnswersQ22: [
-            //     { title: "think of the steps in the solution process." },
-            //     { title: "think of possible consequences or applications of the solution in a wide range of areas. " }
-            // ],
-
             //Willingness to Communicate Variables
             signUpOverlayWTCVisibility: false,
-            preferredWTCScore: 0,
+            preferredWTCScore: 1,
             wtcQ1ActiveIndex: 0,
             wtcQ2ActiveIndex: 0,
             wtcQ3ActiveIndex: 0,
@@ -293,46 +134,42 @@ export default class SignInScreen extends Component {
                 "11.) Talk in a small group of friends.",
                 "12.) Presenta talk to a group of acquaintances."
             ],
-
-            //Self Efficacy Variables
-            // signUpOverlaySelfEfficacyVisibility: false,
-            // selfEfficacyQ1ActiveIndex: "",
-            // selfEfficacyQ2ActiveIndex: "",
-            // selfEfficacyQ3ActiveIndex: "",
-            // selfEfficacyQ4ActiveIndex: "",
-            // selfEfficacyQ5ActiveIndex: "",
-            // selfEfficacyQ6ActiveIndex: "",
-            // selfEfficacyQ7ActiveIndex: "",
-            // selfEfficacyQ8ActiveIndex: "",
-            // selfEfficacyQ1FormValidation: "",
-            // selfEfficacyQ2FormValidation: "",
-            // selfEfficacyQ3FormValidation: "",
-            // selfEfficacyQ4FormValidation: "",
-            // selfEfficacyQ5FormValidation: "",
-            // selfEfficacyQ6FormValidation: "",
-            // selfEfficacyQ7FormValidation: "",
-            // selfEfficacyQ8FormValidation: "",
-            // selfEfficacyQuestions: [
-            //     "1. I believe I will receive an excellent grade in this class.",
-            //     "2. I'm certain I can understand the most difficult material presented in the readings for this course.",
-            //     "3. I'm confident I can understand the basic concepts taught in this course.",
-            //     "4. I'm confident I can understand the most complex material presented by the instructor in this course.",
-            //     "5. I'm confident I can do an excellent job on the assignments and tests in this course.",
-            //     "6. I expect to do well in this class.",
-            //     "7. I'm certain I can master the skills being taught in this class.",
-            //     "8.  Considering the difficulty of this course, the teacher, and my skills, I think I will do well in this class."
-            // ],
-            // selfEfficacyAnswers: [
-            //     { title: "Very True of Me" },
-            //     { title: "True of Me" },
-            //     { title: "Somewhat True of Me" },
-            //     { title: "Neutral" },
-            //     { title: "Somewhat Not True of Me" },
-            //     { title: "Not True of Me" },
-            //     { title: "Not Very True of Me" },
-            // ],
-
         }
+    }
+
+    componentDidMount = () => {
+        this.setState({ email: ""});
+        this.setState({ password: "" });
+        this.setState({ firstName: "" });
+        this.setState({ lastName: "" });
+        this.setState({ age: "" });
+        this.setState({ sex: "" });
+        this.setState({ course: "" });
+        this.setState({ topic: "" });
+        this.setState({ preferredPersonalityScore: 1 });
+        this.setState({ personalityTestQ1ActiveIndex: "" });
+        this.setState({ personalityTestQ2ActiveIndex: "" });
+        this.setState({ personalityTestQ3ActiveIndex: "" });
+        this.setState({ personalityTestQ4ActiveIndex: "" });
+        this.setState({ personalityTestQ5ActiveIndex: "" });
+        this.setState({ personalityTestQ6ActiveIndex: "" });
+        this.setState({ personalityTestQ7ActiveIndex: "" });
+        this.setState({ personalityTestQ8ActiveIndex: "" });
+        this.setState({ personalityTestQ9ActiveIndex: "" });
+        this.setState({ personalityTestQ10ActiveIndex: "" });
+        this.setState({ preferredWTCScore: 1 });
+        this.setState({ wtcQ1ActiveIndex: "" });
+        this.setState({ wtcQ2ActiveIndex: "" });
+        this.setState({ wtcQ3ActiveIndex: "" });
+        this.setState({ wtcQ4ActiveIndex: "" });
+        this.setState({ wtcQ5ActiveIndex: "" });
+        this.setState({ wtcQ6ActiveIndex: "" });
+        this.setState({ wtcQ7ActiveIndex: "" });
+        this.setState({ wtcQ8ActiveIndex: "" });
+        this.setState({ wtcQ9ActiveIndex: "" });
+        this.setState({ wtcQ10ActiveIndex: "" });
+        this.setState({ wtcQ11ActiveIndex: "" });
+        this.setState({ wtcQ12ActiveIndex: "" });
     }
 
     _handleSignIn = () => {
@@ -369,6 +206,7 @@ export default class SignInScreen extends Component {
                         this.setState({ emailFormValidation: "" })
                         this.setState({ passwordFormValidation: "" })
                         this.props.navigation.navigate('Profile');
+                        this.componentDidMount();
                     }
                 });
     }
@@ -909,6 +747,7 @@ export default class SignInScreen extends Component {
             // });
 
             //Navigation to other overlays
+            this.componentDidMount();
             this.setState ({ signUpOverlayVisiblility: false });
             this.setState ({ signUpOverlayPersonalityTestVisibility: false })
             this.setState ({ signUpOverlayLearningStylesVisibility: false })

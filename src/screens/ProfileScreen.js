@@ -710,7 +710,7 @@ export default class ProfileScreen extends Component {
                             />
                             <Input 
                                 leftIcon = {{ type: "ion-icon", name: "laptop", color: "#7B1FA2" }}
-                                label = "Email Address"
+                                label = "Course"
                                 labelStyle = {{ color: "#7B1FA2" }}
                                 style = {{ fontSize: 11 }}
                                 inputContainerStyle = {{ borderBottomWidth: 1, borderColor: "#7B1FA2" }}

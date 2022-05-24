@@ -472,7 +472,7 @@ export default class ForumScreen extends Component {
                                 value = { this.state.forumEditContent }
                             />
                             <Button
-                                title = "Edit"
+                                title = "Save"
                                 type = "solid"
                                 buttonStyle = {{ backgroundColor: "#7B1FA2" }}
                                 onPress = {() => this._handleEditForum()}
