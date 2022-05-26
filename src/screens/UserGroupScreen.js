@@ -82,6 +82,19 @@ export default class UserGroupScreen extends Component {
 
     componentDidMount = () => {
 
+        //Initialize Variables for Clearing the forms
+        var defaultTopicList = [
+            { title: "Multidimensional Array", checked: false },
+            { title: "Looping Statements", checked: false },
+            { title: "Function", checked: false },
+            { title: "Array Data Structure", checked: false },
+            { title: "Variables, Constants, and Data Types", checked: false },
+            { title: "Selection Statements", checked: false },
+            { title: "Input/Output Statements", checked: false },
+        ]
+        this.setState({ userGroup: "" });
+        this.setState({ topicList: defaultTopicList });
+
         //Fetch All the Groups that the User is Part of
         var userGroupCollection = [];
         var userGroupArray = [];
@@ -203,6 +216,7 @@ export default class UserGroupScreen extends Component {
 
     _handleCloseCreateGroupOverlay = () => {
         this.setState({ createGroupOverlayVisibility: false })
+        this.componentDidMount();
     }
 
     _handleFindMatchOverlay = (visible) => {
@@ -478,7 +492,7 @@ export default class UserGroupScreen extends Component {
                 topicListFormValidationCounter = topicListFormValidationCounter + 1;
             }
         }
-        console.log(topicListFormValidationCounter)
+        
         if (topicListFormValidationCounter == 7) {
             errorCounter = errorCounter + 1;
             this.setState({ topicListFormValidation: "This field is required*" })
@@ -696,6 +710,7 @@ export default class UserGroupScreen extends Component {
 
     _handleCloseSearchGroupOverlay = () => {
         this.setState({ searchGroupOverlayVisibility: false })
+        this.componentDidMount();
     }
 
     _handleOpenSearchResultsOverlay = (visible) => {
@@ -807,7 +822,7 @@ export default class UserGroupScreen extends Component {
                                                 }
                                                 return 0;
                                             })
-                                            console.log(availableGroupsCollection)
+                                            
                                             this.setState({ searchAvailableGroups: availableGroupsCollection })
                                         })
                                 }
@@ -821,6 +836,7 @@ export default class UserGroupScreen extends Component {
 
     _handleCloseSearchResultsOverlay = () => {
         this.setState({ searchGroupResultOverlayVisibility: false })
+        this.componentDidMount();
     }
 
     _handleApplyToGroup = (groupID, creatorID, creatorName, groupName, topics) => {
