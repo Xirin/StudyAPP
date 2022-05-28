@@ -722,6 +722,16 @@ export default class SignInScreen extends Component {
                         })
                 }
             })
+            .then(() => {
+                
+            this.setState ({ signUpOverlayVisiblility: false });
+            this.setState ({ signUpOverlayPersonalityTestVisibility: false })
+            this.setState ({ signUpOverlayLearningStylesVisibility: false })
+            this.setState ({ signUpOverlayWTCVisibility: false })
+            this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
+            this.setState ({ progressAlertOverlayvisivility: false })
+            this.componentDidMount();
+            })
             //Self Efficacy Database Storing
             // .then(() => {
             //     var selfEfficacyAnswers = [
@@ -747,13 +757,13 @@ export default class SignInScreen extends Component {
             // });
 
             //Navigation to other overlays
-            this.componentDidMount();
-            this.setState ({ signUpOverlayVisiblility: false });
-            this.setState ({ signUpOverlayPersonalityTestVisibility: false })
-            this.setState ({ signUpOverlayLearningStylesVisibility: false })
-            this.setState ({ signUpOverlayWTCVisibility: false })
-            this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
-            this.setState ({ progressAlertOverlayvisivility: false })
+            // // this.componentDidMount();
+            // this.setState ({ signUpOverlayVisiblility: false });
+            // this.setState ({ signUpOverlayPersonalityTestVisibility: false })
+            // this.setState ({ signUpOverlayLearningStylesVisibility: false })
+            // this.setState ({ signUpOverlayWTCVisibility: false })
+            // this.setState ({ signUpOverlaySelfEfficacyVisibility: false })
+            // this.setState ({ progressAlertOverlayvisivility: false })
         //}
     }
     
